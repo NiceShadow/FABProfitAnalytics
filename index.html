@@ -1911,6 +1911,1153 @@
     box-sizing:border-box;
   }
 
+
+  .monthly-performance-section{
+    margin-top:18px;
+    margin-bottom:18px;
+  }
+  .monthly-performance-section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+    padding:0 2px;
+  }
+  .monthly-performance-section-head h2{
+    margin:0;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.01em;
+  }
+  .monthly-performance-section-head .hint{
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .monthly-performance-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+  }
+  .monthly-performance-card{
+    min-width:0;
+    padding:17px 18px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:var(--panel);
+  }
+  .monthly-performance-title{
+    color:#EDEFF3;
+    font-family:'Sora',sans-serif;
+    font-size:18px;
+    font-weight:800;
+    line-height:1.2;
+  }
+  .monthly-performance-revenue{
+    margin-top:12px;
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:23px;
+    font-weight:700;
+    line-height:1.15;
+  }
+  .monthly-performance-label,
+  .monthly-performance-vs{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.4;
+  }
+  .monthly-performance-divider{
+    height:1px;
+    margin:14px 0 12px;
+    background:var(--border);
+  }
+  .monthly-performance-compare-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .monthly-performance-change{
+    font-family:'JetBrains Mono',monospace;
+    font-size:17px;
+    font-weight:800;
+  }
+  .monthly-performance-difference{
+    font-family:'JetBrains Mono',monospace;
+    font-size:17px;
+    font-weight:800;
+    text-align:right;
+  }
+  .monthly-performance-change.positive,
+  .monthly-performance-difference.positive{color:var(--green);}
+  .monthly-performance-change.negative,
+  .monthly-performance-difference.negative{color:var(--red);}
+  .monthly-performance-change.neutral,
+  .monthly-performance-difference.neutral{color:var(--muted);}
+  @media(max-width:800px){
+    .monthly-performance-grid{grid-template-columns:1fr;}
+  }
+
+
+  .monthly-performance-comparison-block + .monthly-performance-comparison-block{
+    margin-top:13px;
+    padding-top:13px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .monthly-performance-vs{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.45;
+    white-space:normal;
+  }
+  .monthly-performance-vs strong{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    padding:0 3px;
+  }
+
+
+  .monthly-performance-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    flex-wrap:wrap;
+    padding:11px 14px;
+    margin-bottom:12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--panel);
+  }
+  .monthly-performance-toolbar-copy{min-width:0;flex:1 1 430px;}
+  .monthly-performance-toolbar-title{color:#EDEFF3;font-size:12px;font-weight:700;}
+  .monthly-performance-toolbar-desc{margin-top:3px;color:var(--muted);font-size:11px;line-height:1.45;}
+  .monthly-performance-toggle-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    white-space:nowrap;
+  }
+  .monthly-performance-products{
+    margin-top:11px;
+    padding:9px 10px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:8px;
+    background:rgba(255,255,255,.012);
+  }
+  .monthly-performance-products-label{
+    display:block;
+    margin-bottom:7px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .monthly-performance-product-chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .monthly-performance-product-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:28px;
+    padding:3px 7px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:var(--panel2);
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    font-weight:700;
+    line-height:1.2;
+  }
+  .monthly-performance-products.empty-products{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.4;
+  }
+
+
+  .monthly-performance-toolbar{
+    justify-content:flex-start;
+  }
+  .monthly-performance-primary-setting{
+    margin-right:auto;
+  }
+  .monthly-performance-info-tip{
+    margin-left:2px;
+  }
+  .monthly-performance-product-chip{
+    gap:5px;
+  }
+  .monthly-performance-product-dot{
+    width:7px;
+    height:7px;
+    flex:0 0 7px;
+    border-radius:50%;
+    display:inline-block;
+  }
+
+
+  .monthly-performance-vs{
+    margin-top:7px;
+    color:var(--muted);
+    font-size:13.5px;
+    font-weight:600;
+    line-height:1.45;
+  }
+  .monthly-performance-vs strong{
+    color:var(--gold);
+    font-size:14px;
+    font-weight:800;
+    padding:0 4px;
+  }
+  .monthly-performance-prior-value{
+    color:var(--gold);
+    font-size:14px;
+    font-weight:800;
+  }
+  .monthly-performance-sale-days{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid rgba(255,255,255,.055);
+    color:var(--muted);
+    font-size:11.5px;
+    font-weight:600;
+  }
+  .monthly-performance-sale-days-values{
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .monthly-performance-sale-days-values strong{
+    color:var(--gold);
+    font-weight:800;
+    padding:0 3px;
+  }
+
+
+  .monthly-performance-card.split-layout{
+    padding:16px;
+    overflow:visible;
+  }
+  .monthly-performance-comparison-layout{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(115px,.7fr) minmax(0,1fr);
+    gap:12px;
+    align-items:start;
+  }
+  .monthly-performance-side{
+    min-width:0;
+    padding:13px 14px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:10px;
+    background:rgba(255,255,255,.012);
+  }
+  .monthly-performance-side.current-year{
+    text-align:right;
+  }
+  .monthly-performance-side-title{
+    color:#EDEFF3;
+    font-size:17px;
+    font-weight:800;
+    line-height:1.2;
+  }
+  .monthly-performance-side-revenue{
+    margin-top:10px;
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:22px;
+    font-weight:800;
+    line-height:1.15;
+  }
+  .monthly-performance-side-label{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.4;
+  }
+  .monthly-performance-side-subvalue{
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.055);
+  }
+  .monthly-performance-side-sub-label{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .monthly-performance-side-subvalue strong{
+    display:block;
+    margin-top:4px;
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    font-weight:800;
+  }
+  .monthly-performance-overlay-stack{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-self:center;
+    position:relative;
+    z-index:4;
+  }
+  .monthly-performance-overlay-card{
+    padding:10px 8px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--panel2);
+    text-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+  }
+  .monthly-performance-overlay-card.secondary{
+    background:rgba(30,36,48,.96);
+  }
+  .monthly-performance-overlay-kicker{
+    margin-bottom:5px;
+    color:var(--muted);
+    font-size:9.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    white-space:nowrap;
+  }
+  .monthly-performance-overlay-card .monthly-performance-change{
+    font-size:18px;
+    line-height:1.1;
+  }
+  .monthly-performance-overlay-card .monthly-performance-difference{
+    margin-top:4px;
+    font-size:13px;
+    text-align:center;
+  }
+  .monthly-performance-card.split-layout .monthly-performance-products{
+    margin-top:13px;
+  }
+  .monthly-performance-sale-days-wrap{
+    margin-top:10px;
+  }
+  .monthly-performance-sale-days-wrap .monthly-performance-sale-days:first-child{
+    border-top:none;
+    padding-top:0;
+  }
+  @media(max-width:900px){
+    .monthly-performance-comparison-layout{
+      grid-template-columns:1fr;
+    }
+    .monthly-performance-side.current-year{
+      text-align:left;
+    }
+    .monthly-performance-overlay-stack{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      width:100%;
+    }
+  }
+
+
+  .monthly-performance-card.flat-flow{
+    padding:18px;
+    overflow:visible;
+  }
+  .monthly-performance-flow-head{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+  }
+  .monthly-performance-flow-month{
+    color:#EDEFF3;
+    font-size:18px;
+    font-weight:800;
+    line-height:1.15;
+    white-space:nowrap;
+  }
+  .monthly-performance-flow-month.right{
+    text-align:right;
+  }
+  .monthly-performance-flow-arrow{
+    color:var(--muted);
+    text-align:center;
+    font-size:24px;
+    font-weight:700;
+    line-height:1;
+  }
+  .monthly-performance-flow-arrow.top{
+    font-size:20px;
+  }
+  .monthly-performance-flow-values{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 115px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    margin-top:15px;
+  }
+  .monthly-performance-flow-value{
+    min-width:0;
+  }
+  .monthly-performance-flow-value.right{
+    text-align:right;
+  }
+  .monthly-performance-flow-value strong{
+    display:block;
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:23px;
+    font-weight:800;
+    line-height:1.12;
+    white-space:nowrap;
+  }
+  .monthly-performance-flow-value span{
+    display:block;
+    margin-top:5px;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.35;
+  }
+  .monthly-performance-flow-center{
+    position:relative;
+    min-height:64px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .monthly-performance-flow-change{
+    position:absolute;
+    left:50%;
+    top:-5px;
+    transform:translateX(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    white-space:nowrap;
+    z-index:2;
+  }
+  .monthly-performance-flow-percent{
+    font-family:'JetBrains Mono',monospace;
+    font-size:17px;
+    font-weight:800;
+  }
+  .monthly-performance-flow-diff{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:800;
+  }
+  .monthly-performance-flow-change.positive{color:var(--green);}
+  .monthly-performance-flow-change.negative{color:var(--red);}
+  .monthly-performance-flow-change.neutral{color:var(--muted);}
+  .monthly-performance-flow-arrow.revenue{
+    margin-top:auto;
+    padding-bottom:1px;
+    font-size:26px;
+  }
+
+  .monthly-performance-secondary-compare{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto 22px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    margin-top:15px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,.065);
+  }
+  .monthly-performance-secondary-left,
+  .monthly-performance-secondary-right{
+    min-width:0;
+  }
+  .monthly-performance-secondary-right{
+    text-align:right;
+  }
+  .monthly-performance-secondary-label{
+    display:block;
+    color:var(--muted);
+    font-size:9.5px;
+    font-weight:700;
+    line-height:1.3;
+  }
+  .monthly-performance-secondary-left strong,
+  .monthly-performance-secondary-right strong{
+    display:block;
+    margin-top:3px;
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    font-weight:800;
+  }
+  .monthly-performance-secondary-center{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .monthly-performance-secondary-center.positive{color:var(--green);}
+  .monthly-performance-secondary-center.negative{color:var(--red);}
+  .monthly-performance-secondary-center.neutral{color:var(--muted);}
+  .monthly-performance-secondary-arrow{
+    color:var(--muted);
+    font-size:16px;
+    text-align:center;
+  }
+
+  .monthly-performance-card.flat-flow .monthly-performance-products{
+    margin-top:14px;
+  }
+
+  @media(max-width:900px){
+    .monthly-performance-flow-values{
+      grid-template-columns:minmax(0,1fr) 92px minmax(0,1fr);
+    }
+    .monthly-performance-flow-value strong{
+      font-size:20px;
+    }
+    .monthly-performance-secondary-compare{
+      grid-template-columns:1fr;
+      text-align:left;
+    }
+    .monthly-performance-secondary-right{
+      text-align:left;
+    }
+    .monthly-performance-secondary-arrow{
+      display:none;
+    }
+  }
+
+
+  .monthly-performance-flow-arrow.top{
+    font-size:22px;
+    font-weight:800;
+    opacity:.72;
+  }
+
+  .monthly-performance-flow-center{
+    position:relative;
+    min-height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:visible;
+  }
+  .monthly-performance-flow-big-arrow{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-48%);
+    color:var(--muted);
+    font-size:62px;
+    font-weight:900;
+    line-height:1;
+    opacity:.13;
+    pointer-events:none;
+    user-select:none;
+  }
+  .monthly-performance-flow-change{
+    position:relative;
+    left:auto;
+    top:auto;
+    transform:none;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    white-space:nowrap;
+  }
+
+  .monthly-performance-secondary-compare,
+  .monthly-performance-secondary-spacer{
+    min-height:67px;
+    margin-top:15px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,.065);
+    box-sizing:border-box;
+  }
+  .monthly-performance-secondary-spacer{
+    visibility:hidden;
+  }
+  .monthly-performance-secondary-compare{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 95px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+  }
+  .monthly-performance-secondary-left strong,
+  .monthly-performance-secondary-right strong{
+    color:var(--gold);
+    font-size:14px;
+  }
+  .monthly-performance-secondary-center{
+    position:relative;
+    min-height:50px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+    white-space:nowrap;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+  }
+  .monthly-performance-secondary-big-arrow{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    color:var(--muted);
+    font-size:42px;
+    line-height:1;
+    font-weight:900;
+    opacity:.12;
+    pointer-events:none;
+  }
+  .monthly-performance-secondary-percent,
+  .monthly-performance-secondary-diff{
+    position:relative;
+    z-index:2;
+  }
+  .monthly-performance-secondary-percent{
+    font-size:12px;
+  }
+  .monthly-performance-secondary-diff{
+    font-size:11px;
+  }
+
+  .monthly-performance-sale-days.split-sale-days{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    min-height:46px;
+  }
+  .monthly-performance-sale-days-side{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .monthly-performance-sale-days-side.right{
+    text-align:right;
+  }
+  .monthly-performance-sale-days-label{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    line-height:1.25;
+  }
+  .monthly-performance-sale-days-side strong{
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    font-weight:800;
+  }
+  .monthly-performance-sale-days-center-arrow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:38px;
+    font-weight:900;
+    line-height:1;
+    opacity:.13;
+  }
+
+  @media(max-width:900px){
+    .monthly-performance-secondary-compare{
+      grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);
+    }
+    .monthly-performance-sale-days.split-sale-days{
+      grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);
+    }
+  }
+
+
+  /* Monthly card emphasis: prior-year information is deliberately subdued. */
+  .monthly-performance-card .prior-year-info{
+    opacity:.5;
+  }
+
+  /* Two toolbar settings, first one remains first in reading order. */
+  .monthly-performance-toolbar{
+    align-items:center;
+    justify-content:flex-start;
+    gap:16px 24px;
+  }
+
+  /* Use one large translucent arrow language throughout the cards. */
+  .monthly-performance-top-arrow,
+  .monthly-performance-sale-days-center-arrow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:38px;
+    font-weight:900;
+    line-height:1;
+    opacity:.22;
+    user-select:none;
+    pointer-events:none;
+  }
+  .monthly-performance-flow-head{
+    grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);
+  }
+
+  /* Revenue comparison arrow: 50% larger than the standard arrow and less transparent. */
+  .monthly-performance-flow-big-arrow{
+    font-size:57px;
+    opacity:.30;
+  }
+
+  .monthly-performance-flow-values{
+    margin-top:13px;
+  }
+
+  /* Remove obsolete reserved secondary-comparison space from prior iterations. */
+  .monthly-performance-secondary-compare,
+  .monthly-performance-secondary-spacer{
+    display:none !important;
+  }
+
+  /* Average sale-days row. */
+  .monthly-performance-sale-days-wrap{
+    margin-top:15px;
+  }
+  .monthly-performance-sale-days.split-sale-days{
+    border-top:1px solid rgba(255,255,255,.065);
+    padding-top:12px;
+  }
+  .monthly-performance-sale-days-side strong{
+    overflow:visible;
+  }
+  .monthly-sale-average-wrap{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    cursor:help;
+    outline:none;
+  }
+  .monthly-sale-average-value{
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    font-weight:800;
+  }
+  .monthly-sale-tooltip{
+    position:absolute;
+    left:0;
+    bottom:calc(100% + 9px);
+    width:190px;
+    padding:10px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:8px;
+    background:rgba(0,0,0,.94);
+    color:#EDEFF3;
+    box-shadow:0 10px 24px rgba(0,0,0,.35);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    z-index:700;
+    text-align:left;
+    transition:opacity .10s ease;
+  }
+  .monthly-performance-sale-days-side.right .monthly-sale-tooltip{
+    left:auto;
+    right:0;
+  }
+  .monthly-sale-average-wrap:hover .monthly-sale-tooltip,
+  .monthly-sale-average-wrap:focus .monthly-sale-tooltip{
+    opacity:1;
+    visibility:visible;
+  }
+  .monthly-sale-tooltip-title{
+    display:block;
+    margin-bottom:7px;
+    color:var(--gold);
+    font-size:11px;
+    font-weight:800;
+  }
+  .monthly-sale-tooltip-row{
+    display:grid;
+    grid-template-columns:7px 1fr auto;
+    align-items:center;
+    gap:6px;
+    margin-top:5px;
+    font-size:10.5px;
+  }
+  .monthly-sale-tooltip-name{
+    color:#D7DBE3;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+  }
+  .monthly-sale-tooltip-row strong{
+    color:#EDEFF3;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    font-weight:800;
+  }
+  .monthly-sale-tooltip-total{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid rgba(255,255,255,.10);
+    color:var(--muted);
+    font-size:10.5px;
+  }
+  .monthly-sale-tooltip-total strong{
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:800;
+  }
+  .monthly-sale-tooltip-empty{
+    color:var(--muted);
+    font-size:10.5px;
+  }
+
+  /* Products included must be the final block in every card. */
+  .monthly-performance-card.flat-flow{
+    display:flex;
+    flex-direction:column;
+  }
+  .monthly-performance-card.flat-flow .monthly-performance-products{
+    margin-top:auto;
+    padding-top:10px;
+  }
+
+  @media(max-width:900px){
+    .monthly-performance-toolbar{
+      align-items:flex-start;
+      flex-direction:column;
+    }
+  }
+
+
+  /* Prior-year side is subdued, but only by 30% now (70% opacity). */
+  .monthly-performance-card .prior-year-info{
+    opacity:.7;
+  }
+
+  /* Fade only the visible prior-year sale-days label/value; never the tooltip. */
+  .monthly-performance-sale-days-side.left > .monthly-performance-sale-days-label,
+  .monthly-performance-sale-days-side.left > strong > .monthly-sale-average-wrap > .monthly-sale-average-value{
+    opacity:.7;
+  }
+
+  /* Top, revenue, and sale-days arrows share the same transparency.
+     Revenue arrow is 50% larger than the 38px arrows above/below. */
+  .monthly-performance-top-arrow,
+  .monthly-performance-sale-days-center-arrow{
+    opacity:.22;
+    font-size:38px;
+  }
+  .monthly-performance-flow-big-arrow{
+    opacity:.22;
+    font-size:57px;
+  }
+
+  /* Stable two-line revenue captions in every card. */
+  .monthly-performance-flow-value > .monthly-performance-revenue-caption{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    min-height:29px;
+    margin-top:5px;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.3;
+  }
+  .monthly-performance-flow-value > .monthly-performance-revenue-caption > span{
+    display:block;
+    margin:0;
+  }
+  .monthly-performance-revenue-scope{
+    text-transform:none;
+  }
+  .monthly-performance-revenue-scope.placeholder{
+    visibility:hidden;
+  }
+
+  /* Tooltip must be completely opaque and paint above every value/arrow. */
+  .monthly-performance-card.flat-flow{
+    position:relative;
+    overflow:visible !important;
+    z-index:1;
+  }
+  .monthly-performance-card.flat-flow:hover,
+  .monthly-performance-card.flat-flow:focus-within{
+    z-index:100;
+  }
+  .monthly-performance-sale-days-wrap,
+  .monthly-performance-sale-days.split-sale-days,
+  .monthly-performance-sale-days-side,
+  .monthly-performance-sale-days-side strong,
+  .monthly-sale-average-wrap{
+    overflow:visible !important;
+  }
+  .monthly-performance-sale-days-wrap,
+  .monthly-performance-sale-days.split-sale-days,
+  .monthly-performance-sale-days-side{
+    position:relative;
+  }
+  .monthly-sale-tooltip{
+    background:#090B0F !important;
+    opacity:0;
+    z-index:10000 !important;
+    box-shadow:0 14px 32px rgba(0,0,0,.72);
+  }
+  .monthly-sale-average-wrap:hover,
+  .monthly-sale-average-wrap:focus{
+    z-index:10001;
+  }
+  .monthly-sale-average-wrap:hover .monthly-sale-tooltip,
+  .monthly-sale-average-wrap:focus .monthly-sale-tooltip{
+    opacity:1;
+    visibility:visible;
+  }
+
+
+  /* Prior-year side: 10% more faded than before. */
+  .monthly-performance-card .prior-year-info{
+    opacity:.6;
+  }
+  .monthly-performance-sale-days-side.left > .monthly-performance-sale-days-label,
+  .monthly-performance-sale-days-side.left > strong > .monthly-sale-average-wrap > .monthly-sale-average-value{
+    opacity:.6;
+  }
+
+  /* Center revenue arrow: double size and 20% more transparent. */
+  .monthly-performance-flow-big-arrow{
+    font-size:114px;
+    opacity:.176;
+  }
+
+  /* Roughly 1 cm visual breathing room above Products included. */
+  .monthly-performance-card.flat-flow .monthly-performance-products{
+    margin-top:auto;
+    padding-top:38px;
+  }
+
+
+  /* Products included spacing belongs OUTSIDE the box, not inside it. */
+  .monthly-performance-card.flat-flow .monthly-performance-products{
+    margin-top:auto;
+    padding-top:9px;
+    transform:translateY(0);
+  }
+  .monthly-performance-card.flat-flow .monthly-performance-sale-days-wrap + .monthly-performance-products{
+    margin-top:38px;
+  }
+
+  /* Revenue center arrow: another 20% more transparent. */
+  .monthly-performance-flow-big-arrow{
+    opacity:.1408;
+  }
+
+
+  .monthly-performance-normalize-setting{
+    position:relative;
+  }
+  .monthly-performance-normalize-setting.active{
+    border-color:rgba(245,197,66,.20);
+    background:rgba(245,197,66,.045);
+  }
+  .monthly-normalized-card-flag{
+    position:absolute;
+    top:8px;
+    right:10px;
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.08em;
+    opacity:.72;
+    pointer-events:none;
+  }
+  .monthly-performance-card.sale-normalized{
+    position:relative;
+  }
+
+  .monthly-est-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-left:5px;
+    padding:2px 4px;
+    border:1px solid rgba(245,197,66,.22);
+    border-radius:4px;
+    color:var(--gold);
+    background:rgba(245,197,66,.06);
+    font-family:'JetBrains Mono',monospace;
+    font-size:7.5px;
+    font-weight:900;
+    line-height:1;
+    letter-spacing:.04em;
+    vertical-align:middle;
+  }
+
+  .monthly-adjusted-revenue-wrap{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:flex-end;
+    cursor:help;
+    outline:none;
+  }
+  .monthly-adjusted-revenue-value{
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:23px;
+    font-weight:800;
+    line-height:1.12;
+    white-space:nowrap;
+  }
+  .monthly-adjusted-revenue-tooltip{
+    position:absolute;
+    right:0;
+    bottom:calc(100% + 10px);
+    width:300px;
+    padding:11px;
+    border:1px solid rgba(255,255,255,.11);
+    border-radius:8px;
+    background:#090B0F !important;
+    color:#EDEFF3;
+    box-shadow:0 15px 36px rgba(0,0,0,.76);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    z-index:20000 !important;
+    text-align:left;
+  }
+  .monthly-adjusted-revenue-wrap:hover .monthly-adjusted-revenue-tooltip,
+  .monthly-adjusted-revenue-wrap:focus .monthly-adjusted-revenue-tooltip{
+    opacity:1;
+    visibility:visible;
+  }
+  .monthly-adjusted-tooltip-copy{
+    display:block;
+    margin:-2px 0 8px;
+    color:var(--muted);
+    font-family:Roboto,Arial,sans-serif;
+    font-size:9.5px;
+    font-weight:500;
+    line-height:1.35;
+  }
+  .monthly-adjusted-revenue-row{
+    display:grid;
+    grid-template-columns:7px 36px minmax(0,1fr) auto;
+    align-items:center;
+    gap:6px;
+    padding:4px 0;
+    border-top:1px solid rgba(255,255,255,.045);
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+  }
+  .monthly-adjusted-revenue-row:first-of-type{
+    border-top:0;
+  }
+  .monthly-adjusted-revenue-name{
+    color:#D7DBE3;
+    font-weight:800;
+  }
+  .monthly-adjusted-revenue-source{
+    min-width:0;
+    overflow:hidden;
+    color:var(--muted);
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .monthly-adjusted-revenue-row strong{
+    color:#EDEFF3 !important;
+    font-size:10px !important;
+  }
+  .monthly-adjusted-revenue-delta{
+    grid-column:3 / 5;
+    justify-self:end;
+    color:var(--muted);
+    font-size:8.5px;
+  }
+
+  .monthly-adjusted-sale-wrap{
+    display:inline-flex;
+    align-items:center;
+  }
+  .monthly-adjusted-sale-tooltip{
+    width:245px;
+  }
+
+  .monthly-performance-card.sale-normalized:hover,
+  .monthly-performance-card.sale-normalized:focus-within{
+    z-index:150;
+  }
+  .monthly-performance-card.sale-normalized .monthly-performance-flow-value.right,
+  .monthly-performance-card.sale-normalized .monthly-performance-sale-days-side.right{
+    position:relative;
+    z-index:2;
+  }
+
+  @media(max-width:900px){
+    .monthly-adjusted-revenue-tooltip{
+      width:250px;
+    }
+  }
+
+
+  /* Current-year monthly revenue must always match the large yellow prior-year value.
+     This overrides the older generic `.monthly-performance-flow-value span` caption rule. */
+  .monthly-performance-flow-value .monthly-adjusted-revenue-wrap{
+    display:inline-flex;
+    margin-top:0;
+    color:var(--gold);
+    font-size:23px;
+    line-height:1.12;
+  }
+  .monthly-performance-flow-value .monthly-adjusted-revenue-value{
+    display:inline;
+    margin-top:0;
+    color:var(--gold) !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:23px !important;
+    font-weight:800;
+    line-height:1.12;
+    white-space:nowrap;
+  }
+  .monthly-performance-flow-value.right > strong{
+    display:block;
+    color:var(--gold) !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:23px !important;
+    font-weight:800;
+    line-height:1.12;
+  }
+
+  @media(max-width:900px){
+    .monthly-performance-flow-value .monthly-adjusted-revenue-value,
+    .monthly-performance-flow-value.right > strong{
+      font-size:20px !important;
+    }
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -2164,6 +3311,8 @@ let REVENUE_LOG_LOAD_ALL = false;
 let REVENUE_LOG_SCROLL_TO_BOTTOM_ON_RENDER = false;
 let logTooltipHoveredDate = null;
 let SALE_PERIOD_CACHE = new Map();
+let MONTHLY_PROFILE_CACHE = new Map();
+let MONTHLY_NORMALIZED_CACHE = new Map();
 let PRODUCT_EDIT_DRAFTS = new Map();
 let COLLAPSED_EDIT_PRODUCT_CARDS = new Set();
 let KNOWN_EDIT_PRODUCT_CARDS = new Set();
@@ -2301,6 +3450,9 @@ function inferredFirstSaleDateFromState(state, pid){
 function normalizeState(state){
   if(!state.settings) state.settings = {applyRevenueShare:true};
   if(state.settings.showEstimatedSalePeriods===undefined) state.settings.showEstimatedSalePeriods = true;
+  if(state.settings.monthlyCurrentMonthUntilDayOnly===undefined) state.settings.monthlyCurrentMonthUntilDayOnly = false;
+  if(state.settings.monthlyNormalizeSaleExposure===undefined) state.settings.monthlyNormalizeSaleExposure = false;
+  if(state.settings.monthlyComparisonEstablishedOnly===undefined) state.settings.monthlyComparisonEstablishedOnly = false;
   if(state.settings.subtractGeneralSpendingFromNumbers===undefined) state.settings.subtractGeneralSpendingFromNumbers = true;
   if(state.settings.useHistoricalExchangeRates===undefined) state.settings.useHistoricalExchangeRates = true;
   if(!Object.prototype.hasOwnProperty.call(CURRENCY_RATES_FROM_USD,state.settings.displayCurrency)) state.settings.displayCurrency='USD';
@@ -2811,6 +3963,8 @@ function tabButton(key,label){
 
 function renderTabContent(){
   SALE_PERIOD_CACHE = new Map();
+  MONTHLY_PROFILE_CACHE.clear();
+  MONTHLY_NORMALIZED_CACHE.clear();
   const el = document.getElementById('tabContent');
   if(ACTIVE_TAB==='dashboard') el.innerHTML = dashboardHTML();
   else if(ACTIVE_TAB==='compare') el.innerHTML = compareProductsHTML();
@@ -2820,7 +3974,10 @@ function renderTabContent(){
   else if(ACTIVE_TAB==='settings') el.innerHTML = settingsHTML();
   else if(ACTIVE_TAB==='data') el.innerHTML = dataHTML();
 
-  if(ACTIVE_TAB==='dashboard') setTimeout(mountDashboardCharts, 0);
+  if(ACTIVE_TAB==='dashboard'){
+    setTimeout(mountDashboardCharts, 0);
+    setTimeout(prewarmMonthlyPerformance, 30);
+  }
   else if(ACTIVE_TAB==='compare'){
     if(COMPARE_DEFERRED_RENDER){
       requestAnimationFrame(()=>{
@@ -2999,6 +4156,690 @@ function dashboardYearSummaryHTML(products){
   return `<div class="year-summary-row">${cards.join('')}</div>`;
 }
 
+
+function monthRangeFromOffset(offset){
+  const now=new Date();
+  const d=new Date(now.getFullYear(),now.getMonth()+offset,1,12,0,0,0);
+  const year=d.getFullYear();
+  const month=d.getMonth()+1;
+  const start=`${year}-${String(month).padStart(2,'0')}-01`;
+  const lastDay=new Date(year,month,0,12,0,0,0).getDate();
+  const fullEnd=`${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  const isCurrent=offset===0;
+  const end=isCurrent?todayStr():fullEnd;
+
+  const prevYear=year-1;
+  const prevLastDay=new Date(prevYear,month,0,12,0,0,0).getDate();
+  const comparisonStart=`${prevYear}-${String(month).padStart(2,'0')}-01`;
+  const comparisonEnd=`${prevYear}-${String(month).padStart(2,'0')}-${String(prevLastDay).padStart(2,'0')}`;
+
+  const names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return {
+    title:`${names[month-1]} ${year}`,
+    start,end,fullEnd,isCurrent,
+    comparisonStart,comparisonEnd,
+    comparisonLabel:`${names[month-1]} ${prevYear}`
+  };
+}
+
+function monthlyNetForProducts(products,start,end){
+  return products.reduce((sum,p)=>sum+rawNetForProductRange(p,start,end),0);
+}
+
+function monthlyComparisonEligibleProducts(products,range){
+  if(STATE.settings.monthlyComparisonEstablishedOnly!==true) return products;
+
+  // The product must already have existed before the prior-year comparison
+  // month started. Since dates are ISO strings, "< comparisonStart" means
+  // Jul 31 or earlier for an August comparison.
+  return products.filter(p=>p.releaseDate && p.releaseDate<range.comparisonStart);
+}
+
+function monthlyComparisonProductChipsHTML(products){
+  if(!products.length){
+    return `
+      <div class="monthly-performance-products empty-products">
+        <span class="monthly-performance-products-label">Products included</span>
+        No products qualify for this comparison.
+      </div>
+    `;
+  }
+  const allIds=STATE.products.map(p=>p.id);
+  return `
+    <div class="monthly-performance-products">
+      <span class="monthly-performance-products-label">Products included</span>
+      <div class="monthly-performance-product-chips">
+        ${products.map(p=>`
+          <span class="monthly-performance-product-chip" title="${escapeAttr(p.name)}">
+            <span class="monthly-performance-product-dot" style="background:${colorFor(p.id,allIds)}"></span>
+            ${cleanShortName(p.shortName||p.name)}
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+
+function weightedSaleDaysForProductRange(p,start,end){
+  if(!p || !start || !end || start>end) return 0;
+
+  let total=0;
+  detectedSalePeriodsForProduct(p).forEach(period=>{
+    const overlapStart=period.start>start?period.start:start;
+    const overlapEnd=period.end<end?period.end:end;
+    if(overlapStart>overlapEnd) return;
+
+    // Count each calendar day in the overlap. The true first and last day of
+    // the inferred sale each contribute half a day. A one-day sale therefore
+    // contributes 1.0 day (0.5 start + 0.5 end).
+    let cursor=new Date(overlapStart+'T12:00:00');
+    const finish=new Date(overlapEnd+'T12:00:00');
+    while(cursor<=finish){
+      const y=cursor.getFullYear();
+      const m=String(cursor.getMonth()+1).padStart(2,'0');
+      const d=String(cursor.getDate()).padStart(2,'0');
+      const date=`${y}-${m}-${d}`;
+
+      let weight=1;
+      const isStart=date===period.start;
+      const isEnd=date===period.end;
+      if(isStart && isEnd) weight=1;
+      else if(isStart || isEnd) weight=.5;
+
+      total+=weight;
+      cursor.setDate(cursor.getDate()+1);
+    }
+  });
+
+  return total;
+}
+
+function weightedSaleDaysForProductsRange(products,start,end){
+  return products.reduce((sum,p)=>sum+weightedSaleDaysForProductRange(p,start,end),0);
+}
+
+function formatSaleDays(days){
+  const n=Math.round((Number(days)||0)*10)/10;
+  return Number.isInteger(n)?String(n):n.toFixed(1);
+}
+
+
+function roundHalf(value){
+  return Math.round((Number(value)||0)*2)/2;
+}
+
+function saleDaysBreakdown(products,start,end){
+  const rows=(products||[]).map(p=>({
+    product:p,
+    days:weightedSaleDaysForProductRange(p,start,end)
+  }));
+  const total=rows.reduce((sum,row)=>sum+row.days,0);
+  const average=rows.length?roundHalf(total/rows.length):0;
+  return {rows,total,average};
+}
+
+function saleDaysAverageTooltipHTML(products,start,end){
+  const data=saleDaysBreakdown(products,start,end);
+  const allIds=STATE.products.map(p=>p.id);
+  const rows=data.rows.map(row=>`
+    <div class="monthly-sale-tooltip-row">
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="monthly-sale-tooltip-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
+      <strong>${formatSaleDays(row.days)} d</strong>
+    </div>
+  `).join('');
+
+  return `
+    <span class="monthly-sale-average-wrap" tabindex="0">
+      <span class="monthly-sale-average-value">${formatSaleDays(data.average)}</span>
+      <span class="monthly-sale-tooltip">
+        <span class="monthly-sale-tooltip-title">Days on sale</span>
+        ${rows || `<span class="monthly-sale-tooltip-empty">No products included</span>`}
+        <span class="monthly-sale-tooltip-total">
+          <span>Total</span>
+          <strong>${formatSaleDays(data.total)} d</strong>
+        </span>
+      </span>
+    </span>
+  `;
+}
+
+
+function monthlySaleWeightForInfo(sale){
+  if(!sale) return 0;
+
+  // A genuine one-day inferred sale counts as one full sale-day. A same-day
+  // discounted + normal-price transition is explicitly a half-day.
+  if(sale.start===sale.end){
+    return sale.transition===true ? .5 : 1;
+  }
+  return sale.edge ? .5 : 1;
+}
+
+function monthlyProductPerformanceProfile(p,start,end){
+  if(!p || !start || !end || start>end){
+    return {
+      saleDays:0,nonSaleDays:0,
+      saleRevenue:0,nonSaleRevenue:0,
+      saleRate:null,nonSaleRate:0,totalRevenue:0,totalDays:0
+    };
+  }
+
+  const cacheKey=`${p.id}|${start}|${end}|${STATE.settings.applyRevenueShare?'share':'full'}|${STATE.settings.displayCurrency||'USD'}`;
+  if(MONTHLY_PROFILE_CACHE.has(cacheKey)) return MONTHLY_PROFILE_CACHE.get(cacheKey);
+
+  let saleDays=0;
+  let nonSaleDays=0;
+  let saleRevenue=0;
+  let nonSaleRevenue=0;
+  let totalRevenue=0;
+  const dates=daysInRangeList({start,end});
+
+  dates.forEach(date=>{
+    const revenue=rawNetForProductRange(p,date,date);
+    const sale=saleInfoForDate(p,date);
+    const saleWeight=Math.max(0,Math.min(1,monthlySaleWeightForInfo(sale)));
+    const nonSaleWeight=1-saleWeight;
+
+    totalRevenue+=revenue;
+    saleDays+=saleWeight;
+    nonSaleDays+=nonSaleWeight;
+
+    // Transition days are split proportionally between sale/non-sale time.
+    saleRevenue+=revenue*saleWeight;
+    nonSaleRevenue+=revenue*nonSaleWeight;
+  });
+
+  const result={
+    saleDays,
+    nonSaleDays,
+    saleRevenue,
+    nonSaleRevenue,
+    saleRate:saleDays>0?saleRevenue/saleDays:null,
+    nonSaleRate:nonSaleDays>0?nonSaleRevenue/nonSaleDays:0,
+    totalRevenue,
+    totalDays:dates.length
+  };
+  MONTHLY_PROFILE_CACHE.set(cacheKey,result);
+  return result;
+}
+
+function monthlyMapDateOneYearForward(dateStr){
+  const [y,m,d]=dateStr.split('-').map(Number);
+  const targetYear=y+1;
+  const maxDay=new Date(targetYear,m,0,12,0,0,0).getDate();
+  return `${targetYear}-${String(m).padStart(2,'0')}-${String(Math.min(d,maxDay)).padStart(2,'0')}`;
+}
+
+function monthlyMappedPriorSaleSchedule(p,priorStart,priorEnd,currentStart,currentEnd){
+  const mapped=[];
+  let totalDays=0;
+
+  daysInRangeList({start:priorStart,end:priorEnd}).forEach(priorDate=>{
+    const sale=saleInfoForDate(p,priorDate);
+    if(!sale) return;
+
+    const currentDate=monthlyMapDateOneYearForward(priorDate);
+    if(currentDate<currentStart || currentDate>currentEnd) return;
+
+    const weight=Math.max(0,Math.min(1,monthlySaleWeightForInfo(sale)));
+    if(weight<=0) return;
+
+    mapped.push({priorDate,currentDate,weight});
+    totalDays+=weight;
+  });
+
+  return {days:totalDays,mapped};
+}
+
+function monthlyLatestSalePerformanceBefore(p,beforeDate){
+  const periods=detectedSalePeriodsForProduct(p)
+    .filter(period=>period.end<beforeDate)
+    .sort((a,b)=>b.end.localeCompare(a.end));
+
+  for(const period of periods){
+    const profile=monthlyProductPerformanceProfile(p,period.start,period.end);
+    if(profile.saleDays>0 && profile.saleRate!==null){
+      return {
+        rate:profile.saleRate,
+        start:period.start,
+        end:period.end,
+        source:'recent'
+      };
+    }
+  }
+  return null;
+}
+
+function monthlyNormalizedProductPerformance(p,priorStart,priorEnd,currentStart,currentEnd){
+  const currentProfile=monthlyProductPerformanceProfile(p,currentStart,currentEnd);
+  const priorProfile=monthlyProductPerformanceProfile(p,priorStart,priorEnd);
+  const targetSchedule=monthlyMappedPriorSaleSchedule(p,priorStart,priorEnd,currentStart,currentEnd);
+
+  const targetSaleDays=Math.max(0,Math.min(currentProfile.totalDays,targetSchedule.days));
+  const targetNonSaleDays=Math.max(0,currentProfile.totalDays-targetSaleDays);
+
+  let saleRate=currentProfile.saleRate;
+  let saleRateSource='current period';
+  let saleRateSourceRange=null;
+
+  // If this year's comparison period has no sale exposure, use the most recent
+  // earlier sale for that product. This is the key current-month/no-sale case.
+  if(saleRate===null && targetSaleDays>0){
+    const recent=monthlyLatestSalePerformanceBefore(p,currentStart);
+    if(recent){
+      saleRate=recent.rate;
+      saleRateSource='most recent sale';
+      saleRateSourceRange={start:recent.start,end:recent.end};
+    }else if(priorProfile.saleRate!==null){
+      saleRate=priorProfile.saleRate;
+      saleRateSource='prior-year sale fallback';
+      saleRateSourceRange={start:priorStart,end:priorEnd};
+    }else{
+      saleRate=0;
+      saleRateSource='no sale-rate history';
+    }
+  }
+  if(saleRate===null) saleRate=0;
+
+  let nonSaleRate=currentProfile.nonSaleRate;
+  if(currentProfile.nonSaleDays<=0){
+    // Rare all-sale period fallback: use the period's observed overall daily
+    // rate rather than inventing a non-sale rate.
+    nonSaleRate=currentProfile.totalDays>0
+      ? currentProfile.totalRevenue/currentProfile.totalDays
+      : 0;
+  }
+
+  // Counterfactual rebuild:
+  // current-year non-sale performance × last-year-normalized non-sale exposure
+  // + current/recent sale performance × last-year-normalized sale exposure.
+  const adjustedRevenue=(nonSaleRate*targetNonSaleDays)+(saleRate*targetSaleDays);
+
+  return {
+    product:p,
+    adjustedRevenue,
+    actualRevenue:currentProfile.totalRevenue,
+    delta:adjustedRevenue-currentProfile.totalRevenue,
+    actualSaleDays:currentProfile.saleDays,
+    targetSaleDays,
+    priorSaleDays:priorProfile.saleDays,
+    nonSaleRate,
+    saleRate,
+    saleRateSource,
+    saleRateSourceRange,
+    targetSchedule
+  };
+}
+
+function monthlyNormalizedComparison(products,priorStart,priorEnd,currentStart,currentEnd){
+  const ids=(products||[]).map(p=>p.id).sort().join(',');
+  const cacheKey=`${ids}|${priorStart}|${priorEnd}|${currentStart}|${currentEnd}|${STATE.settings.applyRevenueShare?'share':'full'}|${STATE.settings.displayCurrency||'USD'}`;
+  if(MONTHLY_NORMALIZED_CACHE.has(cacheKey)) return MONTHLY_NORMALIZED_CACHE.get(cacheKey);
+
+  const details=(products||[]).map(p=>
+    monthlyNormalizedProductPerformance(p,priorStart,priorEnd,currentStart,currentEnd)
+  );
+  const result={
+    details,
+    revenue:details.reduce((sum,row)=>sum+row.adjustedRevenue,0),
+    actualRevenue:details.reduce((sum,row)=>sum+row.actualRevenue,0),
+    totalTargetSaleDays:details.reduce((sum,row)=>sum+row.targetSaleDays,0),
+    averageTargetSaleDays:details.length
+      ? roundHalf(details.reduce((sum,row)=>sum+row.targetSaleDays,0)/details.length)
+      : 0
+  };
+  MONTHLY_NORMALIZED_CACHE.set(cacheKey,result);
+  return result;
+}
+
+function monthlyAdjustedSaleDaysTooltipHTML(normalized){
+  const allIds=STATE.products.map(p=>p.id);
+  const rows=(normalized.details||[]).map(row=>`
+    <div class="monthly-sale-tooltip-row">
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="monthly-sale-tooltip-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
+      <strong>${formatSaleDays(row.actualSaleDays)} → ${formatSaleDays(row.targetSaleDays)} d</strong>
+    </div>
+  `).join('');
+
+  return `
+    <span class="monthly-sale-average-wrap monthly-adjusted-sale-wrap" tabindex="0">
+      <span class="monthly-sale-average-value">${formatSaleDays(normalized.averageTargetSaleDays)}</span>
+      <span class="monthly-est-badge">EST.</span>
+      <span class="monthly-sale-tooltip monthly-adjusted-sale-tooltip">
+        <span class="monthly-sale-tooltip-title">Adjusted sale exposure</span>
+        <span class="monthly-adjusted-tooltip-copy">Actual this year → normalized to last year's mapped sale schedule</span>
+        ${rows || `<span class="monthly-sale-tooltip-empty">No products included</span>`}
+        <span class="monthly-sale-tooltip-total">
+          <span>Adjusted total</span>
+          <strong>${formatSaleDays(normalized.totalTargetSaleDays)} d</strong>
+        </span>
+      </span>
+    </span>
+  `;
+}
+
+function monthlyAdjustedRevenueHTML(normalized){
+  const allIds=STATE.products.map(p=>p.id);
+  const rows=(normalized.details||[]).map(row=>{
+    const diffPrefix=row.delta>0?'+':'';
+    const sourceRange=row.saleRateSourceRange
+      ? ` · ${row.saleRateSourceRange.start.slice(5)}–${row.saleRateSourceRange.end.slice(5)}`
+      : '';
+    return `
+      <div class="monthly-adjusted-revenue-row">
+        <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+        <span class="monthly-adjusted-revenue-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
+        <span class="monthly-adjusted-revenue-source">${row.saleRateSource}${sourceRange}</span>
+        <strong>${fmtMoney(row.adjustedRevenue)}</strong>
+        <span class="monthly-adjusted-revenue-delta">${diffPrefix}${fmtMoney(row.delta)}</span>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <span class="monthly-adjusted-revenue-wrap" tabindex="0">
+      <span class="monthly-adjusted-revenue-value">${fmtMoney(normalized.revenue)}</span>
+      <span class="monthly-est-badge">EST.</span>
+      <span class="monthly-adjusted-revenue-tooltip">
+        <span class="monthly-sale-tooltip-title">Sale-normalized estimate</span>
+        <span class="monthly-adjusted-tooltip-copy">This year's revenue rebuilt with last year's mapped sale exposure.</span>
+        ${rows}
+        <span class="monthly-sale-tooltip-total">
+          <span>Actual this year</span>
+          <strong>${fmtMoney(normalized.actualRevenue)}</strong>
+        </span>
+      </span>
+    </span>
+  `;
+}
+
+function dashboardMonthlyPerformanceHTML(products){
+  const monthAbbr=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const normalizeSaleExposure=STATE.settings.monthlyNormalizeSaleExposure===true;
+
+  const comparisonMetrics=(current,previous)=>{
+    const diff=current-previous;
+    let changeText='—';
+    let changeClass='neutral';
+
+    if(Math.abs(previous)>0.000001){
+      const pct=(diff/Math.abs(previous))*100;
+      changeText=`${pct>=0?'+':''}${pct.toFixed(1)}%`;
+      changeClass=pct>0?'positive':pct<0?'negative':'neutral';
+    }else if(current>0){
+      changeText='New';
+      changeClass='positive';
+    }
+
+    return {
+      diff,
+      changeText,
+      changeClass,
+      diffPrefix:diff>0?'+':''
+    };
+  };
+
+  const today=new Date();
+  const currentDayCutoff=Math.max(1,today.getDate()-1);
+  const currentMonthName=monthNames[today.getMonth()];
+  const currentMonthPriorYear=today.getFullYear()-1;
+
+  const cards=[-2,-1,0].map(offset=>{
+    const range=monthRangeFromOffset(offset);
+    const eligibleProducts=monthlyComparisonEligibleProducts(products,range);
+
+    const [comparisonYear,comparisonMonth]=range.comparisonStart.split('-').map(Number);
+    const comparisonMonthLabel=`${monthAbbr[comparisonMonth-1]} ${comparisonYear}`;
+    const currentMonthLabel=`${monthAbbr[comparisonMonth-1]} ${comparisonYear+1}`;
+
+    let priorEnd=range.comparisonEnd;
+    let currentEnd=range.end;
+    let priorScopeLabel='';
+    let currentScopeLabel='';
+
+    if(range.isCurrent){
+      const currentYear=comparisonYear+1;
+      const maxPriorDay=new Date(comparisonYear,comparisonMonth,0,12,0,0,0).getDate();
+      const maxCurrentDay=new Date(currentYear,comparisonMonth,0,12,0,0,0).getDate();
+      const cutoff=Math.min(currentDayCutoff,maxPriorDay,maxCurrentDay);
+
+      // The current month always compares only through yesterday.
+      currentEnd=`${currentYear}-${String(comparisonMonth).padStart(2,'0')}-${String(cutoff).padStart(2,'0')}`;
+      currentScopeLabel=`until day ${cutoff}`;
+
+      // This separate toggle only decides whether last year's displayed
+      // historical comparison also stops at that same day.
+      if(STATE.settings.monthlyCurrentMonthUntilDayOnly===true){
+        priorEnd=`${comparisonYear}-${String(comparisonMonth).padStart(2,'0')}-${String(cutoff).padStart(2,'0')}`;
+        priorScopeLabel=`until day ${cutoff}`;
+      }
+    }
+
+    const priorRevenue=monthlyNetForProducts(eligibleProducts,range.comparisonStart,priorEnd);
+    const historicalCurrentRevenue=monthlyNetForProducts(eligibleProducts,range.start,currentEnd);
+
+    const normalized=normalizeSaleExposure
+      ? monthlyNormalizedComparison(
+          eligibleProducts,
+          range.comparisonStart,
+          priorEnd,
+          range.start,
+          currentEnd
+        )
+      : null;
+
+    const currentRevenue=normalized?normalized.revenue:historicalCurrentRevenue;
+    const metrics=comparisonMetrics(currentRevenue,priorRevenue);
+
+    const priorSaleDaysHTML=saleDaysAverageTooltipHTML(eligibleProducts,range.comparisonStart,priorEnd);
+    const currentSaleDaysHTML=normalized
+      ? monthlyAdjustedSaleDaysTooltipHTML(normalized)
+      : saleDaysAverageTooltipHTML(eligibleProducts,range.start,currentEnd);
+
+    const currentRevenueHTML=normalized
+      ? monthlyAdjustedRevenueHTML(normalized)
+      : `<span class="monthly-adjusted-revenue-value">${fmtMoney(currentRevenue)}</span>`;
+
+    const priorRevenueLabel=normalizeSaleExposure?'Historical net revenue':'Net revenue';
+    const currentRevenueLabel=normalizeSaleExposure?'Estimated net revenue':'Net revenue';
+    const priorSaleLabel=normalizeSaleExposure?'Historical avg. days on sale':'Avg. days on sale';
+    const currentSaleLabel=normalizeSaleExposure?'Adjusted avg. days on sale':'Avg. days on sale';
+
+    return `
+      <div class="monthly-performance-card flat-flow${range.isCurrent?' current-month':''}${normalizeSaleExposure?' sale-normalized':''}">
+        ${normalizeSaleExposure?`<div class="monthly-normalized-card-flag">SALE-NORMALIZED</div>`:''}
+
+        <div class="monthly-performance-flow-head">
+          <div class="monthly-performance-flow-month left prior-year-info">${comparisonMonthLabel}</div>
+          <div class="monthly-performance-top-arrow">➞</div>
+          <div class="monthly-performance-flow-month right">${currentMonthLabel}</div>
+        </div>
+
+        <div class="monthly-performance-flow-values">
+          <div class="monthly-performance-flow-value left prior-year-info">
+            <strong>${fmtMoney(priorRevenue)}</strong>
+            <span class="monthly-performance-revenue-caption">
+              <span>${priorRevenueLabel}</span>
+              <span class="monthly-performance-revenue-scope${priorScopeLabel?'':' placeholder'}">${priorScopeLabel||'full month'}</span>
+            </span>
+          </div>
+
+          <div class="monthly-performance-flow-center">
+            <div class="monthly-performance-flow-big-arrow">➞</div>
+            <div class="monthly-performance-flow-change ${metrics.changeClass}">
+              <span class="monthly-performance-flow-percent">${metrics.changeText}</span>
+              <span class="monthly-performance-flow-diff">${metrics.diffPrefix}${fmtMoney(metrics.diff)}</span>
+            </div>
+          </div>
+
+          <div class="monthly-performance-flow-value right">
+            <strong class="${normalizeSaleExposure?'estimated-revenue':''}">${currentRevenueHTML}</strong>
+            <span class="monthly-performance-revenue-caption">
+              <span>${currentRevenueLabel}</span>
+              <span class="monthly-performance-revenue-scope${currentScopeLabel?'':' placeholder'}">${currentScopeLabel||'full month'}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="monthly-performance-sale-days-wrap">
+          <div class="monthly-performance-sale-days split-sale-days">
+            <span class="monthly-performance-sale-days-side left">
+              <span class="monthly-performance-sale-days-label">${priorSaleLabel}</span>
+              <strong>${priorSaleDaysHTML}</strong>
+            </span>
+            <span class="monthly-performance-sale-days-center-arrow">➞</span>
+            <span class="monthly-performance-sale-days-side right">
+              <span class="monthly-performance-sale-days-label">${currentSaleLabel}</span>
+              <strong>${currentSaleDaysHTML}</strong>
+            </span>
+          </div>
+        </div>
+
+        ${monthlyComparisonProductChipsHTML(eligibleProducts)}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="monthly-performance-section" id="monthlyPerformanceSection">
+      <div class="monthly-performance-section-head">
+        <h2>Monthly performance</h2>
+        <span class="hint">${normalizeSaleExposure?'sale-normalized performance comparison':'net revenue compared with the same month one year earlier'}</span>
+      </div>
+
+      <div class="monthly-performance-toolbar">
+        <div class="monthly-performance-toggle-row monthly-performance-primary-setting">
+          <span class="toggle-label">Use only products that were already released</span>
+          <span class="info-tip monthly-performance-info-tip" data-tip="For each month card, only products released before the prior-year comparison month began are included. This keeps the current and prior-year product set comparable.">INFO</span>
+          <label class="switch">
+            <input type="checkbox" id="monthlyComparisonEstablishedToggle" ${STATE.settings.monthlyComparisonEstablishedOnly===true?'checked':''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="monthly-performance-toggle-row">
+          <span class="toggle-label">Compare ${monthAbbr[today.getMonth()]} (last year) only until day ${currentDayCutoff}</span>
+          <label class="switch">
+            <input type="checkbox" id="monthlyCurrentMonthUntilDayToggle" ${STATE.settings.monthlyCurrentMonthUntilDayOnly===true?'checked':''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="monthly-performance-toggle-row monthly-performance-normalize-setting${normalizeSaleExposure?' active':''}">
+          <span class="toggle-label">Normalize this year to last year's sale exposure</span>
+          <span class="info-tip monthly-performance-info-tip" data-tip="Rebuilds this year's comparison using the same product-by-product sale exposure as last year. Current-year non-sale revenue/day is combined with current sale revenue/day; if this period had no sale, the product's most recent earlier sale rate is used. Last year remains historical.">INFO</span>
+          <label class="switch">
+            <input type="checkbox" id="monthlyNormalizeSaleExposureToggle" ${normalizeSaleExposure?'checked':''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="monthly-performance-grid">${cards}</div>
+    </div>
+  `;
+}
+
+function invalidateMonthlyPerformanceCaches({salePeriods=false}={}){
+  MONTHLY_PROFILE_CACHE.clear();
+  MONTHLY_NORMALIZED_CACHE.clear();
+  if(salePeriods) SALE_PERIOD_CACHE.clear();
+}
+
+function wireMonthlyPerformanceEvents(){
+  if(ACTIVE_TAB!=='dashboard') return;
+
+  const refreshSetting=(key,value)=>{
+    STATE.settings[key]=value;
+    persist();
+    refreshMonthlyPerformanceSection();
+  };
+
+  const monthlyEstablishedToggle=document.getElementById('monthlyComparisonEstablishedToggle');
+  if(monthlyEstablishedToggle){
+    monthlyEstablishedToggle.addEventListener('change',()=>{
+      refreshSetting('monthlyComparisonEstablishedOnly',monthlyEstablishedToggle.checked);
+    });
+  }
+
+  const monthlyCurrentMonthUntilDayToggle=document.getElementById('monthlyCurrentMonthUntilDayToggle');
+  if(monthlyCurrentMonthUntilDayToggle){
+    monthlyCurrentMonthUntilDayToggle.addEventListener('change',()=>{
+      refreshSetting('monthlyCurrentMonthUntilDayOnly',monthlyCurrentMonthUntilDayToggle.checked);
+    });
+  }
+
+  const monthlyNormalizeSaleExposureToggle=document.getElementById('monthlyNormalizeSaleExposureToggle');
+  if(monthlyNormalizeSaleExposureToggle){
+    monthlyNormalizeSaleExposureToggle.addEventListener('change',()=>{
+      refreshSetting('monthlyNormalizeSaleExposure',monthlyNormalizeSaleExposureToggle.checked);
+    });
+  }
+}
+
+function refreshMonthlyPerformanceSection(){
+  if(ACTIVE_TAB!=='dashboard') return;
+  const current=document.getElementById('monthlyPerformanceSection');
+  if(!current) return;
+
+  const products=getFilteredProducts();
+  const holder=document.createElement('div');
+  holder.innerHTML=dashboardMonthlyPerformanceHTML(products).trim();
+  const next=holder.firstElementChild;
+  if(!next) return;
+
+  current.replaceWith(next);
+  wireMonthlyPerformanceEvents();
+}
+
+function prewarmMonthlyPerformance(){
+  if(ACTIVE_TAB!=='dashboard') return;
+  const products=getFilteredProducts();
+  if(!products.length) return;
+
+  const run=()=>{
+    // Precompute the expensive normalized state for all three cards so the
+    // first toggle into normalized mode is usually immediate.
+    [-2,-1,0].forEach(offset=>{
+      const range=monthRangeFromOffset(offset);
+      const eligibleProducts=monthlyComparisonEligibleProducts(products,range);
+      let priorEnd=range.comparisonEnd;
+      let currentEnd=range.end;
+
+      if(range.isCurrent){
+        const today=new Date();
+        const [comparisonYear,comparisonMonth]=range.comparisonStart.split('-').map(Number);
+        const currentYear=comparisonYear+1;
+        const maxPriorDay=new Date(comparisonYear,comparisonMonth,0,12,0,0,0).getDate();
+        const maxCurrentDay=new Date(currentYear,comparisonMonth,0,12,0,0,0).getDate();
+        const cutoff=Math.min(Math.max(1,today.getDate()-1),maxPriorDay,maxCurrentDay);
+        currentEnd=`${currentYear}-${String(comparisonMonth).padStart(2,'0')}-${String(cutoff).padStart(2,'0')}`;
+        if(STATE.settings.monthlyCurrentMonthUntilDayOnly===true){
+          priorEnd=`${comparisonYear}-${String(comparisonMonth).padStart(2,'0')}-${String(cutoff).padStart(2,'0')}`;
+        }
+      }
+
+      monthlyNormalizedComparison(
+        eligibleProducts,
+        range.comparisonStart,
+        priorEnd,
+        range.start,
+        currentEnd
+      );
+    });
+  };
+
+  if('requestIdleCallback' in window){
+    window.requestIdleCallback(run,{timeout:1200});
+  }else{
+    setTimeout(run,120);
+  }
+}
+
 function dashboardHTML(){
   const products = getFilteredProducts();
   const allSelected = ACTIVE_FILTER==='all';
@@ -3045,6 +4886,7 @@ function dashboardHTML(){
       <div id="accumKpis"></div>
       <div class="chart-wrap tall"><canvas id="chartAccumulated"></canvas></div>
     </div>
+    ${dashboardMonthlyPerformanceHTML(products)}
     <div class="panel">
       <div class="panel-head">
         <h2>Units sold per month</h2>
@@ -4722,10 +6564,27 @@ function dayDiff(a,b){
   const da=new Date(a+'T00:00:00'), db=new Date(b+'T00:00:00');
   return Math.round((db-da)/86400000);
 }
+function observedPricesForHistoryRow(x){
+  const values=[];
+  const add=v=>{
+    const n=Number(v);
+    if(Number.isFinite(n) && n>0) values.push(n);
+  };
+  if(Array.isArray(x&&x.observedPrices)) x.observedPrices.forEach(add);
+  add(x&&x.price);
+  add(x&&x.minPrice);
+  add(x&&x.maxPrice);
+  return [...new Set(values.map(v=>Math.round(v*100)/100))].sort((a,b)=>a-b);
+}
+function observedPricesForProductOnDate(pid,date){
+  const values=[];
+  (STATE.priceHistory||[])
+    .filter(x=>x.productId===pid && x.date===date)
+    .forEach(x=>observedPricesForHistoryRow(x).forEach(v=>values.push(v)));
+  return [...new Set(values)].sort((a,b)=>a-b);
+}
 function priceForProductOnDate(pid,date){
-  const rows=(STATE.priceHistory||[]).filter(x=>x.productId===pid && x.date===date && Number.isFinite(Number(x.price)));
-  if(!rows.length) return null;
-  const vals=rows.map(x=>Number(x.price)).filter(v=>v>0).sort((a,b)=>a-b);
+  const vals=observedPricesForProductOnDate(pid,date);
   return vals.length ? vals[0] : null;
 }
 function hasProfessionalSaleOnDate(pid,date){
@@ -4737,11 +6596,32 @@ function hasRefundOnDate(pid,date){
 function saleCooldownApplies(date){
   return date>='2024-10-22';
 }
+function saleCooldownSatisfied(previousEnd,nextStart){
+  if(!previousEnd || !nextStart) return true;
+  if(!saleCooldownApplies(nextStart)) return true;
+
+  // Marketplace cooldown introduced Oct 22, 2024.
+  // A date difference of 30 is accepted: e.g. Aug 5 -> Sep 4.
+  // That looks like 29 untouched calendar dates in between, but it is the
+  // practical 30-day boundary once the edge days / sale timing are considered.
+  return dayDiff(previousEnd,nextStart)>=30;
+}
+function datePlusDays(dateStr,days){
+  const d=new Date(dateStr+'T12:00:00');
+  d.setDate(d.getDate()+Number(days||0));
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function rawSalePeriodsForProduct(p){
   const release=p.releaseDate||firstSaleDate(p.id);
-  const rows=(STATE.priceHistory||[])
-    .filter(x=>x.productId===p.id && Number.isFinite(Number(x.price)) && Number(x.price)>0)
-    .sort((a,b)=>a.date.localeCompare(b.date));
+  const rows=[];
+  (STATE.priceHistory||[])
+    .filter(x=>x.productId===p.id && x.date)
+    .forEach(x=>{
+      observedPricesForHistoryRow(x).forEach(price=>{
+        rows.push({date:x.date,price});
+      });
+    });
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
 
   if(rows.length<3) return [];
 
@@ -4759,7 +6639,7 @@ function rawSalePeriodsForProduct(p){
     const cur=days[i];
 
     if(dayDiff(release,cur.date)<30) continue;
-    if(saleCooldownApplies(cur.date) && lastSaleEnd && dayDiff(lastSaleEnd,cur.date)<30) continue;
+    if(!saleCooldownSatisfied(lastSaleEnd,cur.date)) continue;
 
     let before=null;
     for(let j=i-1;j>=0;j--){
@@ -4807,8 +6687,13 @@ function rawSalePeriodsForProduct(p){
     if(dayDiff(startDate,endDate)>15) continue;
 
     periods.push({
+      // start/end may later be extended toward a marketplace-wide campaign.
+      // observedStart/observedEnd always preserve what the product's own
+      // transaction prices directly support.
       start:startDate,
       end:endDate,
+      observedStart:startDate,
+      observedEnd:endDate,
       normalPrice,
       salePrice:cur.price,
       discountPercent:Math.round(discount*100)
@@ -4819,6 +6704,68 @@ function rawSalePeriodsForProduct(p){
   }
   return periods;
 }
+function clipSalePeriodAtObservedNormalPrices(p,period){
+  const observedStart=period.observedStart||period.start;
+  const observedEnd=period.observedEnd||period.end;
+  const referenceNormal=Number(period.normalPrice)||0;
+  if(referenceNormal<=0) return period;
+
+  // Group ALL observed private prices by date. A date is a hard non-sale
+  // barrier only when every observed price on that date is back at the
+  // normal/base-price level.
+  //
+  // If the same date contains BOTH a discounted price and a normal price,
+  // that is a transition day (the sale started/ended during that day).
+  // It must remain inside the inferred sale and will naturally render as
+  // an edge / half-day when it is the period boundary.
+  const pricesByDate=new Map();
+  (STATE.priceHistory||[])
+    .filter(x=>x.productId===p.id && x.date)
+    .forEach(x=>{
+      if(!pricesByDate.has(x.date)) pricesByDate.set(x.date,[]);
+      observedPricesForHistoryRow(x).forEach(price=>pricesByDate.get(x.date).push(price));
+    });
+
+  const normalDates=[...pricesByDate.entries()]
+    .filter(([date,prices])=>{
+      if(!prices.length) return false;
+      const hasDiscounted=prices.some(price=>price<referenceNormal*.95);
+      const hasNormal=prices.some(price=>price>=referenceNormal*.95);
+      return hasNormal && !hasDiscounted;
+    })
+    .map(([date])=>date)
+    .sort();
+
+  let start=period.start;
+  let end=period.end;
+
+  // If extending backward encountered a known pure normal-price day, the
+  // inferred sale can only begin on the following calendar day.
+  const beforeBarrier=normalDates
+    .filter(date=>date>=start && date<observedStart)
+    .pop();
+  if(beforeBarrier){
+    const afterBarrier=datePlusDays(beforeBarrier,1);
+    if(afterBarrier>start) start=afterBarrier;
+  }
+
+  // If extending forward encountered a known pure normal-price day, the
+  // inferred sale must end on the preceding calendar day.
+  const afterBarrier=normalDates
+    .find(date=>date>observedEnd && date<=end);
+  if(afterBarrier){
+    const beforeBarrierDate=datePlusDays(afterBarrier,-1);
+    if(beforeBarrierDate<end) end=beforeBarrierDate;
+  }
+
+  // Never clip away the product's own observed discounted evidence,
+  // including same-day discounted+normal transition observations.
+  if(start>observedStart) start=observedStart;
+  if(end<observedEnd) end=observedEnd;
+
+  return {...period,start,end};
+}
+
 function detectedSalePeriodsForProduct(p){
   if(SALE_PERIOD_CACHE.has(p.id)) return SALE_PERIOD_CACHE.get(p.id);
 
@@ -4833,29 +6780,133 @@ function detectedSalePeriodsForProduct(p){
   });
 
   periods.forEach(period=>{
-    otherPeriods.forEach(other=>{
-      const overlaps=!(other.end<period.start || other.start>period.end);
-      const closeStart=Math.abs(dayDiff(other.start,period.start))<=2;
-      const closeEnd=Math.abs(dayDiff(other.end,period.end))<=2;
-      if(!(overlaps||closeStart||closeEnd)) return;
+    const observedStart=period.observedStart||period.start;
+    const observedEnd=period.observedEnd||period.end;
 
-      const start=other.start<period.start?other.start:period.start;
-      const end=other.end>period.end?other.end:period.end;
-      if(dayDiff(start,end)<=15){
-        period.start=start;
-        period.end=end;
+    otherPeriods.forEach(other=>{
+      // Strong campaign evidence:
+      // 1) the observed product sale sits inside / overlaps another product's sale,
+      // 2) or one inferred edge is only a couple of days away.
+      // This lets a sparse observation such as Jul 27/29 expand toward a
+      // plausible Jul 22-29 public sale without forcing every product to match.
+      const overlapsObserved=!(other.end<observedStart || other.start>observedEnd);
+      const closeStart=Math.abs(dayDiff(other.start,observedStart))<=2;
+      const closeEnd=Math.abs(dayDiff(other.end,observedEnd))<=2;
+      if(!(overlapsObserved||closeStart||closeEnd)) return;
+
+      const proposedStart=other.start<period.start?other.start:period.start;
+      const proposedEnd=other.end>period.end?other.end:period.end;
+
+      // Keep the same conservative maximum inferred sale length.
+      if(dayDiff(proposedStart,proposedEnd)<=15){
+        period.start=proposedStart;
+        period.end=proposedEnd;
       }
     });
   });
 
-  SALE_PERIOD_CACHE.set(p.id,periods);
-  return periods;
+  // Explicit normal-price observations are stronger evidence than campaign
+  // matching. Never infer a sale through a date where this product was
+  // directly sold at its normal/base price.
+  const barrierClippedPeriods=periods.map(period=>clipSalePeriodAtObservedNormalPrices(p,period));
+
+  // Final pass: preserve observed evidence, but clip only the INFERRED edges
+  // when the marketplace cooldown would otherwise be violated.
+  const refined=[];
+  barrierClippedPeriods
+    .slice()
+    .sort((a,b)=>(a.observedStart||a.start).localeCompare(b.observedStart||b.start))
+    .forEach(period=>{
+      const observedStart=period.observedStart||period.start;
+      const observedEnd=period.observedEnd||period.end;
+      let start=period.start;
+      let end=period.end;
+
+      const previous=refined[refined.length-1];
+      if(previous && saleCooldownApplies(observedStart)){
+        const earliestAllowed=datePlusDays(previous.end,30);
+
+        if(start<earliestAllowed){
+          // Never move later than the product's own first observed discounted day.
+          // If campaign matching tried to start too early, clip the inferred
+          // extension to the cooldown boundary (or the observed start).
+          start=earliestAllowed<observedStart?earliestAllowed:observedStart;
+        }
+      }
+
+      // If clipping the start would make the inferred span too long, pull only
+      // the inferred end back, but never before the observed discounted evidence.
+      if(dayDiff(start,end)>15){
+        const maxEnd=datePlusDays(start,15);
+        end=maxEnd>observedEnd?maxEnd:observedEnd;
+      }
+
+      // A genuine observed sale should survive even if neighboring campaign
+      // inference was imperfect. Only reject impossible ordering.
+      if(start>end) {
+        start=observedStart;
+        end=observedEnd;
+      }
+
+      refined.push({...period,start,end});
+    });
+
+  SALE_PERIOD_CACHE.set(p.id,refined);
+  return refined;
+}
+function directlyObservedSaleInfoForDate(p,date){
+  const prices=observedPricesForProductOnDate(p.id,date);
+  if(!prices.length) return null;
+
+  const salePrice=prices[0];
+
+  // Find nearby higher private prices around this observation, using the same
+  // conservative windows as the main sale estimator.
+  let before=null;
+  for(let offset=1;offset<=120;offset++){
+    const d=datePlusDays(date,-offset);
+    const vals=observedPricesForProductOnDate(p.id,d);
+    const higher=vals.filter(v=>v>salePrice*1.05);
+    if(higher.length){ before=Math.min(...higher); break; }
+  }
+
+  let after=null;
+  for(let offset=1;offset<=45;offset++){
+    const d=datePlusDays(date,offset);
+    const vals=observedPricesForProductOnDate(p.id,d);
+    const higher=vals.filter(v=>v>salePrice*1.05);
+    if(higher.length){ after=Math.min(...higher); break; }
+  }
+
+  if(before===null || after===null) return null;
+  const normalPrice=Math.min(before,after);
+  const discount=1-(salePrice/normalPrice);
+  if(discount<.05) return null;
+
+  const hasNormalSameDay=prices.some(v=>v>=normalPrice*.95);
+
+  return {
+    start:date,
+    end:date,
+    normalPrice,
+    salePrice,
+    discountPercent:Math.round(discount*100),
+    edge:true,
+    observed:true,
+    transition:hasNormalSameDay
+  };
 }
 function saleInfoForDate(p,date){
   const period=detectedSalePeriodsForProduct(p).find(s=>date>=s.start && date<=s.end);
-  if(!period) return null;
-  const edge=date===period.start || date===period.end;
-  return {...period,edge};
+  if(period){
+    const edge=date===period.start || date===period.end;
+    return {...period,edge};
+  }
+
+  // Never hide direct discounted-price evidence just because broader campaign
+  // inference failed to include an edge day. This is especially important for
+  // same-day sale/normal transitions.
+  return directlyObservedSaleInfoForDate(p,date);
 }
 
 function netForProductOnDate(p,date){
@@ -5291,9 +7342,20 @@ async function handleCsvFiles(fileList){
 
       Object.values(fileGrouped).forEach(g=>{
         if(g.privatePrices.length){
-          g.privatePrices.sort((a,b)=>a-b);
-          g.basePrice=g.privatePrices[Math.floor(g.privatePrices.length/2)];
+          // Preserve every distinct observed private base price for the day.
+          // This is essential for sale transition days where some customers
+          // bought at the discounted price and others at the normal price.
+          g.basePrices=[...new Set(
+            g.privatePrices
+              .filter(v=>Number.isFinite(Number(v)) && Number(v)>0)
+              .map(v=>Math.round(Number(v)*100)/100)
+          )].sort((a,b)=>a-b);
+          // Keep a legacy scalar for compatibility with older import code/UI.
+          // The minimum is the strongest evidence that a sale was active at
+          // some point during this date.
+          g.basePrice=g.basePrices.length?g.basePrices[0]:null;
         }else{
+          g.basePrices=[];
           g.basePrice=null;
         }
         delete g.prices;
@@ -5384,7 +7446,7 @@ function commitImport(){
 
   // sum incoming amounts per (date, productId)
   const incoming = {}; // key: date||productId -> amount
-  const incomingPrices = {}; // key: date||productId -> observed base/list price
+  const incomingPrices = {}; // key: date||productId -> distinct observed private base/list prices
   const incomingUnits = {}; // key: YYYY-MM||productId -> net units
   const incomingProfessional = {}; // key: date||productId -> any professional sale that day
   const incomingRefunds = {}; // key: date||productId -> any refund/return that day
@@ -5397,8 +7459,18 @@ function commitImport(){
     incomingUnits[unitKey] = (incomingUnits[unitKey]||0) + (Number(g.units)||0);
     if(g.hasProfessional) incomingProfessional[key] = true;
     if(g.hasRefund) incomingRefunds[key] = true;
-    if(g.basePrice!==null && g.basePrice!==undefined && Number.isFinite(Number(g.basePrice))){
-      incomingPrices[key]=Number(g.basePrice);
+    const observedPrices=Array.isArray(g.basePrices) && g.basePrices.length
+      ? g.basePrices
+      : (g.basePrice!==null && g.basePrice!==undefined && Number.isFinite(Number(g.basePrice)) ? [Number(g.basePrice)] : []);
+    if(observedPrices.length){
+      if(!incomingPrices[key]) incomingPrices[key]=[];
+      observedPrices.forEach(price=>{
+        const rounded=Math.round(Number(price)*100)/100;
+        if(Number.isFinite(rounded) && rounded>0 && !incomingPrices[key].includes(rounded)){
+          incomingPrices[key].push(rounded);
+        }
+      });
+      incomingPrices[key].sort((a,b)=>a-b);
     }
   });
 
@@ -5415,10 +7487,33 @@ function commitImport(){
   if(!Array.isArray(STATE.priceHistory)) STATE.priceHistory=[];
   const incomingPriceKeys=new Set(Object.keys(incomingPrices));
   STATE.priceHistory=STATE.priceHistory.filter(x=>!incomingKeys.has(x.date+'||'+x.productId));
-  Object.entries(incomingPrices).forEach(([key,price])=>{
+  Object.entries(incomingPrices).forEach(([key,prices])=>{
     const [date,productId]=key.split('||');
-    STATE.priceHistory.push({id:uid('ph'),date,productId,price:Math.round(price*100)/100});
+    const list=(Array.isArray(prices)?prices:[prices])
+      .map(price=>Math.round(Number(price)*100)/100)
+      .filter(price=>Number.isFinite(price) && price>0)
+      .sort((a,b)=>a-b);
+    if(!list.length) return;
+
+    // Keep the minimum in `price` for compatibility with the sale estimator,
+    // and explicitly preserve the day's highest observed private price too.
+    // A day such as Sep 14 can therefore carry salePrice=15 and normalPrice=29.99
+    // without depending on multiple duplicate priceHistory rows surviving.
+    STATE.priceHistory.push({
+      id:uid('ph'),
+      date,
+      productId,
+      price:list[0],
+      minPrice:list[0],
+      maxPrice:list[list.length-1],
+      observedPrices:[...new Set(list)]
+    });
   });
+
+  // Imported price observations may change inferred sale boundaries,
+  // especially same-day discounted + normal-price transition days.
+  // Force every sale period to be recalculated from the new evidence.
+  SALE_PERIOD_CACHE.clear();
 
   // Store whether a product had at least one professional sale on a given date.
   if(!Array.isArray(STATE.licenseHistory)) STATE.licenseHistory = [];
@@ -6037,6 +8132,8 @@ function wireTabEvents(){
     }
 
     if(ACTIVE_TAB==='dashboard'){
+      wireMonthlyPerformanceEvents();
+
       // --- "Accumulated total revenue" chart controls (own separate timeframe) ---
       const acSelect = document.getElementById('acTimeframeSelect');
     if(acSelect) acSelect.addEventListener('change', ()=>{
