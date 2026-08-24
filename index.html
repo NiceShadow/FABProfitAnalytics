@@ -2879,8 +2879,8 @@
     position:relative;
   }
   .monthly-performance-normalize-setting.active{
-    border-color:rgba(245,197,66,.20);
-    background:rgba(245,197,66,.045);
+    border-color:inherit;
+    background:transparent;
   }
   .monthly-normalized-card-flag{
     position:absolute;
@@ -3056,6 +3056,263 @@
     .monthly-performance-flow-value.right > strong{
       font-size:20px !important;
     }
+  }
+
+
+  .monthly-performance-three-month-summary{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(180px,.8fr) minmax(0,1fr);
+    align-items:center;
+    min-height:122px;
+    margin-top:14px;
+    padding:20px 24px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(255,255,255,.018);
+    overflow:hidden;
+  }
+  .monthly-performance-three-month-side{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+  .monthly-performance-three-month-side.left{
+    align-items:flex-start;
+    text-align:left;
+  }
+  .monthly-performance-three-month-side.right{
+    align-items:flex-end;
+    text-align:right;
+  }
+  .monthly-performance-three-month-months{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.045em;
+    white-space:nowrap;
+  }
+  .monthly-performance-three-month-side strong{
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:27px;
+    font-weight:800;
+    line-height:1.1;
+    white-space:nowrap;
+  }
+  .monthly-performance-three-month-caption{
+    color:var(--muted);
+    font-size:10.5px;
+  }
+  .monthly-performance-three-month-center{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:82px;
+  }
+  .monthly-performance-three-month-arrow{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-53%);
+    color:#EEF0F4;
+    font-size:118px;
+    line-height:1;
+    opacity:.1408;
+    pointer-events:none;
+  }
+  .monthly-performance-three-month-change{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+  }
+  .monthly-performance-three-month-percent{
+    font-size:20px;
+  }
+  .monthly-performance-three-month-diff{
+    font-size:11px;
+  }
+  .monthly-performance-three-month-change.positive{color:var(--green);}
+  .monthly-performance-three-month-change.negative{color:var(--red);}
+  .monthly-performance-three-month-change.neutral{color:var(--muted);}
+
+  .revenue-selection-tooltip{
+    max-width:420px;
+    min-width:245px;
+  }
+  .revenue-selection-tooltip .rst-average{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.35;
+  }
+  .revenue-selection-tooltip .rst-average strong{
+    color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    white-space:nowrap;
+  }
+  .revenue-selection-tooltip .rst-products{
+    margin-top:9px;
+    padding-top:8px;
+    border-top:1px solid rgba(255,255,255,.10);
+  }
+  .revenue-selection-tooltip .rst-products-head,
+  .revenue-selection-tooltip .rst-product-row{
+    display:grid;
+    grid-template-columns:minmax(82px,1fr) auto auto;
+    align-items:center;
+    column-gap:12px;
+  }
+  .revenue-selection-tooltip .rst-products-head{
+    padding-bottom:4px;
+    color:var(--muted2);
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .revenue-selection-tooltip .rst-products-head span:nth-child(2),
+  .revenue-selection-tooltip .rst-products-head span:nth-child(3){
+    text-align:right;
+  }
+  .revenue-selection-tooltip .rst-product-row{
+    grid-template-columns:7px minmax(48px,1fr) auto auto;
+    gap:7px;
+    padding:4px 0;
+    border-top:1px solid rgba(255,255,255,.045);
+    font-size:9.5px;
+  }
+  .revenue-selection-tooltip .rst-product-name{
+    color:#DDE1E8;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+  }
+  .revenue-selection-tooltip .rst-product-total,
+  .revenue-selection-tooltip .rst-product-average{
+    color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    white-space:nowrap;
+    text-align:right;
+  }
+  .revenue-selection-tooltip .rst-product-average{
+    display:block;
+    margin:0;
+  }
+
+  @media(max-width:760px){
+    .monthly-performance-three-month-summary{
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .monthly-performance-three-month-side.left,
+    .monthly-performance-three-month-side.right{
+      align-items:center;
+      text-align:center;
+    }
+    .monthly-performance-three-month-center{
+      min-height:58px;
+    }
+    .monthly-performance-three-month-arrow{
+      font-size:88px;
+    }
+  }
+
+
+  .monthly-performance-flow-value.right{
+    position:relative;
+  }
+  .monthly-performance-estimated-label{
+    position:absolute;
+    right:0;
+    bottom:calc(100% + 2px);
+    display:block;
+    margin:0 !important;
+    color:var(--gold) !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:8px !important;
+    font-weight:900;
+    line-height:1 !important;
+    letter-spacing:.09em;
+    text-align:right;
+    opacity:.72;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  .monthly-performance-flow-value.right.normalized-estimate > strong{
+    margin-top:0 !important;
+  }
+
+
+  .monthly-adjusted-revenue-tooltip.simplified{
+    width:230px;
+    padding:11px 12px;
+  }
+  .monthly-adjusted-summary-line{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:4px 0;
+    color:var(--muted);
+    font-size:10px;
+  }
+  .monthly-adjusted-summary-line strong{
+    color:var(--text) !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px !important;
+    white-space:nowrap;
+  }
+  .monthly-adjusted-summary-line.difference{
+    margin-top:3px;
+    padding-top:7px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .monthly-adjusted-simple-products{
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .monthly-adjusted-simple-heading{
+    display:block;
+    margin-bottom:3px;
+    color:var(--muted2);
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .monthly-adjusted-simple-row{
+    display:grid;
+    grid-template-columns:7px minmax(0,1fr) auto;
+    align-items:center;
+    gap:7px;
+    padding:3px 0;
+    font-size:9.5px;
+  }
+  .monthly-adjusted-simple-name{
+    color:#DDE1E8;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+  }
+  .monthly-adjusted-simple-row strong{
+    color:var(--text) !important;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px !important;
+    white-space:nowrap;
   }
 
 </style>
@@ -3556,7 +3813,23 @@ const CURRENCY_RATES_FROM_USD = {
 };
 const CURRENCY_SYMBOLS = {
   USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'CN¥',
-  CHF:'CHF ', CAD:'C$', AUD:'A$', INR:'₹', SGD:'S$'
+  CHF:'CHF', CAD:'C$', AUD:'A$', INR:'₹', SGD:'S$'
+};
+
+// Currency-symbol placement follows the conventional presentation for the
+// selectable currencies. The site's existing numeric separators/rounding stay
+// unchanged; this only controls symbol/code placement around the number.
+const CURRENCY_DISPLAY_FORMAT = {
+  USD:{position:'prefix',space:false},
+  EUR:{position:'suffix',space:true},
+  GBP:{position:'prefix',space:false},
+  JPY:{position:'prefix',space:false},
+  CNY:{position:'prefix',space:false},
+  CHF:{position:'prefix',space:true},
+  CAD:{position:'prefix',space:false},
+  AUD:{position:'prefix',space:false},
+  INR:{position:'prefix',space:false},
+  SGD:{position:'prefix',space:false}
 };
 const CURRENCY_NAMES = {
   USD:'US Dollar', EUR:'Euro', GBP:'British Pound', JPY:'Japanese Yen',
@@ -3589,6 +3862,14 @@ function fallbackCurrencyRate(code=displayCurrencyCode()){
 }
 function displayCurrencySymbol(){
   return CURRENCY_SYMBOLS[displayCurrencyCode()] || '$';
+}
+function formatCurrencyText(numberText,code=displayCurrencyCode()){
+  const symbol=CURRENCY_SYMBOLS[code] || code || '$';
+  const rule=CURRENCY_DISPLAY_FORMAT[code] || {position:'prefix',space:false};
+  const gap=rule.space?' ':'';
+  return rule.position==='suffix'
+    ? `${numberText}${gap}${symbol}`
+    : `${symbol}${gap}${numberText}`;
 }
 function fxPayoutDateForRevenueMonth(yearMonth){
   const [y,m]=String(yearMonth).split('-').map(Number);
@@ -3660,11 +3941,13 @@ function currencyOptionsHTML(){
 }
 function fmtMoney(n){
   if(n===null||n===undefined||isNaN(n)) return '—';
-  return displayCurrencySymbol() + Math.floor(Number(n)).toLocaleString(undefined,{maximumFractionDigits:0});
+  const text=Math.floor(Number(n)).toLocaleString(undefined,{maximumFractionDigits:0});
+  return formatCurrencyText(text);
 }
 function fmtMoney2(n){
   if(n===null||n===undefined||isNaN(n)) return '—';
-  return displayCurrencySymbol() + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const text=Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  return formatCurrencyText(text);
 }
 
 function earliestFxRelevantProductDate(){
@@ -4269,6 +4552,14 @@ function roundHalf(value){
   return Math.round((Number(value)||0)*2)/2;
 }
 
+
+function historicalSaleAverageEligibleProducts(products, historicalStart){
+  return (products||[]).filter(p=>{
+    const release=p && p.releaseDate;
+    return !release || release<historicalStart;
+  });
+}
+
 function saleDaysBreakdown(products,start,end){
   const rows=(products||[]).map(p=>({
     product:p,
@@ -4279,8 +4570,12 @@ function saleDaysBreakdown(products,start,end){
   return {rows,total,average};
 }
 
-function saleDaysAverageTooltipHTML(products,start,end){
-  const data=saleDaysBreakdown(products,start,end);
+function saleDaysAverageTooltipHTML(products,start,end,options={}){
+  const sourceProducts=options.historicalEligibleOnly===true
+    ? historicalSaleAverageEligibleProducts(products,start)
+    : (products||[]);
+
+  const data=saleDaysBreakdown(sourceProducts,start,end);
   const allIds=STATE.products.map(p=>p.id);
   const rows=data.rows.map(row=>`
     <div class="monthly-sale-tooltip-row">
@@ -4475,32 +4770,99 @@ function monthlyNormalizedProductPerformance(p,priorStart,priorEnd,currentStart,
 
 function monthlyNormalizedComparison(products,priorStart,priorEnd,currentStart,currentEnd){
   const ids=(products||[]).map(p=>p.id).sort().join(',');
-  const cacheKey=`${ids}|${priorStart}|${priorEnd}|${currentStart}|${currentEnd}|${STATE.settings.applyRevenueShare?'share':'full'}|${STATE.settings.displayCurrency||'USD'}`;
+  const cacheKey=`${ids}|${priorStart}|${priorEnd}|${currentStart}|${currentEnd}|${STATE.settings.applyRevenueShare?'share':'full'}|${STATE.settings.displayCurrency||'USD'}|${STATE.settings.monthlyComparisonEstablishedOnly===true?'established':'all'}`;
   if(MONTHLY_NORMALIZED_CACHE.has(cacheKey)) return MONTHLY_NORMALIZED_CACHE.get(cacheKey);
 
   const details=(products||[]).map(p=>
     monthlyNormalizedProductPerformance(p,priorStart,priorEnd,currentStart,currentEnd)
   );
+
+  // Historical average:
+  // only products that actually existed during the prior-year comparison month
+  // are allowed to contribute to the historical average. Newer products must
+  // NOT enter that average as artificial 0-sale-day rows.
+  const historicalRows=details.filter(row=>{
+    const release=row.product && row.product.releaseDate;
+    return !release || release<priorStart;
+  });
+
+  const historicalAverageSaleDaysRaw=historicalRows.length
+    ? historicalRows.reduce((sum,row)=>sum+row.priorSaleDays,0)/historicalRows.length
+    : 0;
+
+  // This rounded value is the single canonical normalized target everywhere:
+  // the historical display, the normalized display, and every newer product's
+  // inherited target sale exposure all use EXACTLY the same number.
+  const historicalAverageSaleDays=roundHalf(historicalAverageSaleDaysRaw);
+
+  // Current-year normalized side:
+  // products that did not exist last year but do exist now inherit the
+  // historical average sale exposure. Products that already existed last year
+  // keep their own mapped prior-year sale exposure.
+  if(STATE.settings.monthlyComparisonEstablishedOnly!==true && details.length){
+    details.forEach(row=>{
+      const release=row.product && row.product.releaseDate;
+      const notReleasedDuringPriorPeriod=!!release && release>=priorStart;
+      if(!notReleasedDuringPriorPeriod) return;
+
+      const currentProfile=monthlyProductPerformanceProfile(row.product,currentStart,currentEnd);
+      const fallbackSaleDays=Math.min(
+        currentProfile.totalDays,
+        historicalAverageSaleDays
+      );
+
+      row.targetSaleDays=fallbackSaleDays;
+      row.usedUnreleasedAverageFallback=true;
+      row.fallbackSaleDays=fallbackSaleDays;
+
+      const targetNonSaleDays=Math.max(0,currentProfile.totalDays-fallbackSaleDays);
+
+      let saleRate=row.saleRate;
+      let saleRateSource=row.saleRateSource;
+      let saleRateSourceRange=row.saleRateSourceRange;
+
+      if((!Number.isFinite(saleRate) || saleRate<=0) && fallbackSaleDays>0){
+        const recent=monthlyLatestSalePerformanceBefore(row.product,currentStart);
+        if(recent){
+          saleRate=recent.rate;
+          saleRateSource='most recent sale';
+          saleRateSourceRange={start:recent.start,end:recent.end};
+        }
+      }
+      if(!Number.isFinite(saleRate)) saleRate=0;
+
+      row.saleRate=saleRate;
+      row.saleRateSource=saleRateSource;
+      row.saleRateSourceRange=saleRateSourceRange;
+      row.adjustedRevenue=(row.nonSaleRate*targetNonSaleDays)+(saleRate*fallbackSaleDays);
+      row.delta=row.adjustedRevenue-row.actualRevenue;
+    });
+  }
+
+  // By construction:
+  // - left historical average excludes products that did not yet exist
+  // - right normalized average is intentionally shown as that same historical
+  //   average, while newer current-year products inherit exactly that exposure.
   const result={
     details,
     revenue:details.reduce((sum,row)=>sum+row.adjustedRevenue,0),
     actualRevenue:details.reduce((sum,row)=>sum+row.actualRevenue,0),
     totalTargetSaleDays:details.reduce((sum,row)=>sum+row.targetSaleDays,0),
-    averageTargetSaleDays:details.length
-      ? roundHalf(details.reduce((sum,row)=>sum+row.targetSaleDays,0)/details.length)
-      : 0
+    averageTargetSaleDays:historicalAverageSaleDays,
+    historicalAverageSaleDays,
+    historicalProductCount:historicalRows.length
   };
+
   MONTHLY_NORMALIZED_CACHE.set(cacheKey,result);
   return result;
 }
-
 function monthlyAdjustedSaleDaysTooltipHTML(normalized){
   const allIds=STATE.products.map(p=>p.id);
   const rows=(normalized.details||[]).map(row=>`
     <div class="monthly-sale-tooltip-row">
       <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
       <span class="monthly-sale-tooltip-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
-      <strong>${formatSaleDays(row.actualSaleDays)} → ${formatSaleDays(row.targetSaleDays)} d</strong>
+      <strong>${formatSaleDays(row.actualSaleDays)} → ${formatSaleDays(row.targetSaleDays)} d${row.usedUnreleasedAverageFallback?' · avg. fallback':''}</strong>
     </div>
   `).join('');
 
@@ -4510,7 +4872,7 @@ function monthlyAdjustedSaleDaysTooltipHTML(normalized){
       <span class="monthly-est-badge">EST.</span>
       <span class="monthly-sale-tooltip monthly-adjusted-sale-tooltip">
         <span class="monthly-sale-tooltip-title">Adjusted sale exposure</span>
-        <span class="monthly-adjusted-tooltip-copy">Actual this year → normalized to last year's mapped sale schedule</span>
+        <span class="monthly-adjusted-tooltip-copy">Adjusted so this year's average sale exposure matches last year's historical average.</span>
         ${rows || `<span class="monthly-sale-tooltip-empty">No products included</span>`}
         <span class="monthly-sale-tooltip-total">
           <span>Adjusted total</span>
@@ -4523,39 +4885,46 @@ function monthlyAdjustedSaleDaysTooltipHTML(normalized){
 
 function monthlyAdjustedRevenueHTML(normalized){
   const allIds=STATE.products.map(p=>p.id);
-  const rows=(normalized.details||[]).map(row=>{
-    const diffPrefix=row.delta>0?'+':'';
-    const sourceRange=row.saleRateSourceRange
-      ? ` · ${row.saleRateSourceRange.start.slice(5)}–${row.saleRateSourceRange.end.slice(5)}`
-      : '';
-    return `
-      <div class="monthly-adjusted-revenue-row">
-        <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
-        <span class="monthly-adjusted-revenue-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
-        <span class="monthly-adjusted-revenue-source">${row.saleRateSource}${sourceRange}</span>
-        <strong>${fmtMoney(row.adjustedRevenue)}</strong>
-        <span class="monthly-adjusted-revenue-delta">${diffPrefix}${fmtMoney(row.delta)}</span>
-      </div>
-    `;
-  }).join('');
+  const diff=normalized.revenue-normalized.actualRevenue;
+  const diffPrefix=diff>0?'+':'';
+
+  const rows=(normalized.details||[]).map(row=>`
+    <div class="monthly-adjusted-simple-row">
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="monthly-adjusted-simple-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
+      <strong>${fmtMoney(row.adjustedRevenue)}</strong>
+    </div>
+  `).join('');
 
   return `
     <span class="monthly-adjusted-revenue-wrap" tabindex="0">
       <span class="monthly-adjusted-revenue-value">${fmtMoney(normalized.revenue)}</span>
-      <span class="monthly-est-badge">EST.</span>
-      <span class="monthly-adjusted-revenue-tooltip">
-        <span class="monthly-sale-tooltip-title">Sale-normalized estimate</span>
-        <span class="monthly-adjusted-tooltip-copy">This year's revenue rebuilt with last year's mapped sale exposure.</span>
-        ${rows}
-        <span class="monthly-sale-tooltip-total">
-          <span>Actual this year</span>
+      <span class="monthly-adjusted-revenue-tooltip simplified">
+        <span class="monthly-sale-tooltip-title">Estimated revenue</span>
+
+        <div class="monthly-adjusted-summary-line">
+          <span>Estimated</span>
+          <strong>${fmtMoney(normalized.revenue)}</strong>
+        </div>
+        <div class="monthly-adjusted-summary-line">
+          <span>Actual</span>
           <strong>${fmtMoney(normalized.actualRevenue)}</strong>
-        </span>
+        </div>
+        <div class="monthly-adjusted-summary-line difference">
+          <span>Difference</span>
+          <strong>${diffPrefix}${fmtMoney(diff)}</strong>
+        </div>
+
+        ${rows?`
+          <div class="monthly-adjusted-simple-products">
+            <span class="monthly-adjusted-simple-heading">By product</span>
+            ${rows}
+          </div>
+        `:''}
       </span>
     </span>
   `;
 }
-
 function dashboardMonthlyPerformanceHTML(products){
   const monthAbbr=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -4587,6 +4956,8 @@ function dashboardMonthlyPerformanceHTML(products){
   const currentDayCutoff=Math.max(1,today.getDate()-1);
   const currentMonthName=monthNames[today.getMonth()];
   const currentMonthPriorYear=today.getFullYear()-1;
+
+  const threeMonthSummaryRows=[];
 
   const cards=[-2,-1,0].map(offset=>{
     const range=monthRangeFromOffset(offset);
@@ -4635,7 +5006,14 @@ function dashboardMonthlyPerformanceHTML(products){
     const currentRevenue=normalized?normalized.revenue:historicalCurrentRevenue;
     const metrics=comparisonMetrics(currentRevenue,priorRevenue);
 
-    const priorSaleDaysHTML=saleDaysAverageTooltipHTML(eligibleProducts,range.comparisonStart,priorEnd);
+    threeMonthSummaryRows.push({
+      priorLabel:comparisonMonthLabel,
+      currentLabel:currentMonthLabel,
+      priorRevenue,
+      currentRevenue
+    });
+
+    const priorSaleDaysHTML=saleDaysAverageTooltipHTML(eligibleProducts,range.comparisonStart,priorEnd,{historicalEligibleOnly:true});
     const currentSaleDaysHTML=normalized
       ? monthlyAdjustedSaleDaysTooltipHTML(normalized)
       : saleDaysAverageTooltipHTML(eligibleProducts,range.start,currentEnd);
@@ -4645,7 +5023,7 @@ function dashboardMonthlyPerformanceHTML(products){
       : `<span class="monthly-adjusted-revenue-value">${fmtMoney(currentRevenue)}</span>`;
 
     const priorRevenueLabel=normalizeSaleExposure?'Historical net revenue':'Net revenue';
-    const currentRevenueLabel=normalizeSaleExposure?'Estimated net revenue':'Net revenue';
+    const currentRevenueLabel='Net revenue';
     const priorSaleLabel=normalizeSaleExposure?'Historical avg. days on sale':'Avg. days on sale';
     const currentSaleLabel=normalizeSaleExposure?'Adjusted avg. days on sale':'Avg. days on sale';
 
@@ -4676,7 +5054,8 @@ function dashboardMonthlyPerformanceHTML(products){
             </div>
           </div>
 
-          <div class="monthly-performance-flow-value right">
+          <div class="monthly-performance-flow-value right${normalizeSaleExposure?' normalized-estimate':''}">
+            ${normalizeSaleExposure?`<span class="monthly-performance-estimated-label">ESTIMATED</span>`:''}
             <strong class="${normalizeSaleExposure?'estimated-revenue':''}">${currentRevenueHTML}</strong>
             <span class="monthly-performance-revenue-caption">
               <span>${currentRevenueLabel}</span>
@@ -4703,6 +5082,12 @@ function dashboardMonthlyPerformanceHTML(products){
       </div>
     `;
   }).join('');
+
+  const threeMonthPriorRevenue=threeMonthSummaryRows.reduce((sum,row)=>sum+row.priorRevenue,0);
+  const threeMonthCurrentRevenue=threeMonthSummaryRows.reduce((sum,row)=>sum+row.currentRevenue,0);
+  const threeMonthMetrics=comparisonMetrics(threeMonthCurrentRevenue,threeMonthPriorRevenue);
+  const priorMonthsLabel=threeMonthSummaryRows.map(row=>row.priorLabel).join(' · ');
+  const currentMonthsLabel=threeMonthSummaryRows.map(row=>row.currentLabel).join(' · ');
 
   return `
     <div class="monthly-performance-section" id="monthlyPerformanceSection">
@@ -4740,6 +5125,28 @@ function dashboardMonthlyPerformanceHTML(products){
       </div>
 
       <div class="monthly-performance-grid">${cards}</div>
+
+      <div class="monthly-performance-three-month-summary">
+        <div class="monthly-performance-three-month-side left prior-year-info">
+          <span class="monthly-performance-three-month-months">${priorMonthsLabel}</span>
+          <strong>${fmtMoney(threeMonthPriorRevenue)}</strong>
+          <span class="monthly-performance-three-month-caption">${normalizeSaleExposure?'Historical 3-month net revenue':'3-month net revenue'}</span>
+        </div>
+
+        <div class="monthly-performance-three-month-center">
+          <div class="monthly-performance-three-month-arrow">➞</div>
+          <div class="monthly-performance-three-month-change ${threeMonthMetrics.changeClass}">
+            <span class="monthly-performance-three-month-percent">${threeMonthMetrics.changeText}</span>
+            <span class="monthly-performance-three-month-diff">${threeMonthMetrics.diffPrefix}${fmtMoney(threeMonthMetrics.diff)}</span>
+          </div>
+        </div>
+
+        <div class="monthly-performance-three-month-side right">
+          <span class="monthly-performance-three-month-months">${currentMonthsLabel}</span>
+          <strong>${fmtMoney(threeMonthCurrentRevenue)}</strong>
+          <span class="monthly-performance-three-month-caption">${normalizeSaleExposure?'Estimated 3-month net revenue':'3-month net revenue'}</span>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -5686,7 +6093,7 @@ function compactMoneyAxis(value,withDollar=true){
   }else{
     text=(Number.isInteger(n)?n:Number(n.toFixed(2))).toLocaleString('de-DE');
   }
-  return (withDollar?displayCurrencySymbol():'')+text;
+  return withDollar?formatCurrencyText(text):text;
 }
 function isMajorTick(value,major){
   const ratio=(Number(value)||0)/major;
@@ -6058,7 +6465,7 @@ function mountDashboardCharts(){
         options:{
           indexAxis:'y', responsive:true, maintainAspectRatio:false,
           plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>fmtMoney2(c.parsed.x)+' / hr'}} },
-          scales:{ x:{ grid:{color:gridColor}, ticks:{color:tickColor, callback:v=>displayCurrencySymbol()+Number(displayMoneyValue(v)).toLocaleString()} }, y:{ grid:{display:false}, ticks:{color:tickColor} } }
+          scales:{ x:{ grid:{color:gridColor}, ticks:{color:tickColor, callback:v=>formatCurrencyText(Number(displayMoneyValue(v)).toLocaleString())} }, y:{ grid:{display:false}, ticks:{color:tickColor} } }
         }
       });
     }
@@ -6201,7 +6608,7 @@ function mountDashboardCharts(){
         options:{
           indexAxis:'y', responsive:true, maintainAspectRatio:false,
           plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>fmtMoney(c.parsed.x)+' / month'}} },
-          scales:{ x:{ grid:{color:gridColor}, ticks:{color:tickColor, callback:v=>displayCurrencySymbol()+Number(displayMoneyValue(v)).toLocaleString()} }, y:{ grid:{display:false}, ticks:{color:tickColor} } }
+          scales:{ x:{ grid:{color:gridColor}, ticks:{color:tickColor, callback:v=>formatCurrencyText(Number(displayMoneyValue(v)).toLocaleString())} }, y:{ grid:{display:false}, ticks:{color:tickColor} } }
         }
       });
     }
@@ -7105,7 +7512,7 @@ function buildLogTooltipHTML(date){
       <span class="dot" style="background:${colorFor(p.id,ids)}"></span>
       <span class="log-tooltip-name" title="${escapeAttr(p.name)}"><span class="log-tooltip-product-name">${displayName}</span>${saleLabel}</span>
       <span class="log-tooltip-val">${fmtMoney(dayNet)}</span>
-      ${showHours?`<span class="log-tooltip-growth">${sign}${displayCurrencySymbol()}${Math.abs(displayMoneyValue(growth)).toFixed(2)}/hr</span>`:''}
+      ${showHours?`<span class="log-tooltip-growth">${sign}${formatCurrencyText(Math.abs(displayMoneyValue(growth)).toFixed(2))}/hr</span>`:''}
     </div>`;
   }).join('');
   const d=new Date(date+'T00:00:00');
@@ -8357,14 +8764,30 @@ function wireTabEvents(){
         let firstDate=null;
         let lastDate=null;
 
-        // Sum only the selected rectangle. This remains tiny for normal use and
-        // is independent of how many months are loaded elsewhere in the DOM.
+        const filteredProducts=getFilteredProducts();
+        const selectedProducts=filteredProducts.slice(c0,c1+1);
+        const perProduct=new Map();
+        selectedProducts.forEach((p,offset)=>{
+          perProduct.set(c0+offset,{product:p,sum:0,count:0});
+        });
+
+        // Every selected cell counts toward the average, including empty/zero
+        // cells. This means days without a sale correctly lower both the total
+        // average and each individual product's average.
         for(let r=r0;r<=r1;r++){
           for(let c=c0;c<=c1;c++){
             const cell=getCell(r,c);
             if(!cell) continue;
-            sum+=Number(cell.dataset.value)||0;
+            const value=Number(cell.dataset.value)||0;
+            sum+=value;
             count++;
+
+            const productStats=perProduct.get(c);
+            if(productStats){
+              productStats.sum+=value;
+              productStats.count++;
+            }
+
             const date=cell.dataset.date;
             if(date){
               if(!firstDate || date<firstDate) firstDate=date;
@@ -8373,7 +8796,6 @@ function wireTabEvents(){
           }
         }
 
-        const selectedProducts=getFilteredProducts().slice(c0,c1+1);
         const productLabel=selectedProducts.length===1
           ? selectedProducts[0].name
           : `${selectedProducts.length} products`;
@@ -8382,10 +8804,32 @@ function wireTabEvents(){
           : `${firstDate?shortDayLabel(firstDate):''} – ${lastDate?shortDayLabel(lastDate):''}`;
 
         const dayCount=(firstDate&&lastDate)?(dayDiff(firstDate,lastDate)+1):0;
+        const overallAverage=count?sum/count:0;
+        const allProductIds=STATE.products.map(p=>p.id);
+
+        const productRows=[...perProduct.values()].map(stats=>{
+          const average=stats.count?stats.sum/stats.count:0;
+          return `
+            <div class="rst-product-row">
+              <span class="dot" style="background:${colorFor(stats.product.id,allProductIds)}"></span>
+              <span class="rst-product-name">${shortNameFor(stats.product)}</span>
+              <span class="rst-product-total">${fmtMoney(stats.sum)}</span>
+              <span class="rst-product-average">${fmtMoney(average)} avg</span>
+            </div>
+          `;
+        }).join('');
+
         selectionTooltip.innerHTML=`
-          <div class="rst-label">Selected sum</div>
+          <div class="rst-label">Selected total</div>
           <div class="rst-sum">${fmtMoney(sum)}</div>
+          <div class="rst-average">Average per selected cell <strong>${fmtMoney(overallAverage)}</strong></div>
           <div class="rst-meta">${count} cell${count===1?'':'s'} · ${productLabel}${dateLabel?` · ${dateLabel}`:''}${dayCount?` · ${dayCount} day${dayCount===1?'':'s'}`:''}</div>
+          ${productRows?`
+            <div class="rst-products">
+              <div class="rst-products-head"><span>Product</span><span>Total</span><span>Average</span></div>
+              ${productRows}
+            </div>
+          `:''}
         `;
         selectionTooltip.classList.add('visible');
         positionSelectionTooltip(clientX,clientY);
