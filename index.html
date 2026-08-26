@@ -7646,6 +7646,15 @@
     pointer-events:none !important;
   }
 
+
+  .sales-multi-main-actions{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+
+  .sales-multi-main-actions:has(#salesGlobalMultiDelete + #salesGlobalSaveConfirm){
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -10163,7 +10172,8 @@ function openSalesMultiEditor(){
     ${!eventLocked && entries.some(x=>x.period.confirmed&&!x.planned)?`<button type="button" class="btn secondary sales-global-reset-estimate" id="salesGlobalResetAllEstimated">Reset all to estimated data</button>`:''}
     <div class="sales-multi-main-actions">
       <button type="button" class="btn danger" id="salesGlobalMultiDelete">Delete</button>
-      <button type="button" class="btn primary sales-global-modal-save" id="salesGlobalSaveConfirm">Save changes</button>
+      ${!eventLocked && state!=='estimated'?`<button type="button" class="btn secondary" id="salesGlobalMultiSavePlanned">Save as Planned</button>`:''}
+      <button type="button" class="btn primary sales-global-modal-save" id="salesGlobalSaveConfirm">Save as Confirmed</button>
     </div>
   `);
   if(!modal) return;
@@ -10211,55 +10221,173 @@ function openSalesMultiEditor(){
     multiDeleteBtn.addEventListener('click',()=>showSalesMultiDeleteConfirmDialog(entries));
   }
 
-  modal.querySelector('#salesGlobalSaveConfirm').addEventListener('click',()=>{
-    const newStart=startInput.value,newEnd=endInput.value;
+  const multiPlannedBtn=modal.querySelector('#salesGlobalMultiSavePlanned');
+  const multiConfirmBtn=modal.querySelector('#salesGlobalSaveConfirm');
+
+  const stagedValues=()=>{
+    const newStart=startInput.value;
+    const newEnd=endInput.value;
     const chosen=picker.getValue();
+    const changeDates=!eventLocked && !!(applySameDates && applySameDates.checked);
+    return {newStart,newEnd,chosen,changeDates};
+  };
+
+  const targetDatesFor=(entry,values)=>({
+    start:values.changeDates ? values.newStart : entry.period.start,
+    end:values.changeDates ? values.newEnd : entry.period.end
+  });
+
+  const validateSharedDates=(values)=>{
+    if(!values.changeDates) return {ok:true};
+    if(!values.newStart||!values.newEnd) return {ok:false,message:'Choose both dates.'};
+    if(values.newEnd<values.newStart) return {ok:false,message:'End date must be on or after start date.'};
+    if(dayDiff(values.newStart,values.newEnd)>14) return {ok:false,message:'A sale can be at most 14 sale days long.'};
+    return {ok:true};
+  };
+
+  const syncMultiPlanButton=()=>{
+    if(!multiPlannedBtn) return;
+    const values=stagedValues();
+    const canPlan=entries.every(entry=>{
+      const dates=targetDatesFor(entry,values);
+      return !!dates.start && dates.start>todayStr();
+    });
+    multiPlannedBtn.hidden=!canPlan;
+  };
+
+  if(applySameDates) applySameDates.addEventListener('change',syncMultiPlanButton);
+  if(startInput) startInput.addEventListener('change',syncMultiPlanButton);
+  if(endInput) endInput.addEventListener('change',syncMultiPlanButton);
+  syncMultiPlanButton();
+
+  if(multiPlannedBtn){
+    multiPlannedBtn.addEventListener('click',()=>{
+      const values=stagedValues();
+      error.textContent='';
+
+      const shared=validateSharedDates(values);
+      if(!shared.ok){error.textContent=shared.message;return;}
+
+      const targets=entries.map(entry=>({
+        entry,
+        dates:targetDatesFor(entry,values)
+      }));
+
+      for(const {entry,dates} of targets){
+        if(dates.start<=todayStr()){
+          error.textContent='A sale that has already started cannot be saved as planned.';
+          syncMultiPlanButton();
+          return;
+        }
+
+        const valid=validatePlannedSalePlacement(
+          entry.product,
+          dates.start,
+          dates.end,
+          entry.planned ? entry.plannedId : null,
+          entry.planned ? null : (entry.period.confirmationId||null)
+        );
+        if(!valid.ok){error.textContent=valid.message;return;}
+      }
+
+      captureSalesTimelineScroll();
+
+      for(const {entry,dates} of targets){
+        const chosen=values.chosen;
+
+        if(entry.planned){
+          const rec=plannedSaleById(entry.plannedId);
+          if(!rec) continue;
+          savePlannedSale({
+            ...rec,
+            start:dates.start,
+            end:dates.end,
+            discountPercent:chosen===null ? rec.discountPercent : chosen,
+            updatedAt:new Date().toISOString()
+          });
+          continue;
+        }
+
+        const result=convertConfirmedSaleToPlanned(
+          entry.product,
+          entry.period,
+          dates.start,
+          dates.end,
+          chosen===null ? explicitOrDetectedDiscount(entry) : chosen
+        );
+        if(!result.ok){
+          error.textContent=result.message;
+          return;
+        }
+      }
+
+      clearSalesShiftSelection();
+      closeSalesGlobalModal();
+      renderTabContent();
+    });
+  }
+
+  multiConfirmBtn.addEventListener('click',()=>{
+    const values=stagedValues();
     error.textContent='';
 
-    const changeDates=!eventLocked && !!(applySameDates && applySameDates.checked);
+    const shared=validateSharedDates(values);
+    if(!shared.ok){error.textContent=shared.message;return;}
 
-    if(changeDates){
-      if(!newStart||!newEnd){error.textContent='Choose both dates.';return;}
-      if(newEnd<newStart){error.textContent='End date must be on or after start date.';return;}
-      if(dayDiff(newStart,newEnd)>14){error.textContent='A sale can be at most 14 sale days long.';return;}
+    const targets=entries.map(entry=>({
+      entry,
+      dates:targetDatesFor(entry,values)
+    }));
 
-      if(state==='planned'){
-        for(const entry of entries){
-          const valid=validatePlannedSalePlacement(entry.product,newStart,newEnd,entry.plannedId);
-          if(!valid.ok){error.textContent=valid.message;return;}
-        }
-      }else{
-        const placement=validateMultipleSalePlacement(entries,newStart,newEnd);
-        if(!placement.ok){error.textContent=placement.message;return;}
+    for(const {entry,dates} of targets){
+      if(entry.planned){
+        const valid=validateNewConfirmedSalePlacement(
+          entry.product,
+          dates.start,
+          dates.end,
+          entry.plannedId
+        );
+        if(!valid.ok){error.textContent=valid.message;return;}
+      }else if(values.changeDates){
+        const selectedKeys=new Set(entries.filter(x=>!x.planned).map(x=>x.key));
+        const valid=validateSalePlacement(
+          entry.product,
+          entry.period,
+          dates.start,
+          dates.end,
+          selectedKeys
+        );
+        if(!valid.ok){error.textContent=valid.message;return;}
       }
     }
 
     let changed=false;
 
-    for(const entry of entries){
-      const keepDiscount=explicitOrDetectedDiscount(entry);
-      const finalDiscount=chosen===null?keepDiscount:chosen;
+    for(const {entry,dates} of targets){
+      const chosen=values.chosen;
 
       if(entry.planned){
         const rec=plannedSaleById(entry.plannedId);
         if(!rec) continue;
-        savePlannedSale({
-          ...rec,
-          start:changeDates ? newStart : rec.start,
-          end:changeDates ? newEnd : rec.end,
-          discountPercent:chosen===null ? rec.discountPercent : chosen,
-          updatedAt:new Date().toISOString()
-        });
-        changed=true;
+        const result=convertPlannedSaleToConfirmed(
+          rec,
+          entry.product,
+          dates.start,
+          dates.end,
+          chosen===null ? explicitOrDetectedDiscount(entry) : chosen
+        );
+        if(result.ok) changed=true;
         continue;
       }
 
       if(entry.period.manualAdded && entry.period.confirmationId){
         const rec=(STATE.confirmedSalePeriods||[]).find(x=>x.id===entry.period.confirmationId);
         if(rec){
-          if(changeDates){
-            rec.start=newStart;
-            rec.end=newEnd;
+          if(values.changeDates){
+            rec.start=dates.start;
+            rec.end=dates.end;
+            rec.originalStart=dates.start;
+            rec.originalEnd=dates.end;
           }
           if(chosen!==null) rec.discountPercent=chosen;
           rec.confirmedAt=new Date().toISOString();
@@ -10274,7 +10402,12 @@ function openSalesMultiEditor(){
         continue;
       }
 
-      if(saveAndConfirmMultipleSalePeriods([entry],newStart,newEnd,chosen)) changed=true;
+      if(saveAndConfirmMultipleSalePeriods(
+        [entry],
+        dates.start,
+        dates.end,
+        chosen
+      )) changed=true;
     }
 
     if(changed){
@@ -10290,7 +10423,7 @@ function openSalesMultiEditor(){
     }
   });
 
-  wireEnterToPrimary(modal,modal.querySelector('#salesGlobalSaveConfirm'),()=>{clearAllSalesHoverVisuals(true);closeSalesGlobalModal();clearSalesShiftSelection();});
+  wireEnterToPrimary(modal,multiConfirmBtn,()=>{clearAllSalesHoverVisuals(true);closeSalesGlobalModal();clearSalesShiftSelection();});
 }
 
 
