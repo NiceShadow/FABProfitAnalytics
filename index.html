@@ -7655,6 +7655,177 @@
     grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   }
 
+
+  .sales-request-countdown-badge{
+    position:absolute !important;
+    right:4px !important;
+    bottom:4px !important;
+    z-index:4 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-width:17px !important;
+    height:16px !important;
+    padding:0 4px !important;
+    border:1px solid rgba(217,164,65,.32) !important;
+    border-radius:999px !important;
+    background:rgba(217,164,65,.10) !important;
+    color:rgba(232,190,96,.88) !important;
+    font-family:'JetBrains Mono',monospace !important;
+    font-size:8px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    pointer-events:none !important;
+    box-sizing:border-box !important;
+  }
+
+  .sales-request-deadline-tooltip{
+    margin-top:3px !important;
+    padding-top:5px !important;
+    border-top:1px solid rgba(255,255,255,.08) !important;
+    color:#d9b15e !important;
+    font-size:9px !important;
+    line-height:1.3 !important;
+  }
+
+  .sales-request-deadline-tooltip strong{
+    color:#e3bd68 !important;
+    font-size:9px !important;
+  }
+
+  .sales-timeline-sale-suggestion .sales-request-countdown-badge,
+  .sales-timeline-sale-period.planned-sale .sales-request-countdown-badge{
+    pointer-events:none !important;
+  }
+
+
+  /* Request-deadline tooltip: one larger countdown number + one sentence. */
+  .sales-request-deadline-tooltip{
+    display:flex !important;
+    align-items:baseline !important;
+    gap:6px !important;
+  }
+
+  .sales-request-deadline-tooltip>strong{
+    flex:0 0 auto !important;
+    color:#e6bd62 !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+  }
+
+  .sales-request-deadline-tooltip>span{
+    color:#d9b15e !important;
+    font-size:9px !important;
+    line-height:1.3 !important;
+  }
+
+  /* Sales navigation urgency badge, visible from every page. */
+  nav.tabs button{
+    position:relative;
+  }
+
+  .tab-button-label{
+    display:inline-block;
+  }
+
+  .sales-tab-urgent-badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    z-index:3;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:18px;
+    height:18px;
+    padding:0 5px;
+    border-radius:999px;
+    border:1px solid rgba(255,215,100,.82);
+    background:#e4b84f;
+    color:#17130a;
+    box-shadow:0 2px 7px rgba(0,0,0,.28);
+    font-family:'JetBrains Mono',monospace !important;
+    font-size:9px;
+    font-weight:900;
+    line-height:1;
+    pointer-events:none;
+  }
+
+  /* Urgent planned-sale warning inside the sticky Sales header. */
+  .sales-request-urgency-warning{
+    grid-column:1 / -1 !important;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+    margin-top:5px;
+    padding-top:6px;
+    border-top:1px solid rgba(217,164,65,.15);
+    color:#e4b84f;
+    font-size:9px;
+    line-height:1.25;
+  }
+
+  .sales-request-urgency-warning>strong{
+    flex:0 0 auto;
+    color:#e4b84f;
+    font-size:9px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+
+  .sales-request-urgency-items{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+    flex-wrap:wrap;
+  }
+
+  .sales-request-urgency-item{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    white-space:nowrap;
+  }
+
+  .sales-request-product-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    color:#fff;
+    font-size:9px;
+    font-weight:800;
+  }
+
+  .sales-request-product-badge .sales-product-bubble-dot{
+    width:7px !important;
+    height:7px !important;
+    min-width:7px !important;
+    flex:0 0 7px !important;
+  }
+
+  .sales-request-urgency-time{
+    color:#e4b84f;
+    font-size:9px;
+    font-weight:800;
+  }
+
+
+
+  /* Keep the original Sales timeline height unless the request-soon warning
+     takes up header space. Only then shorten the viewport by 25px. */
+  .sales-timeline-scroll{
+    height:calc(100vh - 170px) !important;
+    min-height:560px !important;
+  }
+
+  .sales-timeline-page.has-request-urgency-warning .sales-timeline-scroll{
+    height:calc(100vh - 195px) !important;
+    min-height:535px !important;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -8607,9 +8778,27 @@ function render(){
   document.getElementById('tabs').querySelectorAll('button').forEach(b=>{
     b.addEventListener('click', ()=>{
       const nextTab=b.dataset.tab;
-      const enteringRevenueLog=nextTab==='revenuelog' && ACTIVE_TAB!=='revenuelog';
-      const enteringCompare=nextTab==='compare' && ACTIVE_TAB!=='compare';
+      const previousTab=ACTIVE_TAB;
+      const enteringRevenueLog=nextTab==='revenuelog' && previousTab!=='revenuelog';
+      const leavingRevenueLog=previousTab==='revenuelog' && nextTab!=='revenuelog';
+      const enteringDashboard=nextTab==='dashboard' && previousTab!=='dashboard';
+      const enteringCompare=nextTab==='compare' && previousTab!=='compare';
+
+      // Any pending Revenue Log bottom-scroll belongs only to the Revenue Log.
+      // Cancel it immediately when leaving so a queued frame cannot scroll the
+      // newly rendered destination page.
+      if(leavingRevenueLog){
+        REVENUE_LOG_SCROLL_TO_BOTTOM_ON_RENDER=false;
+      }
+
       ACTIVE_TAB=nextTab;
+
+      // Dashboard should always open at the top, regardless of the page-level
+      // scroll position inherited from the Revenue Log.
+      if(enteringDashboard){
+        window.scrollTo(0,0);
+      }
+
       if(enteringCompare) COMPARE_DEFERRED_RENDER=true;
       if(ACTIVE_TAB!=='import') IMPORT_STATE=null;
       if(enteringRevenueLog){
@@ -8618,12 +8807,49 @@ function render(){
         REVENUE_LOG_SCROLL_TO_BOTTOM_ON_RENDER=true;
       }
       render();
+
+      // Reassert after layout because the Revenue Log may previously have left
+      // the document at its maximum scroll position.
+      if(enteringDashboard){
+        requestAnimationFrame(()=>window.scrollTo(0,0));
+      }
     });
   });
   renderTabContent();
 }
 function tabButton(key,label){
-  return `<button data-tab="${key}" class="${ACTIVE_TAB===key?'active':''}">${label}</button>`;
+  const urgentCount=key==='sales' ? urgentUnconfirmedSalesCount() : 0;
+  return `
+    <button data-tab="${key}" class="${ACTIVE_TAB===key?'active':''}">
+      <span class="tab-button-label">${label}</span>
+      ${urgentCount>0?`<span class="sales-tab-urgent-badge" aria-label="${urgentCount} unconfirmed sales need to be requested soon">${urgentCount}</span>`:''}
+    </button>
+  `;
+}
+
+function syncSalesTabUrgencyBadge(){
+  const salesTab=document.querySelector('nav.tabs button[data-tab="sales"]');
+  if(!salesTab) return;
+
+  const count=urgentUnconfirmedSalesCount();
+  let badge=salesTab.querySelector('.sales-tab-urgent-badge');
+
+  if(count<=0){
+    if(badge) badge.remove();
+    return;
+  }
+
+  if(!badge){
+    badge=document.createElement('span');
+    badge.className='sales-tab-urgent-badge';
+    salesTab.appendChild(badge);
+  }
+
+  badge.textContent=String(count);
+  badge.setAttribute(
+    'aria-label',
+    `${count} unconfirmed sale${count===1?'':'s'} need to be requested soon`
+  );
 }
 
 
@@ -8700,6 +8926,7 @@ function renderTabContent(){
     }
   }
   wireTabEvents();
+  syncSalesTabUrgencyBadge();
 
   requestAnimationFrame(()=>{
     scheduleStickyDashboardOffsetSync();
@@ -9193,8 +9420,9 @@ function salesTimelineHTML(){
   const start=salesTimelineStartDate();
   const end=salesTimelineEndDate();
   const markers=salesTimelineJumpMarkers(start,end);
+  const urgentSales=urgentUnconfirmedSales();
   return `
-    <div class="sales-timeline-page">
+    <div class="sales-timeline-page ${urgentSales.length?'has-request-urgency-warning':''}">
       <aside class="sales-timeline-side">
         <div class="sales-timeline-side-title">Jump to</div>
         <div class="sales-timeline-year-buttons">
@@ -9230,6 +9458,7 @@ function salesTimelineHTML(){
             <button type="button" class="btn secondary sales-more-settings-btn" id="salesMoreSettingsBtn">More settings</button>
           </div>
           <button type="button" class="btn secondary sales-add-fab-event-btn" id="addFabSalesBtn">Add FAB Event Sale</button>
+          ${urgentSales.length?urgentUnconfirmedSalesWarningHTML():''}
         </div>
         <div class="sales-timeline-scroll" id="salesTimelineScroll">
           <div class="sales-timeline-track" id="salesTimelineTrack">
@@ -9252,16 +9481,114 @@ function hideSalesSuggestionGlobalTooltip(){
   tooltip.innerHTML='';
 }
 
+
+function saleRequestDeadlineInfo(startDate){
+  if(!startDate) return null;
+
+  const deadline=datePlusDays(startDate,-14);
+  const signedDays=dayDiff(todayStr(),deadline);
+  const daysLeft=Math.max(0,signedDays);
+
+  return {
+    deadline,
+    signedDays,
+    daysLeft,
+    sentence:signedDays>1
+      ? `days left to request this sale`
+      : (signedDays===1
+          ? 'day left to request this sale'
+          : (signedDays===0
+              ? 'days left to request this sale · deadline is today'
+              : `days left to request this sale · deadline passed ${Math.abs(signedDays)} day${Math.abs(signedDays)===1?'':'s'} ago`))
+  };
+}
+
+function urgentUnconfirmedSales(){
+  const today=todayStr();
+
+  return (STATE.plannedSales||[])
+    .map(record=>{
+      if(!record || !record.start || record.start<=today) return null;
+      const product=(STATE.products||[]).find(p=>p.id===record.productId);
+      if(!product) return null;
+
+      const requestInfo=saleRequestDeadlineInfo(record.start);
+      if(!requestInfo || requestInfo.signedDays>=8) return null;
+
+      return {
+        record,
+        product,
+        requestInfo
+      };
+    })
+    .filter(Boolean)
+    .sort((a,b)=>{
+      if(a.requestInfo.signedDays!==b.requestInfo.signedDays){
+        return a.requestInfo.signedDays-b.requestInfo.signedDays;
+      }
+      return a.record.start.localeCompare(b.record.start);
+    });
+}
+
+function urgentUnconfirmedSalesCount(){
+  return urgentUnconfirmedSales().length;
+}
+
+function urgentSaleTimingLabel(info){
+  if(!info) return '';
+  if(info.signedDays>1) return `in ${info.signedDays} days`;
+  if(info.signedDays===1) return 'in 1 day';
+  if(info.signedDays===0) return 'today';
+  const overdue=Math.abs(info.signedDays);
+  return `overdue by ${overdue} day${overdue===1?'':'s'}`;
+}
+
+function urgentUnconfirmedSalesWarningHTML(){
+  const urgent=urgentUnconfirmedSales();
+  if(!urgent.length) return '';
+
+  const ids=(STATE.products||[]).map(p=>p.id);
+
+  return `
+    <div class="sales-request-urgency-warning">
+      <strong>The following unconfirmed sales need to be requested soon:</strong>
+      <div class="sales-request-urgency-items">
+        ${urgent.map(({product,requestInfo})=>{
+          const color=colorFor(product.id,ids);
+          const shortName=cleanShortName(product.shortName||product.name);
+          return `
+            <span class="sales-request-urgency-item">
+              <span class="sales-request-product-badge">
+                <span class="sales-product-bubble-dot" style="background:${color}"></span>
+                <span>${escapeHtml(shortName)}</span>
+              </span>
+              <span class="sales-request-urgency-time">${escapeHtml(urgentSaleTimingLabel(requestInfo))}</span>
+            </span>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function saleRequestCountdownBadgeHTML(startDate){
+  const info=saleRequestDeadlineInfo(startDate);
+  if(!info) return '';
+  return `<span class="sales-request-countdown-badge" title="${escapeAttr(info.label)}">${info.daysLeft}</span>`;
+}
+
 function showSalesSuggestionGlobalTooltip(product,suggestion,x,y){
   const tooltip=document.getElementById('salesSuggestionGlobalTooltip');
   if(!tooltip) return;
 
   const shortName=cleanShortName(product.shortName||product.name);
   const color=colorFor(product.id,(STATE.products||[]).map(p=>p.id));
+  const requestInfo=saleRequestDeadlineInfo(suggestion.start);
   tooltip.innerHTML=`
     <strong class="sales-tooltip-product-title"><span class="sales-tooltip-product-dot" style="background:${color}"></span>${shortName}</strong>
     <span>${formatSaleDays(dayDiff(suggestion.start,suggestion.end))} sale days</span>
     <span>${suggestion.start} → ${suggestion.end}</span>
+    ${requestInfo?`<span class="sales-request-deadline-tooltip"><strong>${requestInfo.daysLeft}</strong><span>${escapeHtml(requestInfo.sentence)} · deadline ${requestInfo.deadline}</span></span>`:''}
     ${suggestion.provisionalUnknownNextFab?`
       <span class="sales-suggestion-warning-tooltip">
         Conservative suggestion: better to wait until the next FAB event is known. This sale currently ends with the last known FAB event so it stays safe for an unknown later event.
@@ -9452,12 +9779,15 @@ function mountSalesTimelineSalePeriods(){
     if(isPlanned) box.dataset.plannedId=period.id;
     else if(period.confirmationId) box.dataset.confirmationId=period.confirmationId;
 
+    const requestInfo=isPlanned?saleRequestDeadlineInfo(visualStart):null;
+
     box.innerHTML=`
       <span class="sales-sale-box-label">
         <span class="sales-sale-short-name">${shortName}</span>
         ${discount?`<span class="sales-discount-badge">${discount}%</span>`:''}
         ${period.fabEventId?`<span class="sales-event-badge">Event</span>`:''}
       </span>
+      ${isPlanned?saleRequestCountdownBadgeHTML(visualStart):''}
       <span class="sales-selection-floating-label" aria-hidden="true">
         <span class="sales-sale-short-name">${shortName}</span>
         ${discount?`<span class="sales-discount-badge">${discount}%</span>`:''}
@@ -9471,6 +9801,7 @@ function mountSalesTimelineSalePeriods(){
           ${isPlanned?'Planned':(period.confirmed?'Confirmed':'Unconfirmed · estimated')}
         </span>
         ${period.fabEventId?`<span class="sales-sale-state confirmed">Participating in FAB event</span>`:''}
+        ${isPlanned && requestInfo?`<span class="sales-request-deadline-tooltip"><strong>${requestInfo.daysLeft}</strong><span>${escapeHtml(requestInfo.sentence)} · deadline ${requestInfo.deadline}</span></span>`:''}
         <span class="sales-sale-edit-hint">Click to edit</span>
       </span>
     `;
@@ -9553,6 +9884,7 @@ function mountSalesTimelineSalePeriods(){
           <span class="sales-suggestion-warning-badge"
             title="Better to wait until the next FAB event is known. This conservative suggestion ends with the last known FAB event so it stays safe for an unknown later event.">!</span>
         `:''}
+        ${saleRequestCountdownBadgeHTML(suggestion.start)}
         <span class="sales-suggestion-question">?</span>
       `;
 
