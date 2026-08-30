@@ -7862,6 +7862,44 @@
     transform-origin:center;
   }
 
+
+  /* Revenue Log daily product values should use regular text weight. */
+  .revenue-log-grid .rl-product-cell .rl-value-pill,
+  .revenue-log-grid .rl-sale-edge .rl-value-pill,
+  .revenue-log-grid .rl-sale-full .rl-value-pill{
+    font-weight:400 !important;
+  }
+
+  .revenue-selection-copy-hint{
+    margin-top:7px;
+    padding-top:6px;
+    border-top:1px solid rgba(255,255,255,.08);
+    color:var(--gold);
+    font-size:9px;
+    font-weight:700;
+  }
+
+  .revenue-selection-copy-hint kbd{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:28px;
+    height:18px;
+    margin-right:4px;
+    padding:0 5px;
+    border:1px solid rgba(217,164,65,.28);
+    border-radius:5px;
+    background:rgba(217,164,65,.08);
+    color:var(--gold);
+    font-size:8px;
+    font-weight:800;
+    line-height:1;
+  }
+
+  .revenue-selection-copy-hint.copied{
+    color:#86d49a;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -18757,6 +18795,93 @@ function wireTabEvents(){
         selectionTooltip.style.top=Math.max(8,top)+'px';
       };
 
+
+      const revenueLogClipboardMoney=(value)=>{
+        const amount=Math.floor(Number(value)||0).toLocaleString(undefined,{maximumFractionDigits:0});
+        const symbol=displayCurrencySymbol();
+        const gap=/^[A-Z]{2,}$/.test(symbol)?' ':'';
+        return `${amount}${gap}${symbol}`;
+      };
+
+      const buildRevenueSelectionClipboardText=()=>{
+        if(!dragSelection) return '';
+
+        const endRow=Number.isFinite(dragSelection.endRow)?dragSelection.endRow:dragSelection.startRow;
+        const endCol=Number.isFinite(dragSelection.endCol)?dragSelection.endCol:dragSelection.startCol;
+        const r0=Math.min(dragSelection.startRow,endRow);
+        const r1=Math.max(dragSelection.startRow,endRow);
+        const c0=Math.min(dragSelection.startCol,endCol);
+        const c1=Math.max(dragSelection.startCol,endCol);
+
+        const filteredProducts=getFilteredProducts();
+        const productParts=[];
+
+        for(let c=c0;c<=c1;c++){
+          const product=filteredProducts[c];
+          if(!product) continue;
+
+          const daily=[];
+          for(let r=r0;r<=r1;r++){
+            const cell=getCell(r,c);
+            if(!cell || !cell.dataset.date) continue;
+            daily.push({
+              date:cell.dataset.date,
+              value:Number(cell.dataset.value)||0
+            });
+          }
+
+          daily.sort((a,b)=>a.date.localeCompare(b.date));
+
+          const dayText=daily.map(item=>
+            `${shortDayLabel(item.date)}: ${revenueLogClipboardMoney(item.value)}`
+          ).join('; ');
+
+          productParts.push(`The product ${product.name} revenue: ${dayText}`);
+        }
+
+        return productParts.join(' and ');
+      };
+
+      const copyRevenueSelectionToClipboard=async()=>{
+        const text=buildRevenueSelectionClipboardText();
+        if(!text) return false;
+
+        try{
+          if(navigator.clipboard && typeof navigator.clipboard.writeText==='function'){
+            await navigator.clipboard.writeText(text);
+          }else{
+            throw new Error('Clipboard API unavailable');
+          }
+        }catch(_){
+          const ta=document.createElement('textarea');
+          ta.value=text;
+          ta.style.position='fixed';
+          ta.style.left='-9999px';
+          ta.style.top='0';
+          ta.setAttribute('readonly','');
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+
+        const hint=selectionTooltip.querySelector('.revenue-selection-copy-hint');
+        if(hint){
+          hint.classList.add('copied');
+          hint.innerHTML='<kbd>Enter</kbd>Copied to clipboard';
+          clearTimeout(copyRevenueSelectionToClipboard._timer);
+          copyRevenueSelectionToClipboard._timer=setTimeout(()=>{
+            if(!dragSelection) return;
+            const current=selectionTooltip.querySelector('.revenue-selection-copy-hint');
+            if(current){
+              current.classList.remove('copied');
+              current.innerHTML='<kbd>Enter</kbd>Copy selected daily revenue';
+            }
+          },900);
+        }
+        return true;
+      };
+
       const clearDragSelection=()=>{
         if(!dragSelection) return;
         dragSelection.selectedKeys.forEach(key=>{
@@ -18880,6 +19005,7 @@ function wireTabEvents(){
               ${productRows}
             </div>
           `:''}
+          <div class="revenue-selection-copy-hint"><kbd>Enter</kbd>Copy selected daily revenue</div>
         `;
         selectionTooltip.classList.add('visible');
         positionSelectionTooltip(clientX,clientY);
@@ -18929,16 +19055,26 @@ function wireTabEvents(){
           }
         };
 
+        const onKeyDown=(ev)=>{
+          if(!dragSelection || ev.key!=='Enter') return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
+          copyRevenueSelectionToClipboard();
+        };
+
         const onUp=()=>{
           document.removeEventListener('pointermove',onMove,true);
           document.removeEventListener('pointerup',onUp,true);
           document.removeEventListener('pointercancel',onUp,true);
+          document.removeEventListener('keydown',onKeyDown,true);
           clearDragSelection();
         };
 
         document.addEventListener('pointermove',onMove,true);
         document.addEventListener('pointerup',onUp,true);
         document.addEventListener('pointercancel',onUp,true);
+        document.addEventListener('keydown',onKeyDown,true);
       });
     }
     if(container && tooltip){
