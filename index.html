@@ -7826,6 +7826,42 @@
     min-height:535px !important;
   }
 
+
+  .dashboard-revenue-panel-head{
+    display:flex !important;
+    align-items:flex-start !important;
+    justify-content:space-between !important;
+    gap:16px !important;
+  }
+
+  .dashboard-revenue-panel-head>div:first-child{
+    min-width:0;
+  }
+
+  .dashboard-revenue-mode-toggle{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex:0 0 auto;
+    padding-top:1px;
+  }
+
+  .dashboard-revenue-mode-label{
+    color:var(--muted2);
+    font-size:9px;
+    font-weight:800;
+    transition:color .12s ease;
+  }
+
+  .dashboard-revenue-mode-label.active{
+    color:#fff;
+  }
+
+  .dashboard-revenue-mode-toggle .switch{
+    transform:scale(.9);
+    transform-origin:center;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -8075,6 +8111,7 @@ let TF_PRODUCT_CARDS = { preset:'all', start:null, end:null }; // shared timefra
 let PRODUCT_PERFORMANCE_SHARED_SCALE = false; // true = shared Y scale, false = fit each product's performance line
 let TF_ACCUM_CHART = { preset:'all', start:null, end:null };   // scoped to the "accumulated revenue" chart only
 let CHART_GRANULARITY = 'monthly'; // 'monthly' | 'daily', for the per-product chart only
+let DASHBOARD_REVENUE_MODE = 'gross'; // 'gross' | 'net'; resets to gross on full reload
 let charts = {};
 let IMPORT_STATE = null; // holds parsed-but-not-yet-committed CSV import data
 const REVENUE_LOG_INITIAL_MONTHS = 3;
@@ -8598,6 +8635,36 @@ function chartNetForProductRange(p,start,end){
   // Charts always show sales revenue only. General spending never changes chart data.
   return rawNetForProductRange(p,start,end);
 }
+
+function chartGrossForProductRange(p,start,end){
+  // Gross chart revenue keeps the optional personal revenue share, but does
+  // not deduct the marketplace fee. General spending never changes chart data.
+  const share=revenueShareMultiplier(p);
+  return STATE.revenue
+    .filter(r=>r.productId===p.id && (!start || r.date>=start) && (!end || r.date<=end))
+    .reduce((sum,r)=>sum+convertRevenueUSD(Number(r.amount)*share,r.date),0);
+}
+
+function dashboardRevenueForProductRange(p,start,end){
+  return DASHBOARD_REVENUE_MODE==='net'
+    ? chartNetForProductRange(p,start,end)
+    : chartGrossForProductRange(p,start,end);
+}
+
+function dashboardRevenueModeToggleHTML(){
+  const isNet=DASHBOARD_REVENUE_MODE==='net';
+  return `
+    <div class="dashboard-revenue-mode-toggle">
+      <span class="dashboard-revenue-mode-label ${!isNet?'active':''}">Gross</span>
+      <label class="switch" title="Switch between gross and net revenue">
+        <input type="checkbox" id="dashboardRevenueModeToggle" ${isNet?'checked':''}>
+        <span class="slider"></span>
+      </label>
+      <span class="dashboard-revenue-mode-label ${isNet?'active':''}">Net</span>
+    </div>
+  `;
+}
+
 function netRevenueForProduct(p){
   // Revenue totals and revenue-based statistics can subtract general spending.
   const spending=STATE.settings.subtractGeneralSpendingFromNumbers!==false ? productSpendingTotal(p) : 0;
@@ -14815,9 +14882,14 @@ function dashboardHTML(){
   return filterBarHTML() + `
     ${dashboardYearSummaryHTML(products)}
     <div class="panel">
-      <div class="panel-head">
-        <h2>Gross revenue</h2>
-        <span class="hint">gross revenue combined across the selected products · hover for product breakdown</span>
+      <div class="panel-head dashboard-revenue-panel-head">
+        <div>
+          <h2>${DASHBOARD_REVENUE_MODE==='net'?'Net revenue':'Gross revenue'}</h2>
+          <span class="hint">${DASHBOARD_REVENUE_MODE==='net'
+            ? 'net revenue after marketplace fees combined across the selected products · hover for product breakdown'
+            : 'gross revenue before marketplace fees combined across the selected products · hover for product breakdown'}</span>
+        </div>
+        ${dashboardRevenueModeToggleHTML()}
       </div>
       ${timeframeControlHTML('pc', TF_PRODUCT_CHART, granularityToggleHTML(pcDailyAllowed, pcGranularity))}
       <div class="chart-wrap tall"><canvas id="chartMonthlyRevenue"></canvas></div>
@@ -15776,13 +15848,13 @@ function mountDashboardCharts(){
     products.forEach(p=>{
       const share = revenueShareMultiplier(p);
       seriesByProduct[p.id] = buckets.map(bucket=>{
-        if(granularity==='daily') return chartNetForProductRange(p,bucket,bucket);
+        if(granularity==='daily') return dashboardRevenueForProductRange(p,bucket,bucket);
         const [y,m]=bucket.split('-').map(Number);
         const bucketStart=`${bucket}-01`;
         const bucketEnd=`${bucket}-${String(new Date(y,m,0).getDate()).padStart(2,'0')}`;
         const start=bucketStart<range.start?range.start:bucketStart;
         const end=bucketEnd>range.end?range.end:bucketEnd;
-        return chartNetForProductRange(p,start,end);
+        return dashboardRevenueForProductRange(p,start,end);
       });
     });
 
@@ -15805,7 +15877,7 @@ function mountDashboardCharts(){
           labels: buckets.map(labelFn),
           datasets:[{
             type:'bar',
-            label:'Revenue',
+            label:DASHBOARD_REVENUE_MODE==='net'?'Net revenue':'Gross revenue',
             data:buckets.map((_,i)=>products.reduce((s,p)=>s+(Number(seriesByProduct[p.id][i])||0),0)),
             backgroundColor:'rgba(217,164,65,0.12)',
             hoverBackgroundColor:'rgba(217,164,65,0.42)',
@@ -18510,6 +18582,14 @@ function wireTabEvents(){
 
     if(ACTIVE_TAB==='dashboard'){
       wireMonthlyPerformanceEvents();
+
+      const dashboardRevenueModeToggle=document.getElementById('dashboardRevenueModeToggle');
+      if(dashboardRevenueModeToggle){
+        dashboardRevenueModeToggle.addEventListener('change',()=>{
+          DASHBOARD_REVENUE_MODE=dashboardRevenueModeToggle.checked?'net':'gross';
+          renderTabContent();
+        });
+      }
 
       // --- "Accumulated total revenue" chart controls (own separate timeframe) ---
       const acSelect = document.getElementById('acTimeframeSelect');
