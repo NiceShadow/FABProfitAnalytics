@@ -8595,6 +8595,15 @@
     .motivation-work-day-actions.three-actions{grid-template-columns:1fr;}
   }
 
+
+  .motivation-toggl-bridge-field{
+    margin-bottom:9px;
+  }
+  .motivation-toggl-bridge-field input{
+    font-family:'JetBrains Mono',monospace !important;
+    font-size:10px !important;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -8672,6 +8681,7 @@ function storageApiExists(){
 const LOCAL_STORAGE_KEY = 'fab-profit-analytics-state-v1';
 const FX_CACHE_STORAGE_KEY = 'fab-profit-analytics-fx-history-v1';
 const TOGGL_TOKEN_STORAGE_KEY = 'fab-profit-analytics-toggl-token-v1';
+const TOGGL_BRIDGE_URL_STORAGE_KEY = 'fab-profit-analytics-toggl-bridge-url-v1';
 
 function getTogglApiToken(){
   if(!localStorageAvailable()) return '';
@@ -8701,6 +8711,52 @@ function clearTogglApiToken(){
     return true;
   }catch(e){
     console.error('Toggl token clear failed',e);
+    return false;
+  }
+}
+
+function normalizeTogglBridgeUrl(value){
+  const raw=String(value||'').trim();
+  if(!raw) return '';
+  try{
+    const url=new URL(raw);
+    if(url.protocol!=='https:' && url.hostname!=='127.0.0.1' && url.hostname!=='localhost') return '';
+    return url.toString().replace(/\/$/,'');
+  }catch(_){
+    return '';
+  }
+}
+
+function getTogglBridgeUrl(){
+  if(!localStorageAvailable()) return '';
+  try{
+    return normalizeTogglBridgeUrl(window.localStorage.getItem(TOGGL_BRIDGE_URL_STORAGE_KEY)||'');
+  }catch(e){
+    console.error('Toggl bridge URL load failed',e);
+    return '';
+  }
+}
+
+function setTogglBridgeUrl(value){
+  if(!localStorageAvailable()) return false;
+  try{
+    const url=normalizeTogglBridgeUrl(value);
+    if(url) window.localStorage.setItem(TOGGL_BRIDGE_URL_STORAGE_KEY,url);
+    else window.localStorage.removeItem(TOGGL_BRIDGE_URL_STORAGE_KEY);
+    return !!url;
+  }catch(e){
+    console.error('Toggl bridge URL save failed',e);
+    return false;
+  }
+}
+
+function clearTogglBridgeUrl(){
+  if(!localStorageAvailable()) return false;
+  try{
+    window.localStorage.removeItem(TOGGL_BRIDGE_URL_STORAGE_KEY);
+    return true;
+  }catch(e){
+    console.error('Toggl bridge URL clear failed',e);
     return false;
   }
 }
@@ -10041,44 +10097,56 @@ function motivationTogglAggregateEntries(entries,rangeStart,rangeEnd){
   }
   return result;
 }
-async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd){
-  const auth=btoa(`${token}:api_token`);
-  const url=new URL('https://api.track.toggl.com/api/v9/me/time_entries');
-  url.searchParams.set('start_date',rangeStart);
-  url.searchParams.set('end_date',rangeEnd);
+async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride=null){
+  const bridgeBase=normalizeTogglBridgeUrl(bridgeOverride||getTogglBridgeUrl());
+  if(!bridgeBase){
+    throw new Error('Set your online Toggl bridge URL first.');
+  }
 
+  const bridgeUrl=`${bridgeBase}/time_entries`;
   let response;
   try{
-    response=await fetch(url.toString(),{
-      method:'GET',
+    response=await fetch(bridgeUrl,{
+      method:'POST',
       mode:'cors',
-      headers:{
-        'Accept':'application/json',
-        'Content-Type':'application/json',
-        'Authorization':`Basic ${auth}`
-      }
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        token,
+        start_date:rangeStart,
+        end_date:rangeEnd
+      })
     });
   }catch(error){
-    const err=new Error('The browser could not reach Toggl directly. If this local index.html is being blocked by browser CORS/security rules, tell me this exact error and I can switch the site to a tiny local bridge.');
+    const err=new Error(
+      'The online Toggl bridge could not be reached. Check the bridge URL and make sure the Worker is deployed.'
+    );
     err.cause=error;
     throw err;
   }
 
-  if(response.status===403) throw new Error('Toggl rejected the API token (403). Check the token and try again.');
-  if(response.status===429) throw new Error('Toggl rate limit reached (429). Try syncing again later.');
-  if(!response.ok) throw new Error(`Toggl request failed (${response.status}).`);
+  let payload=null;
+  try{ payload=await response.json(); }catch(_){}
 
-  const data=await response.json();
-  if(!Array.isArray(data)) throw new Error('Toggl returned an unexpected response.');
-  return data;
+  if(!response.ok){
+    const detail=payload && payload.error
+      ? payload.error
+      : `Online Toggl bridge failed (${response.status}).`;
+    throw new Error(detail);
+  }
+
+  if(!payload || !Array.isArray(payload.entries)){
+    throw new Error('The online Toggl bridge returned an unexpected response.');
+  }
+  return payload.entries;
 }
-async function motivationSyncToggl60Days(tokenOverride=null){
+
+async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null){
   const token=String(tokenOverride||getTogglApiToken()||'').trim();
   if(!token) throw new Error('Enter your Toggl Track API token first.');
 
   const rangeEnd=todayStr();
   const rangeStart=datePlusDays(rangeEnd,-59);
-  const entries=await motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd);
+  const entries=await motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride);
   const dailyHours=motivationTogglAggregateEntries(entries,rangeStart,rangeEnd);
   const state=motivationTogglState();
 
@@ -10099,6 +10167,7 @@ function motivationTogglConnectionStatus(message,type='neutral'){
 }
 function openMotivationTogglConnection(){
   const existingToken=getTogglApiToken();
+  const existingBridgeUrl=getTogglBridgeUrl();
   const state=motivationTogglState();
   const lastStatus=state.lastError
     ? state.lastError
@@ -10116,9 +10185,15 @@ function openMotivationTogglConnection(){
     </div>
 
     <div class="motivation-toggl-connection-copy">
-      Paste your personal Toggl Track API token. It is stored only in this browser under a separate local key and is not included in dashboard backups/exports.
+      The online dashboard uses a tiny HTTPS bridge to avoid Toggl's browser-CORS restriction. Paste the deployed Worker URL and your personal Toggl Track API token below. Both are stored only in this browser under separate local keys and are not included in dashboard backups/exports.
       <a href="https://track.toggl.com/profile" target="_blank" rel="noopener noreferrer">Open Toggl profile to find the API token ↗</a>
     </div>
+
+    <label class="sales-global-modal-field motivation-toggl-bridge-field">
+      <span>Online bridge URL</span>
+      <input type="url" id="motivationTogglBridgeUrl" autocomplete="off" spellcheck="false"
+        value="${escapeAttr(existingBridgeUrl)}" placeholder="https://your-worker.your-subdomain.workers.dev">
+    </label>
 
     <label class="sales-global-modal-field motivation-toggl-token-field">
       <span>API token</span>
@@ -10127,7 +10202,7 @@ function openMotivationTogglConnection(){
     </label>
 
     <div class="motivation-toggl-connection-note">
-      Sync imports all Toggl Track time entries from the last 60 days. Entries that cross midnight are split between the correct local calendar days. Manual edits in this website override the synced value for that specific day.
+      Sync imports all Toggl Track time entries from the last 60 days through your HTTPS bridge. Entries that cross midnight are split between the correct local calendar days. Manual edits in this website override the synced value for that specific day.
     </div>
 
     <div class="motivation-toggl-connection-status ${state.lastError?'error':''}" id="motivationTogglConnectionStatus">${escapeHtml(lastStatus)}</div>
@@ -10142,6 +10217,7 @@ function openMotivationTogglConnection(){
   setSalesModalSize(modal,'multi');
   modal.classList.add('motivation-toggl-modal');
 
+  const bridgeInput=modal.querySelector('#motivationTogglBridgeUrl');
   const input=modal.querySelector('#motivationTogglToken');
   const saveBtn=modal.querySelector('#motivationTogglConnectSync');
   const close=()=>closeSalesGlobalModal();
@@ -10153,6 +10229,7 @@ function openMotivationTogglConnection(){
   if(disconnect){
     disconnect.addEventListener('click',async()=>{
       clearTogglApiToken();
+      clearTogglBridgeUrl();
       motivationTogglState().lastError=null;
       await persist();
       close();
@@ -10162,7 +10239,13 @@ function openMotivationTogglConnection(){
   }
 
   const connectAndSync=async()=>{
+    const bridgeUrl=normalizeTogglBridgeUrl(bridgeInput.value);
     const token=String(input.value||'').trim();
+    if(!bridgeUrl){
+      motivationTogglConnectionStatus('Paste a valid HTTPS Worker bridge URL first.','error');
+      bridgeInput.focus();
+      return;
+    }
     if(!token){
       motivationTogglConnectionStatus('Paste your API token first.','error');
       input.focus();
@@ -10171,10 +10254,11 @@ function openMotivationTogglConnection(){
 
     saveBtn.disabled=true;
     saveBtn.textContent='Connecting…';
-    motivationTogglConnectionStatus('Connecting to Toggl Track and importing the last 60 days…','loading');
+    motivationTogglConnectionStatus('Connecting through the online bridge and importing the last 60 days…','loading');
 
     try{
-      await motivationSyncToggl60Days(token);
+      await motivationSyncToggl60Days(token,bridgeUrl);
+      setTogglBridgeUrl(bridgeUrl);
       setTogglApiToken(token);
       motivationTogglConnectionStatus('Connected successfully. Work Momentum has been synced.','success');
       saveBtn.textContent='Connected';
@@ -10200,7 +10284,7 @@ function openMotivationTogglConnection(){
       connectAndSync();
     }
   });
-  requestAnimationFrame(()=>input.focus());
+  requestAnimationFrame(()=>{ (existingBridgeUrl?input:bridgeInput).focus(); });
 }
 
 
@@ -19305,6 +19389,7 @@ async function clearAllWebsiteData(){
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
       window.localStorage.removeItem(FX_CACHE_STORAGE_KEY);
       window.localStorage.removeItem(TOGGL_TOKEN_STORAGE_KEY);
+      window.localStorage.removeItem(TOGGL_BRIDGE_URL_STORAGE_KEY);
     }
   }catch(e){
     console.error('Local reset failed',e);
