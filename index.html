@@ -9199,6 +9199,22 @@
     display:none !important;
   }
 
+
+  .motivation-auto-challenge-note{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:30px;
+    padding:0 9px;
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:7px;
+    background:rgba(255,255,255,.018);
+    color:#7F8796;
+    font-size:8.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -11592,10 +11608,48 @@ function motivationChallengeDeadlineText(challenge){
   return `${left} days left · ${motivationShortDate(challenge.deadline)}`;
 }
 
+
+async function motivationAutoCompleteTrackedChallenge(){
+  const game=motivationGameState();
+  const challenge=game.activeChallenge;
+  if(!challenge || !motivationChallengeIsAutoTracked(challenge)){
+    return {completed:false,event:null};
+  }
+
+  const progress=motivationChallengeProgress(challenge);
+  if(progress.ratio<1){
+    return {completed:false,event:null};
+  }
+
+  const awardedXp=Math.max(0,Math.round(Number(challenge.xpReward)||0));
+  const event=awardedXp>0
+    ? motivationGrantXp(awardedXp,`Challenge completed · ${challenge.title}`)
+    : null;
+
+  game.challengeHistory.push({
+    ...challenge,
+    status:'completed',
+    finishedAt:new Date().toISOString(),
+    claimedXp:awardedXp,
+    completionMode:'automatic_toggl'
+  });
+
+  game.activeChallenge=null;
+  motivationEnsureActiveChallenge();
+  await persist();
+
+  return {completed:true,event};
+}
+
 async function motivationCompleteChallenge(){
   const game=motivationGameState();
   const challenge=game.activeChallenge;
   if(!challenge) return;
+
+  if(!motivationChallengeCanManualClaim(challenge)){
+    showToast('This challenge completes automatically from Toggl progress');
+    return;
+  }
 
   let awardedXp=Math.max(0,Math.round(Number(challenge.xpReward)||0));
   let event=null;
@@ -11730,6 +11784,25 @@ function motivationChallengeTask(challenge){
   if(!challenge || !challenge.taskId) return null;
   return motivationGameState().tasks.find(t=>t.id===challenge.taskId)||null;
 }
+
+function motivationChallengeIsAutoTracked(challenge){
+  if(!challenge) return false;
+  if(challenge.taskId) return false;
+
+  return [
+    'today_hours',
+    'two_day_split',
+    'three_day_total',
+    'consistency_five',
+    'week_total',
+    'streak_minimum'
+  ].includes(challenge.kind);
+}
+
+function motivationChallengeCanManualClaim(challenge){
+  return !!challenge && !motivationChallengeIsAutoTracked(challenge);
+}
+
 
 function motivationArchiveTaskChallenge(challenge,status='task_closed'){
   const game=motivationGameState();
@@ -11954,6 +12027,18 @@ function motivationGamePanelHTML(){
   const level=motivationLevelInfo();
   const challenge=motivationEnsureActiveChallenge();
   const progress=motivationChallengeProgress(challenge);
+
+  if(motivationChallengeIsAutoTracked(challenge) && progress.ratio>=1){
+    queueMicrotask(async()=>{
+      const result=await motivationAutoCompleteTrackedChallenge();
+      if(result.completed){
+        refreshMotivationGamePanel();
+        mountMotivationFloatingControl();
+        if(result.event) showMotivationXpBurst(result.event);
+      }
+    });
+  }
+
   const tasks=motivationOpenTasks();
   const promptDue=motivationTaskPromptDue();
 
@@ -12007,10 +12092,12 @@ function motivationGamePanelHTML(){
             <strong>${escapeHtml(progress.label)}</strong>
             <span>${escapeHtml(motivationChallengeDeadlineText(challenge))}</span>
           </div>
-          <small>${escapeHtml(progress.detail)}</small>
+          <small>${escapeHtml(progress.detail)}${motivationChallengeIsAutoTracked(challenge)?' · Toggl-tracked':''}</small>
           <div class="motivation-challenge-actions">
             <button type="button" class="btn secondary" id="motivationSkipChallengeBtn">Not for me</button>
-            <button type="button" class="btn primary" id="motivationCompleteChallengeBtn">${progress.ratio>=1?'Claim completion':'I completed it'}</button>
+            ${motivationChallengeCanManualClaim(challenge)
+              ? `<button type="button" class="btn primary" id="motivationCompleteChallengeBtn">${progress.ratio>=1?'Claim completion':'I completed it'}</button>`
+              : `<span class="motivation-auto-challenge-note">Tracked automatically from Toggl</span>`}
           </div>
         </div>
 
@@ -12233,10 +12320,18 @@ function wireMotivationWorkTimelineEvents(){
       syncBtn.textContent='Syncing…';
       try{
         const result=await motivationSyncToggl60Days();
+        const challengeResult=await motivationAutoCompleteTrackedChallenge();
+
         refreshMotivationWorkTimeline();
         refreshMotivationGamePanel();
         mountMotivationFloatingControl();
-        if(result.xpEvent){
+
+        if(challengeResult.completed && challengeResult.event){
+          showMotivationXpBurst(challengeResult.event);
+          if(result.newWorkHours>0){
+            showToast(`${motivationFormatHours(result.newWorkHours)} synced · challenge completed automatically`);
+          }
+        }else if(result.xpEvent){
           showMotivationXpBurst(result.xpEvent);
         }else if(result.newWorkHours>0){
           showToast(`${motivationFormatHours(result.newWorkHours)} synced`);
