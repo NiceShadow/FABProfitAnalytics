@@ -8303,7 +8303,7 @@
   }
 
   .motivation-work-chart-wrap{
-    overflow-x:auto;
+    overflow-x:hidden;
     overflow-y:hidden;
     padding:2px 0 0;
     border-top:1px solid rgba(255,255,255,.045);
@@ -8313,27 +8313,61 @@
     --work-columns:60;
     position:relative;
     display:grid;
-    grid-template-columns:repeat(var(--work-columns),minmax(12px,1fr));
-    min-width:760px;
-    height:130px;
+    grid-template-columns:repeat(var(--work-columns),minmax(0,1fr));
+    width:99%;
+    min-width:0;
+    height:138px;
+    margin:0 auto;
     align-items:stretch;
-    padding:5px 2px 0;
+    padding:5px 0 0;
   }
 
   .motivation-work-baseline{
     position:absolute;
-    left:2px;
-    right:2px;
-    top:85px;
+    left:0;
+    right:0;
+    top:88px;
     height:1px;
-    background:rgba(255,255,255,.15);
+    background:rgba(255,255,255,.19);
     pointer-events:none;
+    z-index:1;
+  }
+
+  .motivation-work-baseline>span{
+    position:absolute;
+    left:3px;
+    top:3px;
+    color:#666F7D;
+    font-size:7px;
+    font-weight:700;
+  }
+
+  .motivation-work-grid-line{
+    position:absolute;
+    left:0;
+    right:0;
+    height:1px;
+    background:rgba(255,255,255,.055);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .motivation-work-grid-line>span{
+    position:absolute;
+    left:3px;
+    bottom:2px;
+    padding:0 2px;
+    background:rgba(27,32,42,.82);
+    color:#687180;
+    font-size:7px;
+    font-weight:700;
   }
 
   .motivation-work-day{
     position:relative;
+    z-index:2;
     display:grid;
-    grid-template-rows:105px 20px;
+    grid-template-rows:110px 22px;
     min-width:0;
     padding:0;
     border:0;
@@ -8349,15 +8383,16 @@
   .motivation-work-bar-zone{
     position:relative;
     display:block;
-    height:105px;
+    height:110px;
   }
 
   .motivation-work-positive{
     position:absolute;
-    left:24%;
-    right:24%;
-    bottom:20px;
+    left:50%;
+    bottom:22px;
+    width:7px;
     min-height:7px;
+    transform:translateX(-50%);
     border-radius:4px 4px 1px 1px;
     background:linear-gradient(180deg,#E6BC5F,#B6812E);
     box-shadow:0 0 0 1px rgba(255,218,133,.08),0 -4px 10px rgba(217,164,65,.06);
@@ -8365,10 +8400,11 @@
 
   .motivation-work-negative{
     position:absolute;
-    left:30%;
-    right:30%;
-    top:86px;
+    left:50%;
+    top:89px;
+    width:7px;
     height:10px;
+    transform:translateX(-50%);
     border-radius:1px 1px 4px 4px;
     background:rgba(226,114,91,.72);
   }
@@ -8378,7 +8414,7 @@
     position:absolute;
     left:42%;
     right:42%;
-    top:82px;
+    top:85px;
     height:5px;
     border-radius:50%;
     background:rgba(255,255,255,.16);
@@ -8387,7 +8423,7 @@
   .motivation-work-today-dot{
     position:absolute;
     left:50%;
-    top:81px;
+    top:84px;
     width:7px;
     height:7px;
     margin-left:-3.5px;
@@ -8604,6 +8640,464 @@
     font-size:10px !important;
   }
 
+
+  /* ================= Motivation Mode v2: Work Momentum + RPG ================= */
+
+  .motivation-instant-tooltip{
+    position:fixed;
+    z-index:2200;
+    width:max-content;
+    max-width:min(300px,calc(100vw - 20px));
+    padding:8px 10px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:7px;
+    background:rgba(5,7,10,.96);
+    box-shadow:0 10px 28px rgba(0,0,0,.42);
+    pointer-events:none;
+    color:#EDEFF3;
+  }
+  .motivation-instant-tooltip[hidden]{display:none;}
+  .motivation-instant-tooltip strong{
+    display:block;
+    margin-bottom:3px;
+    font-size:11px;
+    font-weight:800;
+    color:#F1F3F7;
+  }
+  .motivation-instant-tooltip span{
+    display:block;
+    color:#B8C0CE;
+    font-size:10px;
+    line-height:1.35;
+  }
+
+  .motivation-work-stat-hover{cursor:help;}
+
+  .motivation-week-stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    margin:-3px 0 12px;
+  }
+  .motivation-week-stat{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    min-width:0;
+    padding:7px 9px;
+    border:1px solid rgba(79,184,176,.09);
+    border-radius:8px;
+    background:rgba(79,184,176,.022);
+  }
+  .motivation-week-stat>span{
+    color:#8F97A7;
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .motivation-week-stat>strong{
+    margin-left:auto;
+    color:#DDE3E9;
+    font-size:14px;
+    font-weight:850;
+    white-space:nowrap;
+  }
+  .motivation-week-stat>small{
+    color:#747E8D;
+    font-size:8px;
+    white-space:nowrap;
+  }
+
+  .motivation-game-panel{
+    position:relative;
+    overflow:hidden;
+    margin:0 0 14px;
+    padding:16px;
+    border:1px solid rgba(140,124,240,.20);
+    border-radius:12px;
+    background:
+      radial-gradient(circle at 95% -10%,rgba(140,124,240,.10),transparent 35%),
+      radial-gradient(circle at 5% 120%,rgba(217,164,65,.06),transparent 34%),
+      linear-gradient(180deg,rgba(255,255,255,.024),rgba(255,255,255,.012));
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+  }
+
+  .motivation-game-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+  }
+  .motivation-game-head h3{
+    margin:2px 0 4px;
+    color:#F2F3F6;
+    font-size:18px;
+    line-height:1.2;
+  }
+  .motivation-game-head p{
+    max-width:760px;
+    margin:0;
+    color:#AAB1BF;
+    font-size:10.5px;
+    line-height:1.45;
+  }
+  .motivation-game-head p strong{color:#D9C6FF;}
+
+  .motivation-level-card{
+    display:grid;
+    grid-template-columns:auto auto;
+    grid-template-rows:auto auto;
+    align-items:center;
+    column-gap:7px;
+    min-width:112px;
+    padding:8px 10px;
+    border:1px solid rgba(140,124,240,.22);
+    border-radius:10px;
+    background:rgba(140,124,240,.055);
+    cursor:help;
+  }
+  .motivation-level-card>span{
+    color:#9B8EF1;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.09em;
+  }
+  .motivation-level-card>strong{
+    grid-row:1 / 3;
+    grid-column:2;
+    color:#E5DEFF;
+    font-size:29px;
+    font-weight:900;
+    line-height:1;
+  }
+  .motivation-level-card>small{
+    color:#AAA3CF;
+    font-size:8px;
+    white-space:nowrap;
+  }
+
+  .motivation-level-progress{
+    height:6px;
+    margin:12px 0;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.055);
+  }
+  .motivation-level-progress>span{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#7D6CE7,#D7C5FF);
+    box-shadow:0 0 14px rgba(140,124,240,.18);
+  }
+
+  .motivation-game-grid{
+    display:grid;
+    grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+    gap:10px;
+  }
+
+  .motivation-challenge-card,
+  .motivation-tasks-card{
+    min-width:0;
+    padding:12px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:9px;
+    background:rgba(255,255,255,.017);
+  }
+
+  .motivation-game-section-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .motivation-game-section-head>div{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .motivation-game-section-head>div>span{
+    color:#858FA0;
+    font-size:8.5px;
+    font-weight:850;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .motivation-game-section-head>div>strong{
+    color:#F0F2F5;
+    font-size:13px;
+    line-height:1.2;
+  }
+
+  .motivation-challenge-xp,
+  .motivation-task-xp{
+    flex:0 0 auto;
+    color:#E4B84F;
+    font-size:11px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .motivation-challenge-card>p{
+    margin:9px 0;
+    color:#C6CCD6;
+    font-size:11px;
+    line-height:1.45;
+  }
+  .motivation-challenge-card>small{
+    display:block;
+    margin-top:5px;
+    color:#778190;
+    font-size:8.5px;
+  }
+  .motivation-challenge-progress{
+    height:7px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.055);
+  }
+  .motivation-challenge-progress>span{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#B6812E,#E6BC5F);
+  }
+  .motivation-challenge-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:6px;
+  }
+  .motivation-challenge-meta strong{
+    color:#D9DDE4;
+    font-size:9.5px;
+  }
+  .motivation-challenge-meta span{
+    color:#9A8490;
+    font-size:8.5px;
+  }
+  .motivation-challenge-actions{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:7px;
+    margin-top:10px;
+  }
+  .motivation-challenge-actions .btn{
+    min-height:29px;
+    padding:5px 8px;
+    font-size:8.5px;
+  }
+
+  .motivation-task-prompt{
+    width:100%;
+    margin-top:9px;
+    padding:8px 9px;
+    border:1px dashed rgba(217,164,65,.25);
+    border-radius:8px;
+    background:rgba(217,164,65,.035);
+    text-align:left;
+    cursor:pointer;
+  }
+  .motivation-task-prompt:hover{background:rgba(217,164,65,.065);}
+  .motivation-task-prompt strong{
+    display:block;
+    color:#DDBB6B;
+    font-size:10px;
+  }
+  .motivation-task-prompt span{
+    display:block;
+    margin-top:2px;
+    color:#958B78;
+    font-size:8.5px;
+    line-height:1.35;
+  }
+
+  .motivation-task-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-top:9px;
+  }
+  .motivation-task-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto auto;
+    align-items:center;
+    gap:8px;
+    padding:7px 8px;
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:7px;
+    background:rgba(255,255,255,.014);
+  }
+  .motivation-task-main{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .motivation-task-main strong{
+    overflow:hidden;
+    color:#E9EBEF;
+    font-size:10px;
+    line-height:1.2;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .motivation-task-main span{
+    color:#788291;
+    font-size:8px;
+  }
+  .motivation-task-actions{
+    display:flex;
+    gap:5px;
+  }
+  .motivation-task-actions .btn{
+    min-height:25px;
+    padding:4px 6px;
+    font-size:7.5px;
+  }
+  .motivation-task-empty{
+    padding:13px 8px;
+    color:#747E8D;
+    font-size:9px;
+    text-align:center;
+  }
+
+  .motivation-task-input-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+  .motivation-task-xp-preview{
+    margin-top:10px;
+    padding:8px 9px;
+    border:1px solid rgba(140,124,240,.15);
+    border-radius:7px;
+    background:rgba(140,124,240,.035);
+    color:#AAA4C9;
+    font-size:9.5px;
+    line-height:1.4;
+  }
+  .motivation-task-xp-preview strong{
+    color:#D9CCFF;
+    font-size:11px;
+  }
+
+  .motivation-floating-level{
+    display:inline-flex;
+    align-items:center;
+    height:22px;
+    padding:0 6px;
+    border:1px solid rgba(140,124,240,.24);
+    border-radius:999px;
+    background:rgba(140,124,240,.07);
+    color:#CFC4FF;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.045em;
+    cursor:help;
+  }
+
+  .motivation-xp-burst{
+    position:fixed;
+    right:20px;
+    bottom:82px;
+    z-index:2100;
+    width:min(310px,calc(100vw - 30px));
+    padding:12px 13px;
+    overflow:hidden;
+    border:1px solid rgba(140,124,240,.32);
+    border-radius:12px;
+    background:rgba(16,18,25,.97);
+    box-shadow:0 18px 45px rgba(0,0,0,.48),0 0 30px rgba(140,124,240,.08);
+    opacity:0;
+    transform:translateY(16px) scale(.96);
+    transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
+  }
+  .motivation-xp-burst.visible{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  .motivation-xp-burst.leaving{
+    opacity:0;
+    transform:translateY(-8px) scale(.98);
+  }
+  .motivation-xp-burst-glow{
+    position:absolute;
+    right:-40px;
+    top:-55px;
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(140,124,240,.18),transparent 68%);
+  }
+  .motivation-xp-burst-top{
+    position:relative;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .motivation-xp-burst-top>span{
+    color:#E8DEFF;
+    font-size:23px;
+    font-weight:950;
+    letter-spacing:-.02em;
+  }
+  .motivation-xp-burst-top>strong{
+    color:#A89AF5;
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.06em;
+  }
+  .motivation-xp-burst-reason{
+    position:relative;
+    margin-top:2px;
+    color:#B5BDCA;
+    font-size:9.5px;
+  }
+  .motivation-xp-burst-track{
+    position:relative;
+    height:5px;
+    margin-top:9px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+  }
+  .motivation-xp-burst-track>span{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#7D6CE7,#D7C5FF);
+    transform-origin:left center;
+    animation:motivationXpFill .7s .16s both ease-out;
+  }
+  .motivation-xp-burst-meta{
+    position:relative;
+    margin-top:5px;
+    color:#747E8D;
+    font-size:8px;
+  }
+  @keyframes motivationXpFill{
+    from{transform:scaleX(0);}
+    to{transform:scaleX(1);}
+  }
+
+  @media(max-width:900px){
+    .motivation-work-chart-wrap{overflow-x:auto;}
+    .motivation-work-chart{width:760px;min-width:760px;margin:0;}
+    .motivation-week-stats{grid-template-columns:1fr;}
+    .motivation-week-stat{display:grid;grid-template-columns:1fr auto;}
+    .motivation-week-stat small{grid-column:1 / -1;}
+    .motivation-game-head{flex-direction:column;}
+    .motivation-level-card{align-self:flex-start;}
+    .motivation-game-grid{grid-template-columns:1fr;}
+    .motivation-task-input-grid{grid-template-columns:1fr;}
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -8623,7 +9117,7 @@
 </div>
 <script>
 
-const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
+const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"activeChallenge":null,"challengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
 
 const PALETTE = ["#D9A441","#4FB8B0","#8C7CF0","#E2725B","#6FBF73","#5DA8E2","#E2C255","#C97CE0","#7FD1C1","#E08FB0"];
 
@@ -9111,6 +9605,42 @@ function normalizeState(state){
       .map(([date,hours])=>[date,Math.max(0,Math.min(24,Number(hours)))])
   );
   state.motivationToggl.entryCount=Math.max(0,Math.round(Number(state.motivationToggl.entryCount)||0));
+  if(!state.motivationGame || typeof state.motivationGame!=='object' || Array.isArray(state.motivationGame)){
+    state.motivationGame={
+      totalXp:0,
+      activeChallenge:null,
+      challengeHistory:[],
+      tasks:[],
+      workXpBaselineReady:false,
+      workXpAwardedHours:{},
+      workXpCarry:0,
+      lastTaskPromptAt:null
+    };
+  }
+  state.motivationGame.totalXp=Math.max(0,Math.round(Number(state.motivationGame.totalXp)||0));
+  if(!Array.isArray(state.motivationGame.challengeHistory)) state.motivationGame.challengeHistory=[];
+  if(!Array.isArray(state.motivationGame.tasks)) state.motivationGame.tasks=[];
+  state.motivationGame.tasks=state.motivationGame.tasks
+    .filter(t=>t && t.id && t.title)
+    .map(t=>({
+      ...t,
+      importance:Math.max(0,Math.min(10,Number(t.importance)||0)),
+      impact:Math.max(0,Math.min(10,Number(t.impact)||0)),
+      estimatedHours:Math.max(0,Number(t.estimatedHours)||0),
+      xpReward:Math.max(0,Math.round(Number(t.xpReward)||0)),
+      status:t.status==='completed'?'completed':'open'
+    }));
+  if(typeof state.motivationGame.workXpBaselineReady!=='boolean') state.motivationGame.workXpBaselineReady=false;
+  if(!state.motivationGame.workXpAwardedHours || typeof state.motivationGame.workXpAwardedHours!=='object' || Array.isArray(state.motivationGame.workXpAwardedHours)){
+    state.motivationGame.workXpAwardedHours={};
+  }
+  state.motivationGame.workXpAwardedHours=Object.fromEntries(
+    Object.entries(state.motivationGame.workXpAwardedHours)
+      .filter(([date,hours])=>/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Number(hours)) && Number(hours)>=0)
+      .map(([date,hours])=>[date,Math.max(0,Number(hours))])
+  );
+  state.motivationGame.workXpCarry=Math.max(0,Math.min(.999999,Number(state.motivationGame.workXpCarry)||0));
+
   const legacyAcceptedPlanned=state.plannedSales.filter(x=>x && x.status==='accepted');
   if(legacyAcceptedPlanned.length){
     legacyAcceptedPlanned.forEach(x=>{
@@ -10149,6 +10679,43 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
   const entries=await motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride);
   const dailyHours=motivationTogglAggregateEntries(entries,rangeStart,rangeEnd);
   const state=motivationTogglState();
+  const game=motivationGameState();
+
+  let newWorkHours=0;
+  let xpEvent=null;
+
+  if(!game.workXpBaselineReady){
+    // The first successful sync establishes a fair baseline so importing old
+    // history does not instantly grant dozens of levels.
+    Object.entries(dailyHours).forEach(([date,hours])=>{
+      game.workXpAwardedHours[date]=Math.max(
+        Number(game.workXpAwardedHours[date])||0,
+        Number(hours)||0
+      );
+    });
+    game.workXpBaselineReady=true;
+  }else{
+    Object.entries(dailyHours).forEach(([date,hours])=>{
+      const current=Math.max(0,Number(hours)||0);
+      const already=Math.max(0,Number(game.workXpAwardedHours[date])||0);
+      if(current>already){
+        newWorkHours+=current-already;
+        game.workXpAwardedHours[date]=current;
+      }
+    });
+
+    if(newWorkHours>0.0001){
+      const rawXp=newWorkHours*MOTIVATION_WORK_XP_PER_HOUR+game.workXpCarry;
+      const wholeXp=Math.floor(rawXp);
+      game.workXpCarry=rawXp-wholeXp;
+      if(wholeXp>0){
+        xpEvent=motivationGrantXp(
+          wholeXp,
+          `${motivationFormatHours(newWorkHours)} newly synced from Toggl`
+        );
+      }
+    }
+  }
 
   state.dailyHours=dailyHours;
   state.lastSyncAt=new Date().toISOString();
@@ -10157,8 +10724,19 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
   state.syncStart=rangeStart;
   state.syncEnd=rangeEnd;
   await persist();
-  return {entries,dailyHours,rangeStart,rangeEnd};
+
+  return {
+    entries,
+    dailyHours,
+    rangeStart,
+    rangeEnd,
+    newWorkHours:Math.round(newWorkHours*100)/100,
+    xpAwarded:xpEvent?xpEvent.amount:0,
+    xpEvent,
+    baselineEstablished:!xpEvent && newWorkHours<=0 && game.workXpBaselineReady
+  };
 }
+
 function motivationTogglConnectionStatus(message,type='neutral'){
   const el=document.getElementById('motivationTogglConnectionStatus');
   if(!el) return;
@@ -10257,7 +10835,7 @@ function openMotivationTogglConnection(){
     motivationTogglConnectionStatus('Connecting through the online bridge and importing the last 60 days…','loading');
 
     try{
-      await motivationSyncToggl60Days(token,bridgeUrl);
+      const syncResult=await motivationSyncToggl60Days(token,bridgeUrl);
       setTogglBridgeUrl(bridgeUrl);
       setTogglApiToken(token);
       motivationTogglConnectionStatus('Connected successfully. Work Momentum has been synced.','success');
@@ -10265,7 +10843,9 @@ function openMotivationTogglConnection(){
       setTimeout(()=>{
         close();
         refreshMotivationWorkTimeline();
-        showToast('Toggl Track synced');
+        refreshMotivationGamePanel();
+        if(syncResult.xpEvent) showMotivationXpBurst(syncResult.xpEvent);
+        else showToast('Toggl Track synced');
       },350);
     }catch(error){
       const message=error && error.message ? error.message : 'Toggl connection failed.';
@@ -10288,6 +10868,144 @@ function openMotivationTogglConnection(){
 }
 
 
+const MOTIVATION_WORK_XP_PER_HOUR=12;
+
+function motivationGameState(){
+  if(!STATE.motivationGame || typeof STATE.motivationGame!=='object'){
+    STATE.motivationGame={
+      totalXp:0,activeChallenge:null,challengeHistory:[],tasks:[],
+      workXpBaselineReady:false,workXpAwardedHours:{},workXpCarry:0,lastTaskPromptAt:null
+    };
+  }
+  if(!Array.isArray(STATE.motivationGame.challengeHistory)) STATE.motivationGame.challengeHistory=[];
+  if(!Array.isArray(STATE.motivationGame.tasks)) STATE.motivationGame.tasks=[];
+  if(!STATE.motivationGame.workXpAwardedHours || typeof STATE.motivationGame.workXpAwardedHours!=='object'){
+    STATE.motivationGame.workXpAwardedHours={};
+  }
+  return STATE.motivationGame;
+}
+
+function motivationXpRequiredForLevel(level){
+  const l=Math.max(1,Math.round(Number(level)||1));
+  // Early levels are quick. Cost rises gradually and then plateaus at 1,200 XP
+  // so late levels remain meaningful but always realistically reachable.
+  const uncapped=120 + (l-1)*6 + Math.pow(l-1,2)*0.035;
+  return Math.min(1200,Math.max(120,Math.round(uncapped/5)*5));
+}
+
+function motivationLevelInfo(totalXp=null){
+  let remaining=Math.max(0,Math.round(
+    totalXp===null ? Number(motivationGameState().totalXp)||0 : Number(totalXp)||0
+  ));
+  let level=1;
+  let guard=0;
+  while(guard<10000){
+    const needed=motivationXpRequiredForLevel(level);
+    if(remaining<needed){
+      return {
+        level,
+        currentXp:remaining,
+        requiredXp:needed,
+        progress:needed?remaining/needed*100:0,
+        totalXp:Math.max(0,Math.round(totalXp===null?Number(motivationGameState().totalXp)||0:Number(totalXp)||0))
+      };
+    }
+    remaining-=needed;
+    level++;
+    guard++;
+  }
+  return {level,currentXp:0,requiredXp:1200,progress:0,totalXp:Number(totalXp)||0};
+}
+
+function motivationGrantXp(amount,reason){
+  const game=motivationGameState();
+  const xp=Math.max(0,Math.round(Number(amount)||0));
+  if(!xp) return null;
+  const before=motivationLevelInfo(game.totalXp);
+  game.totalXp+=xp;
+  const after=motivationLevelInfo(game.totalXp);
+  return {
+    amount:xp,
+    reason:String(reason||'Progress'),
+    before,
+    after,
+    leveledUp:after.level>before.level
+  };
+}
+
+function ensureMotivationTooltip(){
+  let tip=document.getElementById('motivationInstantTooltip');
+  if(!tip){
+    tip=document.createElement('div');
+    tip.id='motivationInstantTooltip';
+    tip.className='motivation-instant-tooltip';
+    tip.hidden=true;
+    document.body.appendChild(tip);
+  }
+  return tip;
+}
+
+function positionMotivationTooltip(event){
+  const tip=ensureMotivationTooltip();
+  if(tip.hidden) return;
+  const w=tip.offsetWidth||190;
+  const h=tip.offsetHeight||70;
+  let left=event.clientX+14;
+  let top=event.clientY+14;
+  if(left+w>window.innerWidth-10) left=event.clientX-w-14;
+  if(top+h>window.innerHeight-10) top=event.clientY-h-14;
+  tip.style.left=Math.max(8,left)+'px';
+  tip.style.top=Math.max(8,top)+'px';
+}
+
+function showMotivationTooltip(element,event){
+  const title=element.dataset.motivationTooltipTitle||'';
+  const body=element.dataset.motivationTooltipBody||'';
+  if(!title && !body) return;
+  const tip=ensureMotivationTooltip();
+  tip.innerHTML=`${title?`<strong>${escapeHtml(title)}</strong>`:''}${body?`<span>${escapeHtml(body)}</span>`:''}`;
+  tip.hidden=false;
+  positionMotivationTooltip(event);
+}
+
+function hideMotivationTooltip(){
+  const tip=document.getElementById('motivationInstantTooltip');
+  if(tip) tip.hidden=true;
+}
+
+function wireMotivationTooltips(root){
+  if(!root) return;
+  root.querySelectorAll('[data-motivation-tooltip-title]').forEach(el=>{
+    el.addEventListener('mouseenter',e=>showMotivationTooltip(el,e));
+    el.addEventListener('mousemove',positionMotivationTooltip);
+    el.addEventListener('mouseleave',hideMotivationTooltip);
+  });
+}
+
+function showMotivationXpBurst(event){
+  if(!event || !event.amount) return;
+  document.querySelectorAll('.motivation-xp-burst').forEach(el=>el.remove());
+
+  const el=document.createElement('div');
+  el.className='motivation-xp-burst';
+  el.innerHTML=`
+    <div class="motivation-xp-burst-glow"></div>
+    <div class="motivation-xp-burst-top">
+      <span>+${event.amount} XP</span>
+      ${event.leveledUp?`<strong>LEVEL UP · ${event.after.level}</strong>`:`<strong>LVL ${event.after.level}</strong>`}
+    </div>
+    <div class="motivation-xp-burst-reason">${escapeHtml(event.reason)}</div>
+    <div class="motivation-xp-burst-track">
+      <span style="width:${Math.max(1,Math.min(100,event.after.progress)).toFixed(1)}%"></span>
+    </div>
+    <div class="motivation-xp-burst-meta">${event.after.currentXp.toLocaleString()} / ${event.after.requiredXp.toLocaleString()} XP to next level</div>
+  `;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('visible'));
+  setTimeout(()=>el.classList.add('leaving'),2800);
+  setTimeout(()=>el.remove(),3350);
+}
+
 function motivationWorkDates(days=60){
   const count=Math.max(1,Math.round(Number(days)||60));
   const out=[];
@@ -10298,6 +11016,21 @@ function motivationWorkDates(days=60){
 function motivationFormatHours(value){
   const n=Math.round((Number(value)||0)*10)/10;
   return `${Number.isInteger(n)?n:n.toFixed(1)} h`;
+}
+
+function motivationShortDate(date,includeYear=false){
+  if(!date) return '—';
+  const d=new Date(date+'T12:00:00');
+  return d.toLocaleDateString(undefined,includeYear
+    ? {month:'short',day:'numeric',year:'numeric'}
+    : {month:'short',day:'numeric'});
+}
+
+function motivationDateRangeLabel(start,end){
+  if(!start || !end) return '—';
+  return start===end
+    ? motivationShortDate(start,true)
+    : `${motivationShortDate(start)} – ${motivationShortDate(end,true)}`;
 }
 
 function motivationWorkWindowStats(start,end){
@@ -10317,6 +11050,20 @@ function motivationWorkWindowStats(start,end){
   };
 }
 
+function motivationWeekStart(date=todayStr()){
+  const d=new Date(date+'T12:00:00');
+  const mondayOffset=(d.getDay()+6)%7;
+  return datePlusDays(date,-mondayOffset);
+}
+
+function motivationWeekStats(offset=0){
+  const thisMonday=motivationWeekStart(todayStr());
+  const start=datePlusDays(thisMonday,offset*7);
+  const end=datePlusDays(start,6);
+  const stats=motivationWorkWindowStats(start,end);
+  return {...stats,label:motivationDateRangeLabel(start,end)};
+}
+
 function motivationWorkCurrentStreak(){
   const today=todayStr();
   let cursor=motivationWorkHours(today)>0 ? today : datePlusDays(today,-1);
@@ -10329,17 +11076,25 @@ function motivationWorkCurrentStreak(){
   return count;
 }
 
-function motivationWorkBestStreak(days=60){
-  let best=0,current=0;
+function motivationWorkBestStreakInfo(days=60,minHours=.0001){
+  let bestDays=0,bestStart=null,bestEnd=null;
+  let currentDays=0,currentStart=null;
+
   motivationWorkDates(days).forEach(date=>{
-    if(motivationWorkHours(date)>0){
-      current++;
-      if(current>best) best=current;
+    if(motivationWorkHours(date)>=minHours){
+      if(currentDays===0) currentStart=date;
+      currentDays++;
+      if(currentDays>bestDays){
+        bestDays=currentDays;
+        bestStart=currentStart;
+        bestEnd=date;
+      }
     }else{
-      current=0;
+      currentDays=0;
+      currentStart=null;
     }
   });
-  return best;
+  return {days:bestDays,start:bestStart,end:bestEnd};
 }
 
 function motivationWorkComparisonText(current,previous){
@@ -10352,6 +11107,520 @@ function motivationWorkComparisonText(current,previous){
   return `${pct>=0?'↑':'↓'} ${rounded}% vs previous 30 days`;
 }
 
+/* ---------- Challenge system ---------- */
+function motivationRandomInt(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function motivationChallengeTemplates(){
+  const today=todayStr();
+  return [
+    ()=>{
+      const hours=motivationRandomInt(3,6);
+      return {
+        kind:'today_hours',
+        title:'Focused day',
+        description:`Work ${hours} focused hour${hours===1?'':'s'} today.`,
+        startDate:today,
+        deadline:today,
+        params:{hours},
+        xpReward:70+hours*18
+      };
+    },
+    ()=>{
+      const hoursPerDay=motivationRandomInt(3,5);
+      return {
+        kind:'two_day_split',
+        title:'Two-day push',
+        description:`Work ${hoursPerDay} hours today and ${hoursPerDay} hours tomorrow.`,
+        startDate:today,
+        deadline:datePlusDays(today,1),
+        params:{hoursPerDay},
+        xpReward:120+hoursPerDay*26
+      };
+    },
+    ()=>{
+      const totalHours=motivationRandomInt(8,14);
+      return {
+        kind:'three_day_total',
+        title:'Three-day sprint',
+        description:`Put ${totalHours} focused hours into your products over the next 3 days.`,
+        startDate:today,
+        deadline:datePlusDays(today,2),
+        params:{totalHours,days:3},
+        xpReward:130+totalHours*10
+      };
+    },
+    ()=>{
+      const activeDays=motivationRandomInt(3,4);
+      const minHours=[1.5,2,2.5][motivationRandomInt(0,2)];
+      return {
+        kind:'consistency_five',
+        title:'Consistency run',
+        description:`Work at least ${minHours} h on ${activeDays} of the next 5 days.`,
+        startDate:today,
+        deadline:datePlusDays(today,4),
+        params:{activeDays,minHours,days:5},
+        xpReward:150+activeDays*25+Math.round(minHours*16)
+      };
+    },
+    ()=>{
+      const totalHours=motivationRandomInt(18,28);
+      return {
+        kind:'week_total',
+        title:'Weekly builder',
+        description:`Accumulate ${totalHours} focused hours over the next 7 days.`,
+        startDate:today,
+        deadline:datePlusDays(today,6),
+        params:{totalHours,days:7},
+        xpReward:220+totalHours*8
+      };
+    },
+    ()=>{
+      const days=motivationRandomInt(3,5);
+      const minHours=[1,1.5,2][motivationRandomInt(0,2)];
+      return {
+        kind:'streak_minimum',
+        title:'Momentum chain',
+        description:`Build a ${days}-day streak with at least ${minHours} h of work each day.`,
+        startDate:today,
+        deadline:datePlusDays(today,days+1),
+        params:{days,minHours},
+        xpReward:160+days*34+Math.round(minHours*20)
+      };
+    }
+  ];
+}
+
+function motivationCreateChallenge(){
+  const game=motivationGameState();
+  const recentKinds=game.challengeHistory.slice(-2).map(x=>x.kind).filter(Boolean);
+  const templates=motivationChallengeTemplates();
+  let candidates=templates
+    .map(factory=>factory())
+    .filter(ch=>!recentKinds.includes(ch.kind));
+  if(!candidates.length) candidates=templates.map(factory=>factory());
+  const challenge=candidates[motivationRandomInt(0,candidates.length-1)];
+  return {
+    id:uid('challenge'),
+    ...challenge,
+    xpReward:Math.max(50,Math.round(challenge.xpReward/5)*5),
+    createdAt:new Date().toISOString()
+  };
+}
+
+function motivationEnsureActiveChallenge(){
+  const game=motivationGameState();
+  let changed=false;
+  const today=todayStr();
+
+  if(game.activeChallenge && game.activeChallenge.deadline && today>game.activeChallenge.deadline){
+    game.challengeHistory.push({
+      ...game.activeChallenge,
+      status:'expired',
+      finishedAt:new Date().toISOString()
+    });
+    game.activeChallenge=null;
+    changed=true;
+  }
+
+  if(!game.activeChallenge){
+    game.activeChallenge=motivationCreateChallenge();
+    changed=true;
+  }
+
+  if(changed) persist();
+  return game.activeChallenge;
+}
+
+function motivationHoursInRange(start,end){
+  let total=0;
+  let cursor=start;
+  while(cursor<=end){
+    total+=motivationWorkHours(cursor);
+    cursor=datePlusDays(cursor,1);
+  }
+  return total;
+}
+
+function motivationChallengeProgress(challenge){
+  if(!challenge) return {ratio:0,label:'No challenge',detail:''};
+  const p=challenge.params||{};
+
+  if(challenge.kind==='today_hours'){
+    const done=motivationWorkHours(challenge.startDate);
+    return {
+      ratio:Math.min(1,done/p.hours),
+      label:`${motivationFormatHours(done)} / ${p.hours} h`,
+      detail:`Today · ${motivationFormatHours(done)} logged`
+    };
+  }
+
+  if(challenge.kind==='two_day_split'){
+    const first=motivationWorkHours(challenge.startDate);
+    const second=motivationWorkHours(datePlusDays(challenge.startDate,1));
+    const target=p.hoursPerDay*2;
+    const credit=Math.min(first,p.hoursPerDay)+Math.min(second,p.hoursPerDay);
+    return {
+      ratio:Math.min(1,credit/target),
+      label:`${motivationFormatHours(first)} today · ${motivationFormatHours(second)} tomorrow`,
+      detail:`Target ${p.hoursPerDay} h on each day`
+    };
+  }
+
+  if(challenge.kind==='three_day_total' || challenge.kind==='week_total'){
+    const done=motivationHoursInRange(challenge.startDate,challenge.deadline);
+    return {
+      ratio:Math.min(1,done/p.totalHours),
+      label:`${motivationFormatHours(done)} / ${p.totalHours} h`,
+      detail:`${motivationDateRangeLabel(challenge.startDate,challenge.deadline)}`
+    };
+  }
+
+  if(challenge.kind==='consistency_five'){
+    let count=0;
+    let cursor=challenge.startDate;
+    while(cursor<=challenge.deadline){
+      if(motivationWorkHours(cursor)>=p.minHours) count++;
+      cursor=datePlusDays(cursor,1);
+    }
+    return {
+      ratio:Math.min(1,count/p.activeDays),
+      label:`${count} / ${p.activeDays} qualifying days`,
+      detail:`At least ${p.minHours} h on a qualifying day`
+    };
+  }
+
+  if(challenge.kind==='streak_minimum'){
+    let best=0,current=0;
+    let cursor=challenge.startDate;
+    while(cursor<=challenge.deadline){
+      if(motivationWorkHours(cursor)>=p.minHours){
+        current++;
+        best=Math.max(best,current);
+      }else current=0;
+      cursor=datePlusDays(cursor,1);
+    }
+    return {
+      ratio:Math.min(1,best/p.days),
+      label:`Best: ${best} / ${p.days} days`,
+      detail:`At least ${p.minHours} h per streak day`
+    };
+  }
+
+  return {ratio:0,label:'In progress',detail:''};
+}
+
+function motivationChallengeDeadlineText(challenge){
+  const left=dayDiff(todayStr(),challenge.deadline);
+  if(left<0) return 'Expired';
+  if(left===0) return `Expires today · ${motivationShortDate(challenge.deadline)}`;
+  if(left===1) return `1 day left · ${motivationShortDate(challenge.deadline)}`;
+  return `${left} days left · ${motivationShortDate(challenge.deadline)}`;
+}
+
+async function motivationCompleteChallenge(){
+  const game=motivationGameState();
+  const challenge=game.activeChallenge;
+  if(!challenge) return;
+  const event=motivationGrantXp(challenge.xpReward,`Challenge completed · ${challenge.title}`);
+  game.challengeHistory.push({
+    ...challenge,
+    status:'completed',
+    finishedAt:new Date().toISOString(),
+    claimedXp:challenge.xpReward
+  });
+  game.activeChallenge=null;
+  motivationEnsureActiveChallenge();
+  await persist();
+  refreshMotivationGamePanel();
+  mountMotivationFloatingControl();
+  showMotivationXpBurst(event);
+}
+
+async function motivationSkipChallenge(){
+  const game=motivationGameState();
+  const challenge=game.activeChallenge;
+  if(!challenge) return;
+  game.challengeHistory.push({
+    ...challenge,
+    status:'skipped',
+    finishedAt:new Date().toISOString()
+  });
+  game.activeChallenge=null;
+  motivationEnsureActiveChallenge();
+  await persist();
+  refreshMotivationGamePanel();
+  mountMotivationFloatingControl();
+  showToast('New challenge generated');
+}
+
+/* ---------- Impact task system ---------- */
+function motivationTaskXpReward(importance,impact,estimatedHours){
+  const i=Math.max(0,Math.min(10,Number(importance)||0));
+  const imp=Math.max(0,Math.min(10,Number(impact)||0));
+  const hours=Math.max(0,Math.min(40,Number(estimatedHours)||0));
+  const raw=40+i*7+imp*9+hours*6;
+  return Math.max(50,Math.round(raw/5)*5);
+}
+
+function motivationOpenTasks(){
+  return motivationGameState().tasks.filter(t=>t.status!=='completed');
+}
+
+function motivationTaskPromptDue(){
+  const game=motivationGameState();
+  if(!game.lastTaskPromptAt) return true;
+  if(game.lastTaskPromptAt===todayStr()) return false;
+  return dayDiff(game.lastTaskPromptAt,todayStr())>=4;
+}
+
+function motivationImpactTaskHTML(task){
+  return `
+    <div class="motivation-task-row" data-task-id="${escapeAttr(task.id)}">
+      <div class="motivation-task-main">
+        <strong>${escapeHtml(task.title)}</strong>
+        <span>Importance ${task.importance}/10 · Impact ${task.impact}/10 · ~${motivationFormatHours(task.estimatedHours)}</span>
+      </div>
+      <span class="motivation-task-xp">+${task.xpReward} XP</span>
+      <div class="motivation-task-actions">
+        <button type="button" class="btn secondary motivation-task-remove" data-task-remove="${escapeAttr(task.id)}">Remove</button>
+        <button type="button" class="btn primary motivation-task-complete" data-task-complete="${escapeAttr(task.id)}">Finished</button>
+      </div>
+    </div>
+  `;
+}
+
+function openMotivationTaskEditor(){
+  const game=motivationGameState();
+  game.lastTaskPromptAt=todayStr();
+  persist();
+
+  const modal=showSalesGlobalModal(`
+    <div class="sales-global-modal-head">
+      <div>
+        <strong>Add an impact task</strong>
+        <span>Turn something you can directly ship or improve into a concrete XP objective.</span>
+      </div>
+      <button type="button" class="sales-global-modal-close" aria-label="Close">×</button>
+    </div>
+
+    <label class="sales-global-modal-field">
+      <span>Task title</span>
+      <input type="text" id="motivationTaskTitle" maxlength="120" placeholder="e.g. Finish multiplayer validation update">
+    </label>
+
+    <div class="motivation-task-input-grid">
+      <label class="sales-global-modal-field">
+        <span>Importance · 0–10</span>
+        <input type="number" id="motivationTaskImportance" min="0" max="10" step="1" value="7">
+      </label>
+      <label class="sales-global-modal-field">
+        <span>Expected impact · 0–10</span>
+        <input type="number" id="motivationTaskImpact" min="0" max="10" step="1" value="7">
+      </label>
+      <label class="sales-global-modal-field">
+        <span>Estimated time · hours</span>
+        <input type="number" id="motivationTaskHours" min="0.25" max="200" step="0.25" value="4">
+      </label>
+    </div>
+
+    <div class="motivation-task-xp-preview" id="motivationTaskXpPreview"></div>
+
+    <div class="motivation-work-editor-actions">
+      <button type="button" class="btn secondary" id="motivationTaskCancel">Cancel</button>
+      <button type="button" class="btn primary" id="motivationTaskSave">Add task</button>
+    </div>
+  `);
+  if(!modal) return;
+  setSalesModalSize(modal,'multi');
+  modal.classList.add('motivation-task-modal');
+
+  const title=modal.querySelector('#motivationTaskTitle');
+  const importance=modal.querySelector('#motivationTaskImportance');
+  const impact=modal.querySelector('#motivationTaskImpact');
+  const hours=modal.querySelector('#motivationTaskHours');
+  const preview=modal.querySelector('#motivationTaskXpPreview');
+  const close=()=>closeSalesGlobalModal();
+
+  const refreshPreview=()=>{
+    const reward=motivationTaskXpReward(importance.value,impact.value,hours.value);
+    preview.innerHTML=`Completing this task will award <strong>+${reward} XP</strong>. Higher importance, impact and estimated effort increase the reward.`;
+  };
+  [importance,impact,hours].forEach(input=>input.addEventListener('input',refreshPreview));
+  refreshPreview();
+
+  modal.querySelector('.sales-global-modal-close').addEventListener('click',close);
+  modal.querySelector('#motivationTaskCancel').addEventListener('click',close);
+  modal.querySelector('#motivationTaskSave').addEventListener('click',async()=>{
+    const taskTitle=String(title.value||'').trim();
+    if(!taskTitle){
+      title.focus();
+      return;
+    }
+    const i=Math.max(0,Math.min(10,Number(importance.value)||0));
+    const imp=Math.max(0,Math.min(10,Number(impact.value)||0));
+    const est=Math.max(.25,Math.min(200,Number(hours.value)||.25));
+    game.tasks.push({
+      id:uid('task'),
+      title:taskTitle,
+      importance:i,
+      impact:imp,
+      estimatedHours:Math.round(est*100)/100,
+      xpReward:motivationTaskXpReward(i,imp,est),
+      status:'open',
+      createdAt:new Date().toISOString()
+    });
+    await persist();
+    close();
+    refreshMotivationGamePanel();
+  });
+  requestAnimationFrame(()=>title.focus());
+}
+
+async function motivationCompleteTask(taskId){
+  const game=motivationGameState();
+  const task=game.tasks.find(t=>t.id===taskId && t.status!=='completed');
+  if(!task) return;
+  task.status='completed';
+  task.completedAt=new Date().toISOString();
+  const event=motivationGrantXp(task.xpReward,`Task finished · ${task.title}`);
+  await persist();
+  refreshMotivationGamePanel();
+  mountMotivationFloatingControl();
+  showMotivationXpBurst(event);
+}
+
+async function motivationRemoveTask(taskId){
+  const game=motivationGameState();
+  game.tasks=game.tasks.filter(t=>t.id!==taskId);
+  await persist();
+  refreshMotivationGamePanel();
+}
+
+/* ---------- Game panel ---------- */
+function motivationGamePanelHTML(){
+  if(!motivationModeEnabled() || ACTIVE_TAB!=='dashboard') return '';
+
+  const game=motivationGameState();
+  const level=motivationLevelInfo();
+  const challenge=motivationEnsureActiveChallenge();
+  const progress=motivationChallengeProgress(challenge);
+  const tasks=motivationOpenTasks();
+  const promptDue=motivationTaskPromptDue();
+
+  if(promptDue){
+    game.lastTaskPromptAt=todayStr();
+    persist();
+  }
+
+  return `
+    <section class="motivation-game-panel" id="motivationGamePanel">
+      <div class="motivation-game-head">
+        <div>
+          <span class="motivation-eyebrow">Developer RPG</span>
+          <h3>Level ${level.level} · turn work into visible progress</h3>
+          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Challenge and impact-task XP is added on top. Level requirements grow gradually and cap at 1,200 XP per level.</p>
+        </div>
+        <div class="motivation-level-card"
+          data-motivation-tooltip-title="Level ${level.level}"
+          data-motivation-tooltip-body="${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP toward level ${level.level+1}. Total lifetime XP: ${level.totalXp.toLocaleString()}.">
+          <span>LEVEL</span>
+          <strong>${level.level}</strong>
+          <small>${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP</small>
+        </div>
+      </div>
+
+      <div class="motivation-level-progress">
+        <span style="width:${Math.max(0,Math.min(100,level.progress)).toFixed(1)}%"></span>
+      </div>
+
+      <div class="motivation-game-grid">
+        <div class="motivation-challenge-card">
+          <div class="motivation-game-section-head">
+            <div>
+              <span>Current challenge</span>
+              <strong>${escapeHtml(challenge.title)}</strong>
+            </div>
+            <span class="motivation-challenge-xp">+${challenge.xpReward} XP</span>
+          </div>
+          <p>${escapeHtml(challenge.description)}</p>
+          <div class="motivation-challenge-progress">
+            <span style="width:${Math.max(2,Math.min(100,progress.ratio*100)).toFixed(1)}%"></span>
+          </div>
+          <div class="motivation-challenge-meta">
+            <strong>${escapeHtml(progress.label)}</strong>
+            <span>${escapeHtml(motivationChallengeDeadlineText(challenge))}</span>
+          </div>
+          <small>${escapeHtml(progress.detail)}</small>
+          <div class="motivation-challenge-actions">
+            <button type="button" class="btn secondary" id="motivationSkipChallengeBtn">Not for me</button>
+            <button type="button" class="btn primary" id="motivationCompleteChallengeBtn">${progress.ratio>=1?'Claim completion':'I completed it'}</button>
+          </div>
+        </div>
+
+        <div class="motivation-tasks-card">
+          <div class="motivation-game-section-head">
+            <div>
+              <span>Impact tasks</span>
+              <strong>Things you can directly move forward</strong>
+            </div>
+            <button type="button" class="btn secondary" id="motivationAddTaskBtn">+ Add task</button>
+          </div>
+
+          ${promptDue?`
+            <button type="button" class="motivation-task-prompt" id="motivationTaskPromptBtn">
+              <strong>Anything important you already plan to build?</strong>
+              <span>Add its importance, expected impact and estimated time. Finishing it will award XP.</span>
+            </button>
+          `:''}
+
+          <div class="motivation-task-list">
+            ${tasks.length
+              ? tasks.slice(0,5).map(motivationImpactTaskHTML).join('')
+              : `<div class="motivation-task-empty">No active impact tasks. Add something concrete you can ship, improve or finish.</div>`}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function wireMotivationGamePanelEvents(){
+  const panel=document.getElementById('motivationGamePanel');
+  if(!panel) return;
+
+  const complete=panel.querySelector('#motivationCompleteChallengeBtn');
+  if(complete) complete.addEventListener('click',motivationCompleteChallenge);
+
+  const skip=panel.querySelector('#motivationSkipChallengeBtn');
+  if(skip) skip.addEventListener('click',motivationSkipChallenge);
+
+  const add=panel.querySelector('#motivationAddTaskBtn');
+  if(add) add.addEventListener('click',openMotivationTaskEditor);
+
+  const prompt=panel.querySelector('#motivationTaskPromptBtn');
+  if(prompt) prompt.addEventListener('click',openMotivationTaskEditor);
+
+  panel.querySelectorAll('[data-task-complete]').forEach(btn=>{
+    btn.addEventListener('click',()=>motivationCompleteTask(btn.dataset.taskComplete));
+  });
+  panel.querySelectorAll('[data-task-remove]').forEach(btn=>{
+    btn.addEventListener('click',()=>motivationRemoveTask(btn.dataset.taskRemove));
+  });
+
+  wireMotivationTooltips(panel);
+}
+
+function refreshMotivationGamePanel(){
+  if(ACTIVE_TAB!=='dashboard' || !motivationModeEnabled()) return;
+  const current=document.getElementById('motivationGamePanel');
+  if(!current) return;
+  current.outerHTML=motivationGamePanelHTML();
+  wireMotivationGamePanelEvents();
+}
+
+/* ---------- Work Momentum v2 ---------- */
 function motivationWorkTimelineHTML(){
   if(!motivationModeEnabled() || ACTIVE_TAB!=='dashboard') return '';
 
@@ -10361,28 +11630,45 @@ function motivationWorkTimelineHTML(){
   const current30=motivationWorkWindowStats(datePlusDays(today,-29),today);
   const previous30=motivationWorkWindowStats(datePlusDays(today,-59),datePlusDays(today,-30));
   const currentStreak=motivationWorkCurrentStreak();
-  const bestStreak=motivationWorkBestStreak(60);
-  const maxHours=Math.max(8,...dates.map(date=>motivationWorkHours(date)));
+  const bestStreak=motivationWorkBestStreakInfo(60);
+  const thisWeek=motivationWeekStats(0);
+  const lastWeek=motivationWeekStats(-1);
+  const twoWeeksAgo=motivationWeekStats(-2);
+
+  const rawMax=Math.max(0,...dates.map(date=>motivationWorkHours(date)));
+  const scaleMax=Math.max(8,Math.ceil(rawMax/2)*2);
+  const baselineY=88;
+  const positivePixels=76;
+  const ticks=[];
+  for(let value=2;value<=scaleMax;value+=2){
+    ticks.push({
+      value,
+      top:baselineY-(value/scaleMax)*positivePixels
+    });
+  }
 
   const bars=dates.map((date,index)=>{
     const hours=motivationWorkHours(date);
     const isToday=date===today;
     const tracked=!!trackingStart && date>=trackingStart;
     const missed=!isToday && tracked && hours<=0;
-    const positiveHeight=hours>0?Math.max(7,Math.min(72,(hours/maxHours)*72)):0;
+    const positiveHeight=hours>0?Math.max(7,Math.min(positivePixels,(hours/scaleMax)*positivePixels)):0;
     const d=new Date(date+'T12:00:00');
     const showLabel=index===0 || index===dates.length-1 || d.getDate()===1 || d.getDay()===1;
     const label=d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
     const fullLabel=d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
     const source=motivationWorkSource(date);
-    const sourceSuffix=source==='toggl'?' · Toggl':(source==='manual'?' · manual override':'');
-    const status=hours>0
-      ? `${motivationFormatHours(hours)} worked${sourceSuffix}`
-      : (isToday?`Not logged yet${sourceSuffix}`:(missed?`No work logged${sourceSuffix}`:'Not tracked yet'));
+    const sourceText=source==='toggl'?'Synced from Toggl':(source==='manual'?'Manual override':'');
+    const tooltipBody=hours>0
+      ? `${motivationFormatHours(hours)} worked${sourceText?` · ${sourceText}`:''}`
+      : (isToday?'No work logged yet':(missed?'0 h worked':'Not tracked yet'));
 
     return `
       <button class="motivation-work-day ${hours>0?'worked':''} ${missed?'missed':''} ${isToday?'today':''} ${!tracked&&!isToday?'untracked':''}"
-        type="button" data-work-date="${date}" title="${escapeAttr(fullLabel)} · ${escapeAttr(status)}">
+        type="button"
+        data-work-date="${date}"
+        data-motivation-tooltip-title="${escapeAttr(fullLabel)}"
+        data-motivation-tooltip-body="${escapeAttr(tooltipBody)}">
         <span class="motivation-work-bar-zone">
           ${hours>0?`<span class="motivation-work-positive" style="height:${positiveHeight.toFixed(1)}px"></span>`:''}
           ${missed?`<span class="motivation-work-negative"></span>`:''}
@@ -10392,6 +11678,10 @@ function motivationWorkTimelineHTML(){
       </button>
     `;
   }).join('');
+
+  const bestTooltip=bestStreak.days
+    ? `${motivationDateRangeLabel(bestStreak.start,bestStreak.end)} · ${bestStreak.days} consecutive worked days`
+    : 'No worked-day streak in the current 60-day window yet.';
 
   return `
     <section class="motivation-work-panel" id="motivationWorkTimelinePanel">
@@ -10426,19 +11716,45 @@ function motivationWorkTimelineHTML(){
           <strong>${current30.activeDays} / 30</strong>
           <small>${current30.activeDays?`${Math.round(current30.activeDays/30*100)}% consistency`:'Start with one logged day'}</small>
         </div>
-        <div class="motivation-work-stat">
+        <div class="motivation-work-stat motivation-work-stat-hover"
+          data-motivation-tooltip-title="Best 60-day streak"
+          data-motivation-tooltip-body="${escapeAttr(bestTooltip)}">
           <span>Best 60-day streak</span>
-          <strong>${bestStreak} day${bestStreak===1?'':'s'}</strong>
+          <strong>${bestStreak.days} day${bestStreak.days===1?'':'s'}</strong>
           <small>${current30.activeDays?`${motivationFormatHours(current30.averageActive)} avg per active day`:'Your baseline begins when you log work'}</small>
+        </div>
+      </div>
+
+      <div class="motivation-week-stats">
+        <div class="motivation-week-stat">
+          <span>This week · Mon–Sun</span>
+          <strong>${motivationFormatHours(thisWeek.hours)}</strong>
+          <small>${escapeHtml(thisWeek.label)}</small>
+        </div>
+        <div class="motivation-week-stat">
+          <span>Last week</span>
+          <strong>${motivationFormatHours(lastWeek.hours)}</strong>
+          <small>${escapeHtml(lastWeek.label)}</small>
+        </div>
+        <div class="motivation-week-stat">
+          <span>2 weeks ago</span>
+          <strong>${motivationFormatHours(twoWeeksAgo.hours)}</strong>
+          <small>${escapeHtml(twoWeeksAgo.label)}</small>
         </div>
       </div>
 
       <div class="motivation-work-chart-wrap">
         <div class="motivation-work-chart" style="--work-columns:${dates.length}">
-          <div class="motivation-work-baseline"></div>
+          ${ticks.map(t=>`
+            <div class="motivation-work-grid-line" style="top:${t.top.toFixed(1)}px">
+              <span>${t.value}h</span>
+            </div>
+          `).join('')}
+          <div class="motivation-work-baseline"><span>0h</span></div>
           ${bars}
         </div>
       </div>
+
       <div class="motivation-work-legend">
         <span><i class="worked"></i>Worked</span>
         <span><i class="missed"></i>No work logged after tracking began</span>
@@ -10510,6 +11826,7 @@ function openMotivationWorkDayEditor(date){
     await persist();
     close();
     refreshMotivationWorkTimeline();
+    refreshMotivationGamePanel();
   });
 
   const zeroBtn=modal.querySelector('#motivationWorkDayZero');
@@ -10519,6 +11836,7 @@ function openMotivationWorkDayEditor(date){
       await persist();
       close();
       refreshMotivationWorkTimeline();
+      refreshMotivationGamePanel();
     });
   }
 
@@ -10528,6 +11846,7 @@ function openMotivationWorkDayEditor(date){
     await persist();
     close();
     refreshMotivationWorkTimeline();
+    refreshMotivationGamePanel();
   };
   modal.querySelector('#motivationWorkDaySave').addEventListener('click',save);
   input.addEventListener('keydown',e=>{
@@ -10538,7 +11857,6 @@ function openMotivationWorkDayEditor(date){
   });
   requestAnimationFrame(()=>input.focus());
 }
-
 
 function openMotivationWorkBulkEditor(){
   const dates=motivationWorkDates(60);
@@ -10585,12 +11903,14 @@ function openMotivationWorkBulkEditor(){
     await persist();
     close();
     refreshMotivationWorkTimeline();
+    refreshMotivationGamePanel();
   });
 }
 
 function wireMotivationWorkTimelineEvents(){
   const panel=document.getElementById('motivationWorkTimelinePanel');
   if(!panel) return;
+
   panel.querySelectorAll('[data-work-date]').forEach(btn=>{
     btn.addEventListener('click',()=>openMotivationWorkDayEditor(btn.dataset.workDate));
   });
@@ -10609,9 +11929,17 @@ function wireMotivationWorkTimelineEvents(){
       syncBtn.disabled=true;
       syncBtn.textContent='Syncing…';
       try{
-        await motivationSyncToggl60Days();
+        const result=await motivationSyncToggl60Days();
         refreshMotivationWorkTimeline();
-        showToast('Toggl Track synced');
+        refreshMotivationGamePanel();
+        mountMotivationFloatingControl();
+        if(result.xpEvent){
+          showMotivationXpBurst(result.xpEvent);
+        }else if(result.newWorkHours>0){
+          showToast(`${motivationFormatHours(result.newWorkHours)} synced`);
+        }else{
+          showToast('Toggl synced · no new work time');
+        }
       }catch(error){
         const message=error && error.message ? error.message : 'Toggl sync failed';
         motivationTogglState().lastError=message;
@@ -10622,6 +11950,8 @@ function wireMotivationWorkTimelineEvents(){
       }
     });
   }
+
+  wireMotivationTooltips(panel);
 }
 
 function refreshMotivationWorkTimeline(){
@@ -10631,6 +11961,7 @@ function refreshMotivationWorkTimeline(){
   current.outerHTML=motivationWorkTimelineHTML();
   wireMotivationWorkTimelineEvents();
 }
+
 
 function motivationPageModel(tab){
   if(tab==='dashboard') return motivationDashboardModel();
@@ -10676,9 +12007,14 @@ function mountMotivationPageExtras(){
   if(ACTIVE_TAB==='dashboard' || ACTIVE_TAB==='compare' || ACTIVE_TAB==='revenuelog'){
     const filter=document.querySelector('#tabContent .filter-bar');
     if(filter){
-      const extra=ACTIVE_TAB==='dashboard' ? motivationWorkTimelineHTML() : '';
+      const extra=ACTIVE_TAB==='dashboard'
+        ? motivationGamePanelHTML()+motivationWorkTimelineHTML()
+        : '';
       filter.insertAdjacentHTML('afterend',markup+extra);
-      if(ACTIVE_TAB==='dashboard') wireMotivationWorkTimelineEvents();
+      if(ACTIVE_TAB==='dashboard'){
+        wireMotivationGamePanelEvents();
+        wireMotivationWorkTimelineEvents();
+      }
       return;
     }
   }
@@ -10720,6 +12056,12 @@ function mountMotivationFloatingControl(){
     ${enabled?`<div class="motivation-floating-progress">${motivationFloatingSummaryHTML()}</div>`:''}
     <div class="motivation-floating-row">
       <span class="motivation-floating-icon" aria-hidden="true">↑</span>
+      ${enabled?(()=>{
+        const lv=motivationLevelInfo();
+        return `<span class="motivation-floating-level"
+          data-motivation-tooltip-title="Level ${lv.level}"
+          data-motivation-tooltip-body="${lv.currentXp.toLocaleString()} / ${lv.requiredXp.toLocaleString()} XP toward level ${lv.level+1}. Total XP: ${lv.totalXp.toLocaleString()}.">LVL ${lv.level}</span>`;
+      })():''}
       <span class="motivation-floating-label">Motivation</span>
       <label class="switch" title="Turn Motivation Mode on or off">
         <input type="checkbox" id="motivationModeToggle" ${enabled?'checked':''}>
@@ -10727,6 +12069,8 @@ function mountMotivationFloatingControl(){
       </label>
     </div>
   `;
+
+  wireMotivationTooltips(host);
 
   const toggle=host.querySelector('#motivationModeToggle');
   if(toggle){
