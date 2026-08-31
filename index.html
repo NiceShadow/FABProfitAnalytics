@@ -369,13 +369,13 @@
   }
   .rl-date-cell{padding-left:10px;color:var(--muted);}
   .rl-total-cell{font-weight:700;text-align:right;justify-content:flex-end;font-variant-numeric:tabular-nums;padding-right:12px;}
-  .rl-product-cell{justify-content:flex-start;padding-left:4px;padding-right:4px;}
+  .rl-product-cell{justify-content:center;padding-left:4px;padding-right:4px;text-align:center;}
   .rl-header-product{justify-content:flex-start;padding-left:5px;padding-right:6px;}
-  .rl-header-code{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:700;letter-spacing:.06em;}
+  .rl-header-code{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:700;letter-spacing:.06em;white-space:nowrap;}
   .rl-value-pill{
     display:inline-flex;
     align-items:center;
-    justify-content:flex-end;
+    justify-content:center;
     gap:6px;
     min-height:22px;
     padding:2px 4px;
@@ -398,36 +398,30 @@
   }
   .rl-day-row{display:contents;}
   .rl-day-row:hover > .rl-grid-cell{background:var(--panel2);}
+  .rl-day-row:hover > .rl-product-cell{
+    background:rgba(255,255,255,.018) !important;
+  }
 
   .product-short-code{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 6px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--gold);margin-left:8px;}
 
 
-  /* --- Revenue Log product-column separation + sale intensity --- */
+  /* --- Revenue Log: neutral product cells --- */
   .revenue-log-grid .rl-product-cell,
   .revenue-log-grid .rl-header-product{
     border-left:1px solid var(--border);
   }
   .revenue-log-grid .rl-product-cell{
     position:relative;
-    background:var(--column-bg, transparent);
+    isolation:isolate;
+    background:transparent;
   }
   .revenue-log-grid .rl-header-product{
     position:relative;
     top:auto;
     z-index:8;
-    background-color:var(--panel2);
-    background-image:linear-gradient(var(--column-head-bg, transparent),var(--column-head-bg, transparent));
+    background:var(--panel2);
   }
-  .revenue-log-grid .rl-sale-edge{
-    box-shadow:inset 0 0 0 9999px var(--sale-edge-bg, transparent);
-  }
-  .revenue-log-grid .rl-sale-full{
-    box-shadow:inset 0 0 0 9999px var(--sale-full-bg, transparent);
-  }
-  .revenue-log-grid .rl-sale-edge .rl-value-pill,
-  .revenue-log-grid .rl-sale-full .rl-value-pill{
-    font-weight:700;
-  }
+
 .rl-month-heading{
     display:flex;align-items:center;justify-content:space-between;
     gap:28px;min-width:320px;
@@ -437,36 +431,6 @@
   }
 
 
-  .rl-prof-badge,
-  .rl-refund-badge{
-    position:absolute;
-    top:2px;
-    z-index:3;
-    pointer-events:none;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    height:10px;
-    padding:0 2px;
-    border-radius:3px;
-    font-size:7px;
-    font-weight:800;
-    letter-spacing:.01em;
-    line-height:10px;
-  }
-  .rl-prof-badge{
-    right:3px;
-    min-width:14px;
-    background:rgba(93,168,226,.30);
-    color:#D9ECFF;
-  }
-  .rl-refund-badge{
-    right:3px;
-    min-width:27px;
-    background:rgba(226,114,91,.28);
-    color:#FFD1C8;
-  }
-  .rl-prof-badge + .rl-refund-badge{right:21px;}
 
 
   .revenue-log-bottom-btn{
@@ -3558,49 +3522,45 @@
   }
 
 
-  /* Shared sale visualization:
-     full sale days = full product-color background;
-     start transition = bottom half only;
-     end transition = top half only. */
+  /* Revenue Log sale visualization:
+     only the actual discounted portion receives a subtle neutral-gray fill.
+     Full sale days = full cell; start/end retain the existing half-day edges. */
   .revenue-log-grid .rl-product-cell.rl-sale-full,
   .revenue-log-grid .rl-product-cell.rl-sale-start,
   .revenue-log-grid .rl-product-cell.rl-sale-end{
     position:relative;
     isolation:isolate;
-    background:var(--column-bg) !important;
+    background:transparent !important;
   }
+
   .revenue-log-grid .rl-product-cell.rl-sale-full::before,
   .revenue-log-grid .rl-product-cell.rl-sale-start::before,
-  .revenue-log-grid .rl-product-cell.rl-sale-end::before,
-  .revenue-log-grid .rl-product-cell.rl-sale-start.rl-sale-end::after{
+  .revenue-log-grid .rl-product-cell.rl-sale-end::before{
     content:'';
     position:absolute;
     left:0;
     right:0;
     z-index:0;
     pointer-events:none;
-    background:var(--sale-fill-bg);
+    background:rgba(255,255,255,.058);
   }
-  .revenue-log-grid .rl-product-cell.rl-sale-full::before{
-    top:0;
-    bottom:0;
-  }
-  .revenue-log-grid .rl-product-cell.rl-sale-start::before{
-    top:50%;
-    bottom:0;
-  }
-  .revenue-log-grid .rl-product-cell.rl-sale-end::before{
-    top:0;
-    bottom:50%;
-  }
+
+  .revenue-log-grid .rl-product-cell.rl-sale-full::before,
   .revenue-log-grid .rl-product-cell.rl-sale-start.rl-sale-end::before{
     top:0;
-    bottom:50%;
+    bottom:0;
   }
-  .revenue-log-grid .rl-product-cell.rl-sale-start.rl-sale-end::after{
+
+  .revenue-log-grid .rl-product-cell.rl-sale-start:not(.rl-sale-end)::before{
     top:50%;
     bottom:0;
   }
+
+  .revenue-log-grid .rl-product-cell.rl-sale-end:not(.rl-sale-start)::before{
+    top:0;
+    bottom:50%;
+  }
+
   .revenue-log-grid .rl-product-cell.rl-sale-full > *,
   .revenue-log-grid .rl-product-cell.rl-sale-start > *,
   .revenue-log-grid .rl-product-cell.rl-sale-end > *{
@@ -9181,6 +9141,62 @@
   .motivation-task-xp{
     min-width:70px;
     text-align:right;
+  }
+
+
+  /* Final Revenue Log visual guard: product cells stay neutral; only sale cells receive a subtle gray fill. */
+  .revenue-log-grid .rl-product-cell{
+    background-color:transparent;
+    background-image:none;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-sale-full,
+  .revenue-log-grid .rl-product-cell.rl-sale-start,
+  .revenue-log-grid .rl-product-cell.rl-sale-end{
+    background-color:transparent !important;
+    background-image:none !important;
+  }
+
+
+  /* Revenue Log status styling replaces the old PRO / REFUND badges. */
+  .revenue-log-grid .rl-product-cell.rl-professional-day{
+    background:#000 !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-professional-day .rl-value-pill{
+    color:#fff !important;
+    font-weight:800 !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-refund-loss-day{
+    background:#7f1d1d !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-refund-loss-day .rl-value-pill{
+    color:#fff !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-professional-day.rl-refund-loss-day{
+    background:#7f1d1d !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-professional-day.rl-refund-loss-day .rl-value-pill{
+    color:#fff !important;
+    font-weight:800 !important;
+  }
+
+  /* Status cells remain dominant over sale-gray and row-hover fills. */
+  .rl-day-row:hover > .rl-product-cell.rl-professional-day{
+    background:#000 !important;
+  }
+
+  .rl-day-row:hover > .rl-product-cell.rl-refund-loss-day{
+    background:#7f1d1d !important;
+  }
+
+  .revenue-log-grid .rl-product-cell.rl-professional-day::before,
+  .revenue-log-grid .rl-product-cell.rl-refund-loss-day::before{
+    display:none !important;
   }
 
 </style>
@@ -20892,7 +20908,9 @@ function revenueLogHTML(){
   const earliestDataMonth=monthKey(start);
   const hasMore=!REVENUE_LOG_LOAD_ALL && earliestVisibleMonth>earliestDataMonth;
 
-  const template=`max-content max-content ${products.map(()=> 'max-content').join(' ')}`;
+  const maxShortNameChars=Math.max(1,...products.map(p=>shortNameFor(p).length));
+  const initialProductColumnWidth=Math.max(58,30+maxShortNameChars*7);
+  const template=`max-content max-content repeat(${products.length}, ${initialProductColumnWidth}px)`;
   let rows='';
   let lastMonth=null;
 
@@ -20924,14 +20942,18 @@ function revenueLogHTML(){
           if(isEnd) saleClass+=' rl-sale-end';
           if(!isStart && !isEnd) saleClass+=' rl-sale-full';
         }
-        const style=`--column-bg:${rgbaFromHex(c,.16)};--sale-fill-bg:${rgbaFromHex(c,.44)};`;
 
-        const profBadge=prof?`<span class="rl-prof-badge" title="Professional sale on this day">PRO</span>`:'';
-        const refundBadge=refund?`<span class="rl-refund-badge" title="Refund / return on this day">REFUND</span>`:'';
+        let statusClass='';
+        if(prof) statusClass+=' rl-professional-day';
+        if(refund && v<=0.000001) statusClass+=' rl-refund-loss-day';
+
         if(Math.abs(v)<0.000001){
-          return `<div class="rl-grid-cell rl-product-cell${saleClass}" data-rl-selectable="1" data-row-index="${rowIndex}" data-col-index="${i}" data-date="${date}" data-value="${v}" style="${style}">${profBadge}${refundBadge}<span class="rl-blank"></span></div>`;
+          const zeroContent=(refund && v<=0.000001)
+            ? `<span class="rl-value-pill">0</span>`
+            : `<span class="rl-blank"></span>`;
+          return `<div class="rl-grid-cell rl-product-cell${saleClass}${statusClass}" data-rl-selectable="1" data-row-index="${rowIndex}" data-col-index="${i}" data-date="${date}" data-value="${v}">${zeroContent}</div>`;
         }
-        return `<div class="rl-grid-cell rl-product-cell${saleClass}" data-rl-selectable="1" data-row-index="${rowIndex}" data-col-index="${i}" data-date="${date}" data-value="${v}" style="${style}">${profBadge}${refundBadge}<span class="rl-value-pill" style="color:var(--text)">${fmtInt(v)}</span></div>`;
+        return `<div class="rl-grid-cell rl-product-cell${saleClass}${statusClass}" data-rl-selectable="1" data-row-index="${rowIndex}" data-col-index="${i}" data-date="${date}" data-value="${v}"><span class="rl-value-pill">${fmtInt(v)}</span></div>`;
       }).join('')}
     </div>`;
   });
@@ -22164,13 +22186,39 @@ function wireTabEvents(){
       const stickyHead=document.getElementById('revenueLogStickyHead');
       if(!grid || !stickyHead) return;
 
-      // The first grid header cells already occupy the exact same tracks as all
-      // Revenue Log rows, so measuring them gives us the real rendered widths.
       const sourceCells=[...grid.children].filter(el=>el.classList.contains('rl-grid-head'));
-      if(!sourceCells.length) return;
+      if(sourceCells.length<2) return;
 
-      const widths=sourceCells.map(el=>Math.max(1,el.getBoundingClientRect().width));
-      stickyHead.style.gridTemplateColumns=widths.map(w=>`${w}px`).join(' ');
+      const dateWidth=Math.max(1,sourceCells[0].getBoundingClientRect().width);
+      const totalWidth=Math.max(1,sourceCells[1].getBoundingClientRect().width);
+      const productHeaders=sourceCells.slice(2);
+
+      // Use the actual rendered width of the widest product short-name header,
+      // including its dot + gap + cell padding, then apply that exact width to
+      // every product column. This keeps the table uniform without clipping
+      // whichever short name is widest.
+      let widestProductHeader=58;
+      productHeaders.forEach(cell=>{
+        const code=cell.querySelector('.rl-header-code');
+        if(!code) return;
+        const cellStyle=getComputedStyle(cell);
+        const horizontalPadding=
+          (parseFloat(cellStyle.paddingLeft)||0)+(parseFloat(cellStyle.paddingRight)||0);
+        widestProductHeader=Math.max(
+          widestProductHeader,
+          Math.ceil(code.getBoundingClientRect().width+horizontalPadding+1)
+        );
+      });
+
+      const widths=[
+        dateWidth,
+        totalWidth,
+        ...productHeaders.map(()=>widestProductHeader)
+      ];
+      const template=widths.map(w=>`${w}px`).join(' ');
+
+      grid.style.gridTemplateColumns=template;
+      stickyHead.style.gridTemplateColumns=template;
       stickyHead.style.width=`${widths.reduce((s,w)=>s+w,0)}px`;
       stickyHead.style.minWidth=stickyHead.style.width;
     };
