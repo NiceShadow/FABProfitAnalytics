@@ -9098,6 +9098,20 @@
     .motivation-task-input-grid{grid-template-columns:1fr;}
   }
 
+
+  /* Work Momentum is Toggl-only: hover for information, no manual editing. */
+  .motivation-work-day{
+    cursor:default !important;
+  }
+
+  /* Plain numeric text fields: keyboard entry only, no browser number spinners. */
+  #motivationTaskImportance,
+  #motivationTaskImpact,
+  #motivationTaskHours{
+    appearance:textfield;
+    -moz-appearance:textfield;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -11413,15 +11427,15 @@ function openMotivationTaskEditor(){
     <div class="motivation-task-input-grid">
       <label class="sales-global-modal-field">
         <span>Importance · 0–10</span>
-        <input type="number" id="motivationTaskImportance" min="0" max="10" step="1" value="7">
+        <input type="text" id="motivationTaskImportance" inputmode="numeric" autocomplete="off" value="7">
       </label>
       <label class="sales-global-modal-field">
         <span>Expected impact · 0–10</span>
-        <input type="number" id="motivationTaskImpact" min="0" max="10" step="1" value="7">
+        <input type="text" id="motivationTaskImpact" inputmode="numeric" autocomplete="off" value="7">
       </label>
       <label class="sales-global-modal-field">
         <span>Estimated time · hours</span>
-        <input type="number" id="motivationTaskHours" min="0.25" max="200" step="0.25" value="4">
+        <input type="text" id="motivationTaskHours" inputmode="decimal" autocomplete="off" value="4">
       </label>
     </div>
 
@@ -11447,7 +11461,35 @@ function openMotivationTaskEditor(){
     const reward=motivationTaskXpReward(importance.value,impact.value,hours.value);
     preview.innerHTML=`Completing this task will award <strong>+${reward} XP</strong>. Higher importance, impact and estimated effort increase the reward.`;
   };
-  [importance,impact,hours].forEach(input=>input.addEventListener('input',refreshPreview));
+  const sanitizeWholeNumber=(input,max)=>{
+    input.value=String(input.value||'').replace(/[^\d]/g,'').slice(0,3);
+    if(input.value!=='' && Number(input.value)>max) input.value=String(max);
+  };
+  const sanitizeDecimal=(input,max)=>{
+    let value=String(input.value||'').replace(',','.');
+    value=value.replace(/[^\d.]/g,'');
+    const firstDot=value.indexOf('.');
+    if(firstDot>=0){
+      value=value.slice(0,firstDot+1)+value.slice(firstDot+1).replace(/\./g,'');
+      const [whole,dec='']=value.split('.');
+      value=whole+'.'+dec.slice(0,2);
+    }
+    if(value!=='' && value!=='.' && Number(value)>max) value=String(max);
+    input.value=value;
+  };
+
+  importance.addEventListener('input',()=>{
+    sanitizeWholeNumber(importance,10);
+    refreshPreview();
+  });
+  impact.addEventListener('input',()=>{
+    sanitizeWholeNumber(impact,10);
+    refreshPreview();
+  });
+  hours.addEventListener('input',()=>{
+    sanitizeDecimal(hours,200);
+    refreshPreview();
+  });
   refreshPreview();
 
   modal.querySelector('.sales-global-modal-close').addEventListener('click',close);
@@ -11572,7 +11614,7 @@ function motivationGamePanelHTML(){
             <button type="button" class="motivation-task-prompt" id="motivationTaskPromptBtn">
               <strong>Anything important you already plan to build?</strong>
               <span>Add its importance, expected impact and estimated time. Finishing it will award XP.</span>
-            </button>
+            </div>
           `:''}
 
           <div class="motivation-task-list">
@@ -11664,9 +11706,7 @@ function motivationWorkTimelineHTML(){
       : (isToday?'No work logged yet':(missed?'0 h worked':'Not tracked yet'));
 
     return `
-      <button class="motivation-work-day ${hours>0?'worked':''} ${missed?'missed':''} ${isToday?'today':''} ${!tracked&&!isToday?'untracked':''}"
-        type="button"
-        data-work-date="${date}"
+      <div class="motivation-work-day ${hours>0?'worked':''} ${missed?'missed':''} ${isToday?'today':''} ${!tracked&&!isToday?'untracked':''}"
         data-motivation-tooltip-title="${escapeAttr(fullLabel)}"
         data-motivation-tooltip-body="${escapeAttr(tooltipBody)}">
         <span class="motivation-work-bar-zone">
@@ -11675,7 +11715,7 @@ function motivationWorkTimelineHTML(){
           ${isToday && hours<=0?`<span class="motivation-work-today-dot"></span>`:''}
         </span>
         <span class="motivation-work-day-label ${showLabel?'show':''}">${showLabel?escapeHtml(label):''}</span>
-      </button>
+      </div>
     `;
   }).join('');
 
@@ -11689,12 +11729,10 @@ function motivationWorkTimelineHTML(){
         <div>
           <span class="motivation-eyebrow">Work momentum</span>
           <h3>60-day developer consistency</h3>
-          <p>Worked days rise above the line. Tracked days with no work logged dip below it. Click any day to correct it.</p>
+          <p>Worked days rise above the line. Tracked days with no work logged dip below it. Work data comes directly from Toggl Track.</p>
         </div>
         <div class="motivation-work-actions">
           <button type="button" class="btn secondary motivation-toggl-connect-btn" id="motivationTogglConnectBtn">${motivationTogglConnected()?'Toggl settings':'Connect Toggl'}</button>
-          <button type="button" class="btn secondary motivation-work-today-btn" id="motivationLogTodayBtn">${motivationWorkHours(today)>0?'Edit today':'Log today'}</button>
-          <button type="button" class="btn secondary" id="motivationEditWorkDaysBtn">Edit 60 days</button>
         </div>
       </div>
 
@@ -11764,160 +11802,12 @@ function motivationWorkTimelineHTML(){
   `;
 }
 
-function motivationWorkEditorDayHTML(date){
-  const d=new Date(date+'T12:00:00');
-  const value=motivationWorkHours(date);
-  const source=motivationWorkSource(date);
-  const sourceLabel=source==='manual'?'Manual':(source==='toggl'?'Toggl':'');
-  return `
-    <label class="motivation-work-editor-day ${source}">
-      <span class="motivation-work-editor-date">
-        <strong>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</strong>
-        <small>${d.toLocaleDateString(undefined,{weekday:'short'})}${sourceLabel?` · ${sourceLabel}`:''}</small>
-      </span>
-      <span class="motivation-work-editor-input-wrap">
-        <input type="number" min="0" max="24" step="0.25" inputmode="decimal" data-work-hours-date="${date}" value="${source!=='none'?String(value):''}" placeholder="0">
-        <span>h</span>
-      </span>
-    </label>
-  `;
-}
 
-function openMotivationWorkDayEditor(date){
-  const d=new Date(date+'T12:00:00');
-  const existing=motivationWorkHours(date);
-  const toggl=motivationTogglHours(date);
-  const source=motivationWorkSource(date);
-  const connected=motivationTogglConnected();
-  const sourceText=source==='manual'
-    ? `Manual override${connected?` · Toggl currently has ${motivationFormatHours(toggl)}`:''}`
-    : (source==='toggl' ? `Synced from Toggl Track · ${motivationFormatHours(toggl)}` : 'No hours logged');
 
-  const modal=showSalesGlobalModal(`
-    <div class="sales-global-modal-head">
-      <div>
-        <strong>Work log</strong>
-        <span>${d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</span>
-      </div>
-      <button type="button" class="sales-global-modal-close" aria-label="Close">×</button>
-    </div>
-    <div class="motivation-work-day-edit-copy">How many focused development / product-work hours did you put in on this day?</div>
-    <div class="motivation-work-source ${source}">${escapeHtml(sourceText)}</div>
-    <label class="sales-global-modal-field motivation-work-hours-field">
-      <span>Hours worked</span>
-      <input type="number" id="motivationWorkDayHours" min="0" max="24" step="0.25" inputmode="decimal"
-        value="${source!=='none'?existing:''}" placeholder="0">
-    </label>
-    <div class="motivation-work-day-actions ${connected?'three-actions':''}">
-      <button type="button" class="btn secondary" id="motivationWorkDayClear">${connected?'Use Toggl value':'Clear day'}</button>
-      ${connected?`<button type="button" class="btn secondary" id="motivationWorkDayZero">Set 0 h</button>`:''}
-      <button type="button" class="btn primary" id="motivationWorkDaySave">Save override</button>
-    </div>
-  `);
-  if(!modal) return;
-  setSalesModalSize(modal,'sale');
-  modal.classList.add('motivation-work-day-modal');
-  const input=modal.querySelector('#motivationWorkDayHours');
-  const close=()=>closeSalesGlobalModal();
-  modal.querySelector('.sales-global-modal-close').addEventListener('click',close);
-
-  modal.querySelector('#motivationWorkDayClear').addEventListener('click',async()=>{
-    motivationWorkClearManualOverride(date);
-    await persist();
-    close();
-    refreshMotivationWorkTimeline();
-    refreshMotivationGamePanel();
-  });
-
-  const zeroBtn=modal.querySelector('#motivationWorkDayZero');
-  if(zeroBtn){
-    zeroBtn.addEventListener('click',async()=>{
-      motivationWorkSetHours(date,0);
-      await persist();
-      close();
-      refreshMotivationWorkTimeline();
-      refreshMotivationGamePanel();
-    });
-  }
-
-  const save=async()=>{
-    const value=Math.max(0,Math.min(24,Number(input.value)||0));
-    motivationWorkSetHours(date,value);
-    await persist();
-    close();
-    refreshMotivationWorkTimeline();
-    refreshMotivationGamePanel();
-  };
-  modal.querySelector('#motivationWorkDaySave').addEventListener('click',save);
-  input.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      e.preventDefault();
-      save();
-    }
-  });
-  requestAnimationFrame(()=>input.focus());
-}
-
-function openMotivationWorkBulkEditor(){
-  const dates=motivationWorkDates(60);
-  const modal=showSalesGlobalModal(`
-    <div class="sales-global-modal-head">
-      <div>
-        <strong>Edit 60-day work log</strong>
-        <span>Backfill forgotten days or correct any hours. Toggl values are shown automatically; changing one creates a manual override.</span>
-      </div>
-      <button type="button" class="sales-global-modal-close" aria-label="Close">×</button>
-    </div>
-    <div class="motivation-work-editor-grid">
-      ${dates.slice().reverse().map(motivationWorkEditorDayHTML).join('')}
-    </div>
-    <div class="motivation-work-editor-actions">
-      <button type="button" class="btn secondary" id="motivationWorkBulkCancel">Cancel</button>
-      <button type="button" class="btn primary" id="motivationWorkBulkSave">Save all days</button>
-    </div>
-  `);
-  if(!modal) return;
-  modal.classList.add('motivation-work-bulk-modal');
-  modal.style.width='min(860px,calc(100vw - 28px))';
-  modal.style.maxWidth='860px';
-
-  const close=()=>closeSalesGlobalModal();
-  modal.querySelector('.sales-global-modal-close').addEventListener('click',close);
-  modal.querySelector('#motivationWorkBulkCancel').addEventListener('click',close);
-  modal.querySelector('#motivationWorkBulkSave').addEventListener('click',async()=>{
-    modal.querySelectorAll('[data-work-hours-date]').forEach(input=>{
-      const date=input.dataset.workHoursDate;
-      const raw=String(input.value||'').trim();
-      if(raw===''){
-        motivationWorkClearManualOverride(date);
-        return;
-      }
-      const value=Math.max(0,Math.min(24,Number(raw)||0));
-      const togglValue=motivationTogglHours(date);
-      if(motivationTogglConnected() && Math.abs(value-togglValue)<0.005){
-        motivationWorkClearManualOverride(date);
-      }else{
-        motivationWorkSetHours(date,value);
-      }
-    });
-    await persist();
-    close();
-    refreshMotivationWorkTimeline();
-    refreshMotivationGamePanel();
-  });
-}
 
 function wireMotivationWorkTimelineEvents(){
   const panel=document.getElementById('motivationWorkTimelinePanel');
   if(!panel) return;
-
-  panel.querySelectorAll('[data-work-date]').forEach(btn=>{
-    btn.addEventListener('click',()=>openMotivationWorkDayEditor(btn.dataset.workDate));
-  });
-  const todayBtn=panel.querySelector('#motivationLogTodayBtn');
-  if(todayBtn) todayBtn.addEventListener('click',()=>openMotivationWorkDayEditor(todayStr()));
-  const bulkBtn=panel.querySelector('#motivationEditWorkDaysBtn');
-  if(bulkBtn) bulkBtn.addEventListener('click',openMotivationWorkBulkEditor);
 
   const connectBtn=panel.querySelector('#motivationTogglConnectBtn');
   if(connectBtn) connectBtn.addEventListener('click',openMotivationTogglConnection);
@@ -11953,6 +11843,7 @@ function wireMotivationWorkTimelineEvents(){
 
   wireMotivationTooltips(panel);
 }
+
 
 function refreshMotivationWorkTimeline(){
   if(ACTIVE_TAB!=='dashboard' || !motivationModeEnabled()) return;
