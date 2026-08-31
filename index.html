@@ -9124,6 +9124,65 @@
     line-height:1.45;
   }
 
+
+  .motivation-linked-task-note{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:center;
+    gap:3px 7px;
+    margin:-2px 0 9px;
+    padding:7px 8px;
+    border:1px solid rgba(140,124,240,.14);
+    border-radius:7px;
+    background:rgba(140,124,240,.028);
+  }
+  .motivation-linked-task-note>span{
+    color:#988AE9;
+    font-size:7.5px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.055em;
+  }
+  .motivation-linked-task-note>strong{
+    min-width:0;
+    overflow:hidden;
+    color:#D9D3F6;
+    font-size:9px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .motivation-linked-task-note>small{
+    grid-column:1 / -1;
+    color:#77718E;
+    font-size:8px;
+    line-height:1.35;
+  }
+
+  .motivation-task-budget-copy{
+    color:#978AB0 !important;
+  }
+
+  .motivation-task-mini-progress{
+    display:block;
+    width:min(220px,100%);
+    height:3px;
+    margin-top:2px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.055);
+  }
+  .motivation-task-mini-progress>i{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#7D6CE7,#C8B8FF);
+  }
+
+  .motivation-task-xp{
+    min-width:70px;
+    text-align:right;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -9648,14 +9707,23 @@ function normalizeState(state){
   if(!Array.isArray(state.motivationGame.tasks)) state.motivationGame.tasks=[];
   state.motivationGame.tasks=state.motivationGame.tasks
     .filter(t=>t && t.id && t.title)
-    .map(t=>({
-      ...t,
-      importance:Math.max(0,Math.min(10,Number(t.importance)||0)),
-      impact:Math.max(0,Math.min(10,Number(t.impact)||0)),
-      estimatedHours:Math.max(0,Number(t.estimatedHours)||0),
-      xpReward:Math.max(0,Math.round(Number(t.xpReward)||0)),
-      status:t.status==='completed'?'completed':'open'
-    }));
+    .map(t=>{
+      const xpReward=Math.max(0,Math.round(Number(t.xpReward)||0));
+      const xpClaimedFromChallenges=Math.max(
+        0,
+        Math.min(xpReward,Math.round(Number(t.xpClaimedFromChallenges)||0))
+      );
+      return {
+        ...t,
+        importance:Math.max(0,Math.min(10,Number(t.importance)||0)),
+        impact:Math.max(0,Math.min(10,Number(t.impact)||0)),
+        estimatedHours:Math.max(0,Number(t.estimatedHours)||0),
+        progressHours:Math.max(0,Number(t.progressHours)||0),
+        xpReward,
+        xpClaimedFromChallenges,
+        status:t.status==='completed'?'completed':'open'
+      };
+    });
   if(typeof state.motivationGame.workXpBaselineReady!=='boolean') state.motivationGame.workXpBaselineReady=false;
   if(!state.motivationGame.workXpAwardedHours || typeof state.motivationGame.workXpAwardedHours!=='object' || Array.isArray(state.motivationGame.workXpAwardedHours)){
     state.motivationGame.workXpAwardedHours={};
@@ -11233,27 +11301,152 @@ function motivationChallengeTemplates(){
   ];
 }
 
+function motivationTaskChallengeCandidates(){
+  const game=motivationGameState();
+  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : todayStr();
+  const recentTaskIds=game.challengeHistory
+    .slice(-3)
+    .map(ch=>ch&&ch.taskId)
+    .filter(Boolean);
+
+  const openTasks=motivationOpenTasks()
+    .filter(task=>{
+      const remainingXp=motivationTaskRemainingXp(task);
+      const remainingHours=motivationTaskRemainingHours(task);
+      return remainingXp>=30 && remainingHours>=1.25;
+    });
+
+  const candidates=[];
+
+  openTasks.forEach(task=>{
+    const remainingHours=motivationTaskRemainingHours(task);
+    const estimated=Math.max(.25,Number(task.estimatedHours)||.25);
+
+    const makeHours=(fraction,minHours,maxHours)=>{
+      const raw=Math.max(minHours,remainingHours*fraction);
+      const quarter=Math.round(raw*4)/4;
+      return Math.max(.25,Math.min(remainingHours,maxHours,quarter));
+    };
+
+    const add=(kind,title,description,targetHours,deadlineDays)=>{
+      const reward=motivationTaskMilestoneReward(task,targetHours);
+      if(reward<25) return;
+      candidates.push({
+        kind,
+        title,
+        description,
+        startDate:today,
+        deadline:datePlusDays(today,deadlineDays),
+        params:{
+          targetHours,
+          creditHours:targetHours,
+          taskTitle:task.title
+        },
+        taskId:task.id,
+        taskLinked:true,
+        xpReward:reward
+      });
+    };
+
+    const shortHours=makeHours(.20,1.25,4);
+    const mediumHours=makeHours(.28,2,6);
+    const longHours=makeHours(.36,3,10);
+    const checkpointHours=makeHours(.45,3.5,12);
+
+    add(
+      'task_focus_push',
+      'Focused task push',
+      `Put ${motivationFormatHours(shortHours)} of focused progress into “${task.title}”.`,
+      shortHours,
+      1
+    );
+
+    if(remainingHours>=2.5){
+      add(
+        'task_two_day_push',
+        'Task momentum',
+        `Invest ${motivationFormatHours(mediumHours)} into “${task.title}” over the next 2 days.`,
+        mediumHours,
+        1
+      );
+    }
+
+    if(remainingHours>=4){
+      add(
+        'task_three_day_push',
+        'Development checkpoint',
+        `Move “${task.title}” forward by ${motivationFormatHours(longHours)} within the next 3 days.`,
+        longHours,
+        2
+      );
+    }
+
+    if(estimated>=8 && remainingHours>=5){
+      add(
+        'task_major_checkpoint',
+        'Major task checkpoint',
+        `Reach another ${motivationFormatHours(checkpointHours)} of real progress on “${task.title}”.`,
+        checkpointHours,
+        4
+      );
+    }
+  });
+
+  // Avoid immediately returning to the same task when another open task exists.
+  const fresh=candidates.filter(ch=>!recentTaskIds.includes(ch.taskId));
+  return fresh.length ? fresh : candidates;
+}
+
+
+
 function motivationCreateChallenge(){
   const game=motivationGameState();
   const recentKinds=game.challengeHistory.slice(-2).map(x=>x.kind).filter(Boolean);
-  const templates=motivationChallengeTemplates();
-  let candidates=templates
+
+  const genericTemplates=motivationChallengeTemplates();
+  let genericCandidates=genericTemplates
     .map(factory=>factory())
     .filter(ch=>!recentKinds.includes(ch.kind));
-  if(!candidates.length) candidates=templates.map(factory=>factory());
-  const challenge=candidates[motivationRandomInt(0,candidates.length-1)];
+  if(!genericCandidates.length) genericCandidates=genericTemplates.map(factory=>factory());
+
+  let taskCandidates=motivationTaskChallengeCandidates()
+    .filter(ch=>!recentKinds.includes(ch.kind));
+  if(!taskCandidates.length) taskCandidates=motivationTaskChallengeCandidates();
+
+  // Task-linked challenges add variety without taking over the system.
+  // When eligible tasks exist, roughly 38% of newly generated challenges
+  // come from that family.
+  const useTask=taskCandidates.length>0 && Math.random()<.38;
+  const pool=useTask ? taskCandidates : genericCandidates;
+  const challenge=pool[motivationRandomInt(0,pool.length-1)];
+
   return {
     id:uid('challenge'),
     ...challenge,
-    xpReward:Math.max(50,Math.round(challenge.xpReward/5)*5),
+    xpReward:challenge.taskLinked
+      ? Math.max(0,Math.round(Number(challenge.xpReward)||0))
+      : Math.max(50,Math.round(challenge.xpReward/5)*5),
     createdAt:new Date().toISOString()
   };
 }
 
+
 function motivationEnsureActiveChallenge(){
   const game=motivationGameState();
   let changed=false;
-  const today=todayStr();
+  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : todayStr();
+
+  if(game.activeChallenge && game.activeChallenge.taskId){
+    const linkedTask=motivationChallengeTask(game.activeChallenge);
+    if(!linkedTask || linkedTask.status==='completed'){
+      motivationArchiveTaskChallenge(
+        game.activeChallenge,
+        linkedTask ? 'task_completed' : 'task_removed'
+      );
+      game.activeChallenge=null;
+      changed=true;
+    }
+  }
 
   if(game.activeChallenge && game.activeChallenge.deadline && today>game.activeChallenge.deadline){
     game.challengeHistory.push({
@@ -11274,6 +11467,7 @@ function motivationEnsureActiveChallenge(){
   return game.activeChallenge;
 }
 
+
 function motivationHoursInRange(start,end){
   let total=0;
   let cursor=start;
@@ -11287,6 +11481,28 @@ function motivationHoursInRange(start,end){
 function motivationChallengeProgress(challenge){
   if(!challenge) return {ratio:0,label:'No challenge',detail:''};
   const p=challenge.params||{};
+
+  if(challenge.taskId){
+    const task=motivationChallengeTask(challenge);
+    if(!task){
+      return {
+        ratio:0,
+        label:'Linked task is no longer available',
+        detail:'This challenge will be replaced automatically.'
+      };
+    }
+
+    const target=Math.max(.25,Number(p.targetHours||p.creditHours)||.25);
+    const credited=Math.max(0,Number(task.progressHours)||0);
+    const estimated=Math.max(.25,Number(task.estimatedHours)||.25);
+
+    return {
+      ratio:0,
+      label:`Complete when you have added ${motivationFormatHours(target)}`,
+      detail:`Trust-based · ${motivationFormatHours(credited)} credited toward ~${motivationFormatHours(estimated)} estimated task time`
+    };
+  }
+
 
   if(challenge.kind==='today_hours'){
     const done=motivationWorkHours(challenge.startDate);
@@ -11364,20 +11580,71 @@ async function motivationCompleteChallenge(){
   const game=motivationGameState();
   const challenge=game.activeChallenge;
   if(!challenge) return;
-  const event=motivationGrantXp(challenge.xpReward,`Challenge completed · ${challenge.title}`);
+
+  let awardedXp=Math.max(0,Math.round(Number(challenge.xpReward)||0));
+  let event=null;
+
+  if(challenge.taskId){
+    const task=motivationChallengeTask(challenge);
+
+    if(!task || task.status==='completed'){
+      motivationArchiveTaskChallenge(
+        challenge,
+        task ? 'task_completed' : 'task_removed'
+      );
+      game.activeChallenge=null;
+      motivationEnsureActiveChallenge();
+      await persist();
+      refreshMotivationGamePanel();
+      showToast('That task is already closed · new challenge generated');
+      return;
+    }
+
+    // The milestone can only pay XP that still exists inside the task's
+    // original XP budget.
+    awardedXp=Math.min(awardedXp,motivationTaskRemainingXp(task));
+    task.xpClaimedFromChallenges=motivationTaskClaimedXp(task)+awardedXp;
+
+    const creditHours=Math.max(
+      0,
+      Number(challenge.params&&(
+        challenge.params.creditHours??challenge.params.targetHours
+      ))||0
+    );
+    if(creditHours>0){
+      task.progressHours=Math.min(
+        Math.max(0,Number(task.estimatedHours)||0),
+        Math.max(0,Number(task.progressHours)||0)+creditHours
+      );
+    }
+  }
+
+  if(awardedXp>0){
+    event=motivationGrantXp(
+      awardedXp,
+      challenge.taskId
+        ? `Task milestone · ${challenge.params&&challenge.params.taskTitle ? challenge.params.taskTitle : challenge.title}`
+        : `Challenge completed · ${challenge.title}`
+    );
+  }
+
   game.challengeHistory.push({
     ...challenge,
     status:'completed',
     finishedAt:new Date().toISOString(),
-    claimedXp:challenge.xpReward
+    claimedXp:awardedXp
   });
   game.activeChallenge=null;
   motivationEnsureActiveChallenge();
   await persist();
+
   refreshMotivationGamePanel();
   mountMotivationFloatingControl();
-  showMotivationXpBurst(event);
+
+  if(event) showMotivationXpBurst(event);
+  else showToast('Challenge completed');
 }
+
 
 async function motivationSkipChallenge(){
   const game=motivationGameState();
@@ -11405,6 +11672,61 @@ function motivationTaskXpReward(importance,impact,estimatedHours){
   return Math.max(50,Math.round(raw/5)*5);
 }
 
+function motivationTaskClaimedXp(task){
+  return Math.max(
+    0,
+    Math.min(
+      Math.max(0,Math.round(Number(task&&task.xpReward)||0)),
+      Math.round(Number(task&&task.xpClaimedFromChallenges)||0)
+    )
+  );
+}
+
+function motivationTaskRemainingXp(task){
+  return Math.max(
+    0,
+    Math.round(Number(task&&task.xpReward)||0)-motivationTaskClaimedXp(task)
+  );
+}
+
+function motivationTaskRemainingHours(task){
+  return Math.max(
+    0,
+    (Number(task&&task.estimatedHours)||0)-(Number(task&&task.progressHours)||0)
+  );
+}
+
+function motivationTaskMilestoneReward(task,creditHours){
+  const totalXp=Math.max(0,Math.round(Number(task&&task.xpReward)||0));
+  const remainingXp=motivationTaskRemainingXp(task);
+  const estimated=Math.max(.25,Number(task&&task.estimatedHours)||.25);
+  const hours=Math.max(.25,Number(creditHours)||.25);
+
+  // Task-linked challenges only redistribute the task's existing XP budget.
+  // One milestone can consume at most half of the original budget.
+  const proportional=totalXp*(hours/estimated);
+  const capped=Math.min(totalXp*.5,proportional,remainingXp);
+  const rounded=Math.max(0,Math.round(capped/5)*5);
+  return Math.min(remainingXp,rounded);
+}
+
+function motivationChallengeTask(challenge){
+  if(!challenge || !challenge.taskId) return null;
+  return motivationGameState().tasks.find(t=>t.id===challenge.taskId)||null;
+}
+
+function motivationArchiveTaskChallenge(challenge,status='task_closed'){
+  const game=motivationGameState();
+  if(!challenge) return;
+  game.challengeHistory.push({
+    ...challenge,
+    status,
+    finishedAt:new Date().toISOString(),
+    claimedXp:0
+  });
+}
+
+
 function motivationOpenTasks(){
   return motivationGameState().tasks.filter(t=>t.status!=='completed');
 }
@@ -11417,13 +11739,26 @@ function motivationTaskPromptDue(){
 }
 
 function motivationImpactTaskHTML(task){
+  const totalXp=Math.max(0,Math.round(Number(task.xpReward)||0));
+  const claimedXp=motivationTaskClaimedXp(task);
+  const remainingXp=motivationTaskRemainingXp(task);
+  const progressHours=Math.max(0,Number(task.progressHours)||0);
+  const estimatedHours=Math.max(.25,Number(task.estimatedHours)||.25);
+  const progressPct=Math.max(0,Math.min(100,progressHours/estimatedHours*100));
+
   return `
     <div class="motivation-task-row" data-task-id="${escapeAttr(task.id)}">
       <div class="motivation-task-main">
         <strong>${escapeHtml(task.title)}</strong>
         <span>Importance ${task.importance}/10 · Impact ${task.impact}/10 · ~${motivationFormatHours(task.estimatedHours)}</span>
+        ${claimedXp>0?`
+          <span class="motivation-task-budget-copy">
+            ${motivationFormatHours(progressHours)} milestone progress · ${claimedXp} / ${totalXp} task XP already earned
+          </span>
+          <span class="motivation-task-mini-progress"><i style="width:${progressPct.toFixed(1)}%"></i></span>
+        `:''}
       </div>
-      <span class="motivation-task-xp">+${task.xpReward} XP</span>
+      <span class="motivation-task-xp">+${remainingXp} XP left</span>
       <div class="motivation-task-actions">
         <button type="button" class="btn secondary motivation-task-remove" data-task-remove="${escapeAttr(task.id)}">Remove</button>
         <button type="button" class="btn primary motivation-task-complete" data-task-complete="${escapeAttr(task.id)}">Finished</button>
@@ -11431,6 +11766,7 @@ function motivationImpactTaskHTML(task){
     </div>
   `;
 }
+
 
 function openMotivationTaskEditor(){
   const game=motivationGameState();
@@ -11486,7 +11822,7 @@ function openMotivationTaskEditor(){
 
   const refreshPreview=()=>{
     const reward=motivationTaskXpReward(importance.value,impact.value,hours.value);
-    preview.innerHTML=`Completing this task will award <strong>+${reward} XP</strong>. Higher importance, impact and estimated effort increase the reward.`;
+    preview.innerHTML=`This task has a total budget of <strong>${reward} XP</strong>. Task-linked challenges may pay part of it earlier; finishing the task awards whatever remains.`;
   };
   const sanitizeWholeNumber=(input,max)=>{
     input.value=String(input.value||'').replace(/[^\d]/g,'').slice(0,3);
@@ -11536,7 +11872,9 @@ function openMotivationTaskEditor(){
       importance:i,
       impact:imp,
       estimatedHours:Math.round(est*100)/100,
+      progressHours:0,
       xpReward:motivationTaskXpReward(i,imp,est),
+      xpClaimedFromChallenges:0,
       status:'open',
       createdAt:new Date().toISOString()
     });
@@ -11551,21 +11889,46 @@ async function motivationCompleteTask(taskId){
   const game=motivationGameState();
   const task=game.tasks.find(t=>t.id===taskId && t.status!=='completed');
   if(!task) return;
+
+  const remainingXp=motivationTaskRemainingXp(task);
   task.status='completed';
   task.completedAt=new Date().toISOString();
-  const event=motivationGrantXp(task.xpReward,`Task finished · ${task.title}`);
+
+  const event=remainingXp>0
+    ? motivationGrantXp(remainingXp,`Task finished · ${task.title}`)
+    : null;
+
+  // If the current challenge depends on this task it is no longer possible,
+  // so archive it and generate a replacement immediately.
+  if(game.activeChallenge && game.activeChallenge.taskId===task.id){
+    motivationArchiveTaskChallenge(game.activeChallenge,'task_completed');
+    game.activeChallenge=null;
+  }
+  motivationEnsureActiveChallenge();
+
   await persist();
   refreshMotivationGamePanel();
   mountMotivationFloatingControl();
-  showMotivationXpBurst(event);
+
+  if(event) showMotivationXpBurst(event);
+  else showToast('Task completed · its XP budget was already earned through milestones');
 }
+
 
 async function motivationRemoveTask(taskId){
   const game=motivationGameState();
+
+  if(game.activeChallenge && game.activeChallenge.taskId===taskId){
+    motivationArchiveTaskChallenge(game.activeChallenge,'task_removed');
+    game.activeChallenge=null;
+  }
+
   game.tasks=game.tasks.filter(t=>t.id!==taskId);
+  motivationEnsureActiveChallenge();
   await persist();
   refreshMotivationGamePanel();
 }
+
 
 /* ---------- Game panel ---------- */
 function motivationGamePanelHTML(){
@@ -11589,7 +11952,7 @@ function motivationGamePanelHTML(){
         <div>
           <span class="motivation-eyebrow">Developer RPG</span>
           <h3>Level ${level.level} · turn work into visible progress</h3>
-          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Challenge and impact-task XP is added on top. Level requirements grow gradually and cap at 1,200 XP per level.</p>
+          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> General challenge XP is additional; task-linked challenge XP comes out of that task's fixed XP budget. Level requirements grow gradually and cap at 1,200 XP per level.</p>
         </div>
         <div class="motivation-level-card"
           data-motivation-tooltip-title="Level ${level.level}"
@@ -11614,6 +11977,13 @@ function motivationGamePanelHTML(){
             <span class="motivation-challenge-xp">+${challenge.xpReward} XP</span>
           </div>
           <p>${escapeHtml(challenge.description)}</p>
+          ${challenge.taskId?`
+            <div class="motivation-linked-task-note">
+              <span>Task-linked milestone</span>
+              <strong>${escapeHtml((motivationChallengeTask(challenge)||{}).title||challenge.params?.taskTitle||'Impact task')}</strong>
+              <small>Its ${challenge.xpReward} XP is part of this task's existing XP budget, not extra XP.</small>
+            </div>
+          `:''}
           <div class="motivation-challenge-progress">
             <span style="width:${Math.max(2,Math.min(100,progress.ratio*100)).toFixed(1)}%"></span>
           </div>
@@ -11641,7 +12011,7 @@ function motivationGamePanelHTML(){
             <button type="button" class="motivation-task-prompt" id="motivationTaskPromptBtn">
               <strong>Anything important you already plan to build?</strong>
               <span>Add its importance, expected impact and estimated time. Finishing it will award XP.</span>
-            </div>
+            </button>
           `:''}
 
           <div class="motivation-task-list">
