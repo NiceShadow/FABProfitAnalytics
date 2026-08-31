@@ -9112,6 +9112,18 @@
     -moz-appearance:textfield;
   }
 
+
+  .backup-includes-note{
+    margin-top:10px;
+    padding:8px 10px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:7px;
+    background:rgba(255,255,255,.018);
+    color:#8F97A7;
+    font-size:10px;
+    line-height:1.45;
+  }
+
 </style>
 
 <style id="roboto-global-font">
@@ -11064,18 +11076,33 @@ function motivationWorkWindowStats(start,end){
   };
 }
 
-function motivationWeekStart(date=todayStr()){
+function motivationLocalTodayStr(){
+  return localDateString(new Date());
+}
+
+function motivationWeekStart(date=motivationLocalTodayStr()){
   const d=new Date(date+'T12:00:00');
   const mondayOffset=(d.getDay()+6)%7;
   return datePlusDays(date,-mondayOffset);
 }
 
 function motivationWeekStats(offset=0){
-  const thisMonday=motivationWeekStart(todayStr());
+  const localToday=motivationLocalTodayStr();
+  const thisMonday=motivationWeekStart(localToday);
   const start=datePlusDays(thisMonday,offset*7);
-  const end=datePlusDays(start,6);
-  const stats=motivationWorkWindowStats(start,end);
-  return {...stats,label:motivationDateRangeLabel(start,end)};
+  const calendarEnd=datePlusDays(start,6);
+
+  // Current week is "week to date": Monday through the current local day.
+  // Previous weeks always use the complete Monday-Sunday range.
+  const dataEnd=offset===0 ? localToday : calendarEnd;
+  const stats=motivationWorkWindowStats(start,dataEnd);
+
+  return {
+    ...stats,
+    calendarStart:start,
+    calendarEnd,
+    label:motivationDateRangeLabel(start,calendarEnd)
+  };
 }
 
 function motivationWorkCurrentStreak(){
@@ -11765,19 +11792,19 @@ function motivationWorkTimelineHTML(){
 
       <div class="motivation-week-stats">
         <div class="motivation-week-stat">
-          <span>This week · Mon–Sun</span>
-          <strong>${motivationFormatHours(thisWeek.hours)}</strong>
-          <small>${escapeHtml(thisWeek.label)}</small>
+          <span>2 weeks ago · Mon–Sun</span>
+          <strong>${motivationFormatHours(twoWeeksAgo.hours)}</strong>
+          <small>${escapeHtml(twoWeeksAgo.label)}</small>
         </div>
         <div class="motivation-week-stat">
-          <span>Last week</span>
+          <span>Last week · Mon–Sun</span>
           <strong>${motivationFormatHours(lastWeek.hours)}</strong>
           <small>${escapeHtml(lastWeek.label)}</small>
         </div>
         <div class="motivation-week-stat">
-          <span>2 weeks ago</span>
-          <strong>${motivationFormatHours(twoWeeksAgo.hours)}</strong>
-          <small>${escapeHtml(twoWeeksAgo.label)}</small>
+          <span>This week · Mon–Sun</span>
+          <strong>${motivationFormatHours(thisWeek.hours)}</strong>
+          <small>${escapeHtml(thisWeek.label)} · through ${escapeHtml(motivationShortDate(motivationLocalTodayStr()))}</small>
         </div>
       </div>
 
@@ -20611,6 +20638,44 @@ function buildLogTooltipHTML(date){
 function clearAllDataButtonHTML(context=''){
   return `<button class="btn danger clear-all-data-btn" data-context="${escapeAttr(context)}">Clear all data</button>`;
 }
+
+function createFullBackupPayload(){
+  // STATE contains the complete persistent dashboard model, including:
+  // products/revenue/sales/settings, Motivation Mode setting, Toggl-synced
+  // daily hours + sync metadata, XP/levels, current challenge, challenge
+  // history, impact tasks and the anti-double-award XP bookkeeping.
+  return {
+    backupFormat:'fab-profit-analytics-full-backup',
+    backupVersion:2,
+    exportedAt:new Date().toISOString(),
+    state:JSON.parse(JSON.stringify(STATE)),
+    localConnection:{
+      // Safe connection configuration is included for convenience.
+      // The Toggl API token is deliberately NOT written into backup files.
+      togglBridgeUrl:getTogglBridgeUrl()||''
+    }
+  };
+}
+
+function parseFullBackupPayload(parsed){
+  if(!parsed || typeof parsed!=='object') throw new Error('bad shape');
+
+  // New v2 wrapper format.
+  if(parsed.backupFormat==='fab-profit-analytics-full-backup' && parsed.state){
+    return {
+      state:parsed.state,
+      localConnection:parsed.localConnection||{}
+    };
+  }
+
+  // Legacy backups exported by earlier versions were STATE directly.
+  if(parsed.products && parsed.revenue && parsed.units){
+    return {state:parsed,localConnection:{}};
+  }
+
+  throw new Error('bad shape');
+}
+
 async function clearAllWebsiteData(){
   const first=confirm('Delete ALL website data? This removes products, revenue, units, price history, settings, sale metadata, professional/refund markers, downloaded exchange-rate cache and all other locally stored dashboard data. The bundled historical exchange rates through July 30, 2026 remain part of the HTML. This cannot be undone. A backup is strongly recommended first.');
   if(!first) return;
@@ -21474,11 +21539,16 @@ function dataHTML(){
         computer — handy before a big change, or to move your data elsewhere.
       </p>
       <div class="row">
-        <button class="btn" id="exportBtn">Export backup (.json)</button>
+        <button class="btn" id="exportBtn">Export full backup (.json)</button>
         <label class="btn secondary" style="text-align:center;cursor:pointer;">
           Import backup
           <input type="file" id="importInput" accept="application/json" style="display:none;">
         </label>
+      </div>
+      <div class="backup-includes-note">
+        Includes all dashboard data, Motivation Mode, level/XP, current challenge and history,
+        impact tasks, Toggl-synced daily hours and sync metadata, sales/planning data, settings,
+        FX history and product data. The Toggl API token is intentionally excluded from backup files.
       </div>
     </div>
     <div class="panel">
@@ -22422,17 +22492,19 @@ function wireTabEvents(){
   if(ACTIVE_TAB==='data'){
     const exportBtn = document.getElementById('exportBtn');
     if(exportBtn) exportBtn.addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(STATE, null, 2)], {type:'application/json'});
+      const payload=createFullBackupPayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `fab-profit-analytics-backup-${todayStr()}.json`;
+      a.download = `fab-profit-analytics-backup-${motivationLocalTodayStr()}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Backup downloaded');
+      showToast('Full backup downloaded');
     });
+
     const importInput = document.getElementById('importInput');
     if(importInput) importInput.addEventListener('change', (e)=>{
       const file = e.target.files[0];
@@ -22440,17 +22512,35 @@ function wireTabEvents(){
       const reader = new FileReader();
       reader.onload = async (evt)=>{
         try{
-          const parsed = JSON.parse(evt.target.result);
-          if(!parsed.products || !parsed.revenue || !parsed.units) throw new Error('bad shape');
-          if(!confirm('This will replace all current data with the imported backup. Continue?')) return;
-          STATE = parsed;
-          if(!STATE.settings) STATE.settings = {applyRevenueShare:true};
+          const parsed=JSON.parse(evt.target.result);
+          const backup=parseFullBackupPayload(parsed);
+
+          if(!backup.state.products || !backup.state.revenue || !backup.state.units){
+            throw new Error('bad shape');
+          }
+
+          if(!confirm('This will replace all current data with the imported backup, including Motivation Mode, XP/challenges/tasks and synced Toggl history. Continue?')) return;
+
+          // Normalize on restore so backups from both older and newer versions
+          // receive every current default/validation rule before being persisted.
+          STATE=normalizeState(backup.state);
+
+          if(backup.localConnection && backup.localConnection.togglBridgeUrl){
+            setTogglBridgeUrl(backup.localConnection.togglBridgeUrl);
+          }
+
+          // Keep the dedicated FX cache consistent with the restored STATE.
+          if(STATE.fxHistory) setDedicatedFxCache(STATE.fxHistory);
+
           await persist();
-          showToast('Backup imported');
-          ACTIVE_FILTER = 'all';
+          showToast('Full backup imported');
+          ACTIVE_FILTER='all';
           render();
         }catch(err){
+          console.error('Backup import failed',err);
           alert("That file doesn't look like a valid backup.");
+        }finally{
+          importInput.value='';
         }
       };
       reader.readAsText(file);
