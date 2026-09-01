@@ -9544,7 +9544,7 @@ let TF_PRODUCT_CARDS = { preset:'all', start:null, end:null }; // shared timefra
 let PRODUCT_PERFORMANCE_SHARED_SCALE = false; // true = shared Y scale, false = fit each product's performance line
 let TF_ACCUM_CHART = { preset:'all', start:null, end:null };   // scoped to the "accumulated revenue" chart only
 let CHART_GRANULARITY = 'monthly'; // 'monthly' | 'daily', for the per-product chart only
-let DASHBOARD_REVENUE_MODE = 'gross'; // 'gross' | 'net'; resets to gross on full reload
+let DASHBOARD_REVENUE_MODE = 'gross'; // 'gross' | 'net'; initialized from persistent settings
 let charts = {};
 let IMPORT_STATE = null; // holds parsed-but-not-yet-committed CSV import data
 const REVENUE_LOG_INITIAL_MONTHS = 3;
@@ -9791,6 +9791,7 @@ function normalizeState(state){
   if(typeof state.settings.salesPlanningRequire31DayGap!=='boolean') state.settings.salesPlanningRequire31DayGap=true;
   if(typeof state.settings.salesShowSuggestions!=='boolean') state.settings.salesShowSuggestions=true;
   if(typeof state.settings.motivationMode!=='boolean') state.settings.motivationMode=false;
+  if(!['gross','net'].includes(state.settings.dashboardRevenueMode)) state.settings.dashboardRevenueMode='gross';
   if(typeof state.settings.salesSuggestionsRequireKnownNextFabEvent!=='boolean') state.settings.salesSuggestionsRequireKnownNextFabEvent=true;
   {
     const minimumSuggestionDays=Math.round(Number(state.settings.salesSuggestionMinimumDays));
@@ -9833,6 +9834,8 @@ async function init(){
     STATE = normalizeState(loaded);
     LAST_SAVED_SNAPSHOT = JSON.stringify(STATE);
   }
+
+  DASHBOARD_REVENUE_MODE=STATE.settings.dashboardRevenueMode==='net'?'net':'gross';
 
   render();
 }
@@ -22201,8 +22204,10 @@ function wireTabEvents(){
 
       const dashboardRevenueModeToggle=document.getElementById('dashboardRevenueModeToggle');
       if(dashboardRevenueModeToggle){
-        dashboardRevenueModeToggle.addEventListener('change',()=>{
+        dashboardRevenueModeToggle.addEventListener('change',async()=>{
           DASHBOARD_REVENUE_MODE=dashboardRevenueModeToggle.checked?'net':'gross';
+          STATE.settings.dashboardRevenueMode=DASHBOARD_REVENUE_MODE;
+          await persist();
           renderTabContent();
         });
       }
@@ -23037,6 +23042,7 @@ function wireTabEvents(){
           // Normalize on restore so backups from both older and newer versions
           // receive every current default/validation rule before being persisted.
           STATE=normalizeState(backup.state);
+          DASHBOARD_REVENUE_MODE=STATE.settings.dashboardRevenueMode==='net'?'net':'gross';
 
           if(backup.localConnection && backup.localConnection.togglBridgeUrl){
             setTogglBridgeUrl(backup.localConnection.togglBridgeUrl);
