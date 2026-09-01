@@ -9623,6 +9623,443 @@
 @media(max-width:1000px){.motivation-album-progress-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.motivation-album-progress-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card-album-team-card-counter strong{font-size:20px}}
 
+
+/* ================= Motivation Card Economy + Pack Opening ================= */
+
+/* Rare: strongly blue with visible geometric detail. */
+.album-card.rarity-rare{
+  border-color:rgba(92,166,255,.48);
+  background:
+    radial-gradient(110% 80% at 50% -5%,rgba(103,176,255,.62),transparent 48%),
+    linear-gradient(135deg,rgba(39,115,239,.52),rgba(25,73,155,.34) 58%,rgba(35,164,211,.22));
+  box-shadow:0 14px 32px rgba(28,109,220,.20),0 14px 28px rgba(0,0,0,.24);
+}
+.album-card.rarity-rare::after{
+  background:
+    linear-gradient(145deg,transparent 0 18%,rgba(83,162,255,.17) 18% 29%,transparent 29% 48%,rgba(47,126,237,.13) 48% 58%,transparent 58%),
+    linear-gradient(35deg,transparent 0 62%,rgba(114,190,255,.13) 62% 73%,transparent 73%),
+    linear-gradient(180deg,#0B2448 0%,#081A35 55%,#091525 100%);
+}
+.album-card.rarity-rare .album-card-art{
+  border-color:rgba(105,177,255,.30);
+  background:
+    linear-gradient(135deg,rgba(59,137,243,.13),transparent 45%),
+    radial-gradient(circle at 50% 20%,rgba(115,190,255,.20),transparent 44%),
+    rgba(5,18,38,.74);
+}
+.album-card.rarity-rare .album-card-rarity{
+  border-color:rgba(107,180,255,.34);
+  background:rgba(18,75,150,.66);
+  color:#D8EEFF;
+}
+
+/* Gold: deliberately much more ornate and luminous. */
+.album-card.rarity-legendary{
+  border-color:rgba(255,209,91,.72);
+  background:
+    radial-gradient(120% 92% at 50% -8%,rgba(255,232,135,.90),transparent 43%),
+    linear-gradient(135deg,#A76812 0%,#F0B63E 34%,#70400D 72%,#D89924 100%);
+  box-shadow:
+    0 0 0 1px rgba(255,219,115,.18),
+    0 18px 42px rgba(222,155,38,.30),
+    0 14px 30px rgba(0,0,0,.28);
+}
+.album-card.rarity-legendary::before{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,245,190,.30),transparent 38%),
+    linear-gradient(120deg,transparent 0 34%,rgba(255,238,166,.20) 34% 37%,transparent 37% 64%,rgba(255,220,103,.17) 64% 68%,transparent 68%);
+}
+.album-card.rarity-legendary::after{
+  background:
+    linear-gradient(135deg,transparent 0 17%,rgba(255,222,111,.15) 17% 25%,transparent 25% 39%,rgba(255,244,188,.12) 39% 43%,transparent 43% 66%,rgba(183,112,15,.20) 66% 75%,transparent 75%),
+    linear-gradient(45deg,rgba(255,216,103,.07) 25%,transparent 25% 50%,rgba(255,216,103,.07) 50% 75%,transparent 75%),
+    linear-gradient(180deg,#4F3008 0%,#2F1C06 48%,#1D1308 100%);
+  background-size:auto,24px 24px,auto;
+}
+.album-card.rarity-legendary .album-card-art{
+  border-color:rgba(255,219,115,.40);
+  background:
+    radial-gradient(circle at 50% 18%,rgba(255,229,139,.28),transparent 48%),
+    linear-gradient(150deg,rgba(180,115,18,.20),rgba(49,29,4,.72));
+  box-shadow:inset 0 0 26px rgba(255,205,70,.09);
+}
+.album-card.rarity-legendary .album-card-rarity{
+  border-color:rgba(255,226,131,.48);
+  background:linear-gradient(180deg,rgba(141,91,16,.88),rgba(82,50,8,.88));
+  color:#FFE7A1;
+  box-shadow:0 0 14px rgba(255,201,67,.16);
+}
+.album-card.rarity-legendary .album-card-rarity::before{
+  content:"✦";
+  margin-right:6px;
+  color:#FFE184;
+}
+
+/* Dashboard collection box lives as its own bottom panel. */
+.motivation-album-progress{
+  margin-top:16px !important;
+  padding:14px 16px !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,2fr) minmax(240px,1fr) !important;
+  gap:18px !important;
+  align-items:stretch;
+}
+.motivation-album-progress-left{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:14px;
+}
+.motivation-album-progress-brand{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.motivation-album-progress-brand span{
+  color:#D7B562;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.motivation-album-progress-brand h3{
+  margin:0;
+  color:#F2F4F7;
+  font-size:17px;
+}
+.motivation-album-economy{
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.motivation-gem-balance{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.motivation-gem-balance span{
+  color:#7F8998;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.motivation-gem-balance strong{
+  color:#9EE6FF;
+  font-size:26px;
+  line-height:1;
+  letter-spacing:-.04em;
+}
+.motivation-gem-balance small{
+  color:#637080;
+  font-size:8px;
+}
+.motivation-pack-buy-btn{
+  min-width:132px;
+}
+.motivation-pack-buy-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.motivation-product-launch-reward-note{
+  color:#717D8D;
+  font-size:8.5px;
+  line-height:1.45;
+}
+.motivation-album-progress-right{
+  min-width:0;
+  border-left:1px solid rgba(255,255,255,.07);
+  padding-left:16px;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.motivation-album-compact-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:24px;
+  color:#8994A4;
+  font-size:9px;
+  font-weight:800;
+}
+.motivation-album-compact-row strong{
+  color:#E7EBF0;
+  font-size:11px;
+}
+.motivation-album-compact-row.total{
+  margin-top:3px;
+  padding-top:7px;
+  border-top:1px solid rgba(255,255,255,.065);
+}
+.motivation-album-compact-row.common strong{color:#D8DEE8}
+.motivation-album-compact-row.rare strong{color:#79BFFF}
+.motivation-album-compact-row.gold strong{color:#FFD66F}
+
+.motivation-challenge-stack{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.motivation-gem-challenge-card{
+  border-color:rgba(91,201,235,.14) !important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(67,178,220,.08),transparent 40%),
+    rgba(255,255,255,.015) !important;
+}
+.motivation-challenge-gems{
+  flex:0 0 auto;
+  color:#8DDEFA;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.motivation-gem-challenge-card .motivation-challenge-progress>span{
+  background:linear-gradient(90deg,#3A91C9,#8CE1FF);
+}
+.motivation-gem-challenge-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:#6FCBEF !important;
+}
+
+/* Gem / product reward burst */
+.motivation-gem-burst .motivation-xp-burst-top span{color:#9EE6FF}
+.motivation-gem-burst .motivation-xp-burst-track>span{
+  background:linear-gradient(90deg,#2A8BBE,#8DE4FF);
+}
+.motivation-level-gem-note{
+  color:#8ADCF8;
+  font-size:10px;
+  font-weight:800;
+  margin-left:8px;
+}
+
+/* Full-page card pack overlay */
+.motivation-pack-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(3,6,10,.68);
+  backdrop-filter:blur(13px);
+}
+.motivation-pack-stage{
+  width:min(900px,96vw);
+  max-height:94vh;
+  overflow:auto;
+  position:relative;
+  padding:24px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(65,145,255,.15),transparent 40%),
+    linear-gradient(180deg,#121722,#0B0F16);
+  box-shadow:0 28px 90px rgba(0,0,0,.55);
+}
+.motivation-pack-close{
+  position:absolute;
+  right:14px;
+  top:14px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(0,0,0,.28);
+  color:#DDE3EB;
+  cursor:pointer;
+  z-index:2;
+}
+.motivation-sealed-pack-wrap{
+  min-height:520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:22px;
+  text-align:center;
+}
+.motivation-sealed-pack{
+  width:250px;
+  height:380px;
+  position:relative;
+  border-radius:22px 22px 16px 16px;
+  cursor:pointer;
+  border:1px solid rgba(255,219,110,.55);
+  background:
+    linear-gradient(125deg,transparent 0 22%,rgba(255,255,255,.13) 22% 26%,transparent 26% 64%,rgba(255,226,130,.14) 64% 68%,transparent 68%),
+    radial-gradient(circle at 50% 22%,rgba(255,220,106,.32),transparent 35%),
+    linear-gradient(165deg,#173E74 0%,#0A2144 54%,#5B370B 100%);
+  box-shadow:0 28px 70px rgba(0,0,0,.44),0 0 38px rgba(255,194,62,.14);
+  transition:transform .18s ease,box-shadow .18s ease;
+  overflow:hidden;
+}
+.motivation-sealed-pack:hover{
+  transform:translateY(-5px) rotate(-.7deg);
+  box-shadow:0 34px 80px rgba(0,0,0,.5),0 0 48px rgba(255,194,62,.22);
+}
+.motivation-sealed-pack::before,
+.motivation-sealed-pack::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;height:24px;
+  background:repeating-linear-gradient(90deg,#D9A441 0 14px,#FFD876 14px 28px);
+}
+.motivation-sealed-pack::before{top:0}
+.motivation-sealed-pack::after{bottom:0}
+.motivation-sealed-pack-inner{
+  position:absolute;
+  inset:44px 22px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:rgba(3,9,18,.24);
+}
+.motivation-sealed-pack-inner span{
+  color:#A5D8FF;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.motivation-sealed-pack-inner strong{
+  color:#F7D681;
+  font-size:28px;
+  line-height:1;
+}
+.motivation-sealed-pack-inner small{
+  color:#8192A8;
+  font-size:10px;
+}
+.motivation-pack-caption{
+  color:#9CA8B8;
+  font-size:11px;
+}
+.motivation-pack-reveal{
+  min-height:520px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+}
+.motivation-pack-reveal-card{
+  width:min(280px,80vw);
+}
+.motivation-pack-reveal-card .album-card{
+  min-height:410px;
+}
+.motivation-pack-reveal-card .album-card-art{
+  height:220px;
+}
+.motivation-pack-reveal-progress{
+  color:#8D98A8;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.motivation-pack-results{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.motivation-pack-results h3{
+  margin:0;
+  color:#F3F5F8;
+  font-size:22px;
+  text-align:center;
+}
+.motivation-pack-results-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(120px,1fr));
+  gap:10px;
+}
+.motivation-pack-results-grid .album-card{
+  min-height:250px;
+}
+.motivation-pack-results-grid .album-card-art{
+  height:120px;
+}
+.motivation-pack-results-actions{
+  display:flex;
+  justify-content:center;
+}
+.motivation-product-launch-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100001;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(2,5,8,.20);
+  backdrop-filter:blur(3px);
+}
+.motivation-product-launch-card{
+  pointer-events:auto;
+  width:min(520px,90vw);
+  padding:26px;
+  border:1px solid rgba(217,164,65,.38);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(217,164,65,.18),transparent 45%),
+    linear-gradient(180deg,#171B23,#0D1118);
+  text-align:center;
+  box-shadow:0 26px 80px rgba(0,0,0,.5);
+}
+.motivation-product-launch-card span{
+  color:#D9A441;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.motivation-product-launch-card h2{
+  margin:7px 0 14px;
+  color:#F5F6F8;
+  font-size:26px;
+}
+.motivation-product-launch-rewards{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.motivation-product-launch-rewards strong{
+  min-width:145px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+  color:#F3D16D;
+  font-size:20px;
+}
+.motivation-product-launch-card p{
+  color:#98A3B2;
+  font-size:11px;
+  line-height:1.5;
+}
+@media(max-width:900px){
+  .motivation-album-progress{grid-template-columns:1fr !important}
+  .motivation-album-progress-right{border-left:0;padding-left:0;border-top:1px solid rgba(255,255,255,.07);padding-top:9px}
+  .motivation-pack-results-grid{grid-template-columns:repeat(2,minmax(120px,1fr))}
+}
+
 </style>
 
 <style id="roboto-global-font">
@@ -9642,7 +10079,7 @@
 </div>
 <script>
 
-const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"activeChallenge":null,"challengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
+const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"gems":0,"activeChallenge":null,"challengeHistory":[],"gemChallenge":null,"gemChallengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null,"productLaunchRewardBaselineReady":false,"pendingCardPack":null},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
 
 const PALETTE = ["#D9A441","#4FB8B0","#8C7CF0","#E2725B","#6FBF73","#5DA8E2","#E2C255","#C97CE0","#7FD1C1","#E08FB0"];
 
@@ -10133,18 +10570,34 @@ function normalizeState(state){
   if(!state.motivationGame || typeof state.motivationGame!=='object' || Array.isArray(state.motivationGame)){
     state.motivationGame={
       totalXp:0,
+      gems:0,
       activeChallenge:null,
       challengeHistory:[],
+      gemChallenge:null,
+      gemChallengeHistory:[],
       tasks:[],
       workXpBaselineReady:false,
       workXpAwardedHours:{},
       workXpCarry:0,
-      lastTaskPromptAt:null
+      lastTaskPromptAt:null,
+      productLaunchRewardBaselineReady:(state.products||[]).length>0,
+      pendingCardPack:null
     };
   }
   state.motivationGame.totalXp=Math.max(0,Math.round(Number(state.motivationGame.totalXp)||0));
+  state.motivationGame.gems=Math.max(0,Math.floor(Number(state.motivationGame.gems)||0));
   if(!Array.isArray(state.motivationGame.challengeHistory)) state.motivationGame.challengeHistory=[];
+  if(!Array.isArray(state.motivationGame.gemChallengeHistory)) state.motivationGame.gemChallengeHistory=[];
   if(!Array.isArray(state.motivationGame.tasks)) state.motivationGame.tasks=[];
+  if(typeof state.motivationGame.productLaunchRewardBaselineReady!=='boolean'){
+    state.motivationGame.productLaunchRewardBaselineReady=(state.products||[]).length>0;
+  }
+  if(
+    state.motivationGame.pendingCardPack &&
+    (!Array.isArray(state.motivationGame.pendingCardPack.draws) || !state.motivationGame.pendingCardPack.id)
+  ){
+    state.motivationGame.pendingCardPack=null;
+  }
   state.motivationGame.tasks=state.motivationGame.tasks
     .filter(t=>t && t.id && t.title)
     .map(t=>{
@@ -10742,8 +11195,10 @@ function cardAlbumEntityTypeLabel(entity){
 }
 function cardAlbumRarityLabel(rarity){
   const text=String(rarity||'common').toLowerCase();
+  if(text==='legendary') return 'Gold';
   return text.charAt(0).toUpperCase()+text.slice(1);
 }
+
 function cardAlbumEntitiesForTeam(team){
   const head=[{
     entityType:'team',
@@ -10947,6 +11402,235 @@ function wireCardAlbumEvents(){
     if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
   }));
 }
+
+
+const MOTIVATION_CARD_PACK_COST=100;
+const MOTIVATION_CARD_PACK_SIZE=5;
+const MOTIVATION_NEW_PRODUCT_XP=600; // equivalent to 50 hours at 12 XP/hour
+const MOTIVATION_NEW_PRODUCT_GEMS=200;
+
+function motivationCardPackRarity(){
+  const roll=Math.random();
+  if(roll<.80) return 'common';
+  if(roll<.975) return 'rare';
+  return 'legendary';
+}
+function cardAlbumDrawPool(){
+  const dataset=cardAlbumDataset();
+  if(!dataset || !Array.isArray(dataset.teams)) return [];
+  const pool=[];
+  dataset.teams.forEach(team=>{
+    cardAlbumEntitiesForTeam(team).forEach(entity=>{
+      pool.push({
+        teamSourceId:String(team.sourceId),
+        entityType:entity.entityType,
+        sourceId:String(entity.sourceId)
+      });
+    });
+  });
+  return pool;
+}
+function cardAlbumResolveDraw(draw){
+  const dataset=cardAlbumDataset();
+  if(!dataset) return null;
+  let team=(dataset.teams||[]).find(t=>String(t.sourceId)===String(draw.teamSourceId))||null;
+  let entity=null;
+
+  if(team){
+    entity=cardAlbumEntitiesForTeam(team).find(e=>String(e.sourceId)===String(draw.sourceId) && e.entityType===draw.entityType)||null;
+  }
+
+  if(!entity){
+    for(const candidateTeam of dataset.teams||[]){
+      const found=cardAlbumEntitiesForTeam(candidateTeam).find(e=>String(e.sourceId)===String(draw.sourceId) && e.entityType===draw.entityType);
+      if(found){ team=candidateTeam; entity=found; break; }
+    }
+  }
+  return team&&entity?{team,entity}:null;
+}
+function motivationGeneratePackDraws(){
+  const pool=cardAlbumDrawPool();
+  if(!pool.length) return [];
+  return Array.from({length:MOTIVATION_CARD_PACK_SIZE},()=>{
+    const base=pool[Math.floor(Math.random()*pool.length)];
+    return {...base,rarity:motivationCardPackRarity()};
+  });
+}
+function motivationApplyPackToInventory(draws){
+  const inventory=cardAlbumInventory();
+  draws.forEach(draw=>{
+    const key=cardAlbumCardKey(draw.entityType,draw.sourceId,draw.rarity);
+    inventory[key]=Math.max(0,Math.floor(Number(inventory[key])||0))+1;
+  });
+}
+async function motivationBuyOrResumeCardPack(){
+  const game=motivationGameState();
+  if(game.pendingCardPack){
+    openMotivationPackOverlay();
+    return;
+  }
+  if(!cardAlbumDataset()){
+    showToast('Import a card dataset first');
+    return;
+  }
+  if(game.gems<MOTIVATION_CARD_PACK_COST){
+    showToast(`You need ${MOTIVATION_CARD_PACK_COST} Gems for a pack`);
+    return;
+  }
+
+  const draws=motivationGeneratePackDraws();
+  if(draws.length!==MOTIVATION_CARD_PACK_SIZE){
+    showToast('No cards are available in the album yet');
+    return;
+  }
+
+  game.gems-=MOTIVATION_CARD_PACK_COST;
+  motivationApplyPackToInventory(draws);
+  game.pendingCardPack={
+    id:uid('pack'),
+    createdAt:new Date().toISOString(),
+    cost:MOTIVATION_CARD_PACK_COST,
+    draws,
+    revealIndex:0
+  };
+  await persist();
+  refreshMotivationAlbumProgress();
+  openMotivationPackOverlay();
+}
+function motivationPackCardHTML(draw){
+  const resolved=cardAlbumResolveDraw(draw);
+  if(!resolved) return `<div class="card-album-empty"><h3>Card unavailable</h3></div>`;
+  return cardAlbumCardHTML(resolved.entity,resolved.team,draw.rarity);
+}
+function motivationClosePackOverlay(){
+  document.getElementById('motivationPackOverlay')?.remove();
+}
+async function motivationFinishPack(){
+  const game=motivationGameState();
+  game.pendingCardPack=null;
+  await persist();
+  motivationClosePackOverlay();
+  refreshMotivationAlbumProgress();
+  if(ACTIVE_TAB==='album') renderTabContent();
+}
+async function motivationAdvancePackReveal(){
+  const game=motivationGameState();
+  const pack=game.pendingCardPack;
+  if(!pack) return;
+  if(pack.revealIndex<=0) pack.revealIndex=1;
+  else if(pack.revealIndex<MOTIVATION_CARD_PACK_SIZE) pack.revealIndex++;
+  else pack.revealIndex=MOTIVATION_CARD_PACK_SIZE+1;
+  await persist();
+  openMotivationPackOverlay();
+}
+function openMotivationPackOverlay(){
+  motivationClosePackOverlay();
+  const pack=motivationGameState().pendingCardPack;
+  if(!pack) return;
+
+  const overlay=document.createElement('div');
+  overlay.id='motivationPackOverlay';
+  overlay.className='motivation-pack-overlay';
+
+  let body='';
+  if(pack.revealIndex<=0){
+    body=`
+      <div class="motivation-sealed-pack-wrap">
+        <button class="motivation-sealed-pack" id="motivationSealedPack" type="button" aria-label="Open card pack">
+          <span class="motivation-sealed-pack-inner">
+            <span>Motivation collection</span>
+            <strong>5 CARDS</strong>
+            <small>Click to tear open</small>
+          </span>
+        </button>
+        <div class="motivation-pack-caption">Your five cards are already saved. Click the pack to reveal them.</div>
+      </div>`;
+  }else if(pack.revealIndex<=MOTIVATION_CARD_PACK_SIZE){
+    const draw=pack.draws[pack.revealIndex-1];
+    body=`
+      <div class="motivation-pack-reveal">
+        <div class="motivation-pack-reveal-progress">Card ${pack.revealIndex} / ${MOTIVATION_CARD_PACK_SIZE}</div>
+        <div class="motivation-pack-reveal-card">${motivationPackCardHTML(draw)}</div>
+        <button type="button" class="btn primary" id="motivationPackNextBtn">${pack.revealIndex<MOTIVATION_CARD_PACK_SIZE?'Reveal next':'View all five'}</button>
+      </div>`;
+  }else{
+    body=`
+      <div class="motivation-pack-results">
+        <h3>Your pack</h3>
+        <div class="motivation-pack-results-grid">${pack.draws.map(motivationPackCardHTML).join('')}</div>
+        <div class="motivation-pack-results-actions"><button type="button" class="btn primary" id="motivationPackDoneBtn">Add to collection</button></div>
+      </div>`;
+  }
+
+  overlay.innerHTML=`
+    <div class="motivation-pack-stage">
+      <button type="button" class="motivation-pack-close" id="motivationPackCloseBtn" aria-label="Close">×</button>
+      ${body}
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#motivationPackCloseBtn')?.addEventListener('click',()=>{
+    if(pack.revealIndex>MOTIVATION_CARD_PACK_SIZE) motivationFinishPack();
+    else motivationClosePackOverlay();
+  });
+  overlay.querySelector('#motivationSealedPack')?.addEventListener('click',motivationAdvancePackReveal);
+  overlay.querySelector('#motivationPackNextBtn')?.addEventListener('click',motivationAdvancePackReveal);
+  overlay.querySelector('#motivationPackDoneBtn')?.addEventListener('click',motivationFinishPack);
+}
+function refreshMotivationAlbumProgress(){
+  if(ACTIVE_TAB!=='dashboard' || !motivationModeEnabled()) return;
+  const current=document.getElementById('motivationAlbumProgress');
+  if(!current) return;
+  current.outerHTML=motivationAlbumProgressHTML();
+  wireMotivationAlbumProgressEvents();
+}
+function motivationNewProductReward(newCount,firstImport){
+  if(!motivationModeEnabled() || newCount<=0) return null;
+  const game=motivationGameState();
+
+  if(!game.productLaunchRewardBaselineReady){
+    game.productLaunchRewardBaselineReady=true;
+    // A first bootstrap import establishes the product baseline, just like the
+    // first Toggl sync establishes a work baseline.
+    if(firstImport) return null;
+  }
+
+  const xp=MOTIVATION_NEW_PRODUCT_XP*newCount;
+  const directGems=MOTIVATION_NEW_PRODUCT_GEMS*newCount;
+  const xpEvent=motivationGrantXp(xp,`${newCount} new product${newCount===1?'':'s'} shipped`);
+  const gemEvent=motivationGrantGems(directGems,`${newCount} new product${newCount===1?'':'s'} shipped`);
+  return {
+    newCount,
+    xp,
+    directGems,
+    levelGems:xpEvent?.gemsAwarded||0,
+    totalGems:directGems+(xpEvent?.gemsAwarded||0),
+    xpEvent,
+    gemEvent
+  };
+}
+function showMotivationProductLaunchReward(reward){
+  if(!reward) return;
+  document.getElementById('motivationProductLaunchOverlay')?.remove();
+  const overlay=document.createElement('div');
+  overlay.id='motivationProductLaunchOverlay';
+  overlay.className='motivation-product-launch-overlay';
+  overlay.innerHTML=`
+    <div class="motivation-product-launch-card">
+      <span>Major milestone</span>
+      <h2>${reward.newCount===1?'New product added':'New products added'}</h2>
+      <div class="motivation-product-launch-rewards">
+        <strong>+${reward.xp.toLocaleString()} XP</strong>
+        <strong>+${reward.totalGems.toLocaleString()} Gems</strong>
+      </div>
+      <p>Shipping a new product is treated like roughly 50 hours of meaningful work${reward.newCount>1?' per product':''}.${reward.levelGems?` This reward also crossed level thresholds worth ${reward.levelGems} bonus Gems.`:''}</p>
+      <button type="button" class="btn primary" id="motivationProductLaunchClose">Continue</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#motivationProductLaunchClose')?.addEventListener('click',()=>overlay.remove());
+  setTimeout(()=>overlay?.remove(),9000);
+}
+
 
 /* ---------- Render shell ---------- */
 function render(){
@@ -11665,15 +12349,18 @@ const MOTIVATION_WORK_XP_PER_HOUR=12;
 function motivationGameState(){
   if(!STATE.motivationGame || typeof STATE.motivationGame!=='object'){
     STATE.motivationGame={
-      totalXp:0,activeChallenge:null,challengeHistory:[],tasks:[],
-      workXpBaselineReady:false,workXpAwardedHours:{},workXpCarry:0,lastTaskPromptAt:null
+      totalXp:0,gems:0,activeChallenge:null,challengeHistory:[],gemChallenge:null,gemChallengeHistory:[],tasks:[],
+      workXpBaselineReady:false,workXpAwardedHours:{},workXpCarry:0,lastTaskPromptAt:null,
+      productLaunchRewardBaselineReady:(STATE.products||[]).length>0,pendingCardPack:null
     };
   }
   if(!Array.isArray(STATE.motivationGame.challengeHistory)) STATE.motivationGame.challengeHistory=[];
+  if(!Array.isArray(STATE.motivationGame.gemChallengeHistory)) STATE.motivationGame.gemChallengeHistory=[];
   if(!Array.isArray(STATE.motivationGame.tasks)) STATE.motivationGame.tasks=[];
   if(!STATE.motivationGame.workXpAwardedHours || typeof STATE.motivationGame.workXpAwardedHours!=='object'){
     STATE.motivationGame.workXpAwardedHours={};
   }
+  STATE.motivationGame.gems=Math.max(0,Math.floor(Number(STATE.motivationGame.gems)||0));
   return STATE.motivationGame;
 }
 
@@ -11709,6 +12396,24 @@ function motivationLevelInfo(totalXp=null){
   return {level,currentXp:0,requiredXp:1200,progress:0,totalXp:Number(totalXp)||0};
 }
 
+function motivationLevelGemReward(level){
+  const l=Math.max(2,Math.round(Number(level)||2));
+  return Math.min(70,20+l*2);
+}
+
+function motivationGrantGems(amount,reason){
+  const game=motivationGameState();
+  const gems=Math.max(0,Math.round(Number(amount)||0));
+  if(!gems) return null;
+  game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gems;
+  return {
+    type:'gems',
+    amount:gems,
+    reason:String(reason||'Gem reward'),
+    balance:game.gems
+  };
+}
+
 function motivationGrantXp(amount,reason){
   const game=motivationGameState();
   const xp=Math.max(0,Math.round(Number(amount)||0));
@@ -11716,12 +12421,23 @@ function motivationGrantXp(amount,reason){
   const before=motivationLevelInfo(game.totalXp);
   game.totalXp+=xp;
   const after=motivationLevelInfo(game.totalXp);
+
+  let gemsAwarded=0;
+  if(after.level>before.level){
+    for(let level=before.level+1;level<=after.level;level++){
+      gemsAwarded+=motivationLevelGemReward(level);
+    }
+    game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gemsAwarded;
+  }
+
   return {
+    type:'xp',
     amount:xp,
     reason:String(reason||'Progress'),
     before,
     after,
-    leveledUp:after.level>before.level
+    leveledUp:after.level>before.level,
+    gemsAwarded
   };
 }
 
@@ -11784,7 +12500,7 @@ function showMotivationXpBurst(event){
     <div class="motivation-xp-burst-glow"></div>
     <div class="motivation-xp-burst-top">
       <span>+${event.amount} XP</span>
-      ${event.leveledUp?`<strong>LEVEL UP · ${event.after.level}</strong>`:`<strong>LVL ${event.after.level}</strong>`}
+      ${event.leveledUp?`<strong>LEVEL UP · ${event.after.level}${event.gemsAwarded?` <span class="motivation-level-gem-note">+${event.gemsAwarded} Gems</span>`:''}</strong>`:`<strong>LVL ${event.after.level}</strong>`}
     </div>
     <div class="motivation-xp-burst-reason">${escapeHtml(event.reason)}</div>
     <div class="motivation-xp-burst-track">
@@ -11797,6 +12513,35 @@ function showMotivationXpBurst(event){
   setTimeout(()=>el.classList.add('leaving'),2800);
   setTimeout(()=>el.remove(),3350);
 }
+
+
+function showMotivationGemBurst(event){
+  if(!event || !event.amount) return;
+  document.querySelectorAll('.motivation-xp-burst').forEach(el=>el.remove());
+
+  const el=document.createElement('div');
+  el.className='motivation-xp-burst motivation-gem-burst';
+  el.innerHTML=`
+    <div class="motivation-xp-burst-glow"></div>
+    <div class="motivation-xp-burst-top">
+      <span>+${event.amount} Gems</span>
+      <strong>${event.balance.toLocaleString()} total</strong>
+    </div>
+    <div class="motivation-xp-burst-reason">${escapeHtml(event.reason)}</div>
+    <div class="motivation-xp-burst-track"><span style="width:100%"></span></div>
+    <div class="motivation-xp-burst-meta">Card packs and future collection rewards use Gems.</div>
+  `;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('visible'));
+  setTimeout(()=>el.classList.add('leaving'),2600);
+  setTimeout(()=>el.remove(),3150);
+}
+function showMotivationRewardBurst(event){
+  if(!event) return;
+  if(event.type==='gems') showMotivationGemBurst(event);
+  else showMotivationXpBurst(event);
+}
+
 
 function motivationWorkDates(days=60){
   const count=Math.max(1,Math.round(Number(days)||60));
@@ -12111,23 +12856,31 @@ function motivationCreateChallenge(){
     .filter(ch=>!recentKinds.includes(ch.kind));
   if(!taskCandidates.length) taskCandidates=motivationTaskChallengeCandidates();
 
-  // Task-linked challenges add variety without taking over the system.
-  // When eligible tasks exist, roughly 38% of newly generated challenges
-  // come from that family.
   const useTask=taskCandidates.length>0 && Math.random()<.38;
   const pool=useTask ? taskCandidates : genericCandidates;
   const challenge=pool[motivationRandomInt(0,pool.length-1)];
 
+  let xpReward=challenge.taskLinked
+    ? Math.max(0,Math.round(Number(challenge.xpReward)||0))
+    : Math.max(50,Math.round(challenge.xpReward/5)*5);
+  let gemReward=0;
+
+  // Main challenges remain the primary challenge track, but some generic
+  // challenges now award Gems instead of XP. Task-linked challenges stay XP
+  // because their reward is part of the task's fixed XP budget.
+  if(!challenge.taskLinked && Math.random()<.28){
+    gemReward=Math.max(18,Math.min(60,Math.round(xpReward/6)));
+    xpReward=0;
+  }
+
   return {
     id:uid('challenge'),
     ...challenge,
-    xpReward:challenge.taskLinked
-      ? Math.max(0,Math.round(Number(challenge.xpReward)||0))
-      : Math.max(50,Math.round(challenge.xpReward/5)*5),
+    xpReward,
+    gemReward,
     createdAt:new Date().toISOString()
   };
 }
-
 
 function motivationEnsureActiveChallenge(){
   const game=motivationGameState();
@@ -12288,15 +13041,17 @@ async function motivationAutoCompleteTrackedChallenge(){
   }
 
   const awardedXp=Math.max(0,Math.round(Number(challenge.xpReward)||0));
-  const event=awardedXp>0
-    ? motivationGrantXp(awardedXp,`Challenge completed · ${challenge.title}`)
-    : null;
+  const awardedGems=Math.max(0,Math.round(Number(challenge.gemReward)||0));
+  const event=awardedGems>0
+    ? motivationGrantGems(awardedGems,`Challenge completed · ${challenge.title}`)
+    : (awardedXp>0 ? motivationGrantXp(awardedXp,`Challenge completed · ${challenge.title}`) : null);
 
   game.challengeHistory.push({
     ...challenge,
     status:'completed',
     finishedAt:new Date().toISOString(),
     claimedXp:awardedXp,
+    claimedGems:awardedGems,
     completionMode:'automatic_toggl'
   });
 
@@ -12318,6 +13073,7 @@ async function motivationCompleteChallenge(){
   }
 
   let awardedXp=Math.max(0,Math.round(Number(challenge.xpReward)||0));
+  let awardedGems=Math.max(0,Math.round(Number(challenge.gemReward)||0));
   let event=null;
 
   if(challenge.taskId){
@@ -12336,8 +13092,7 @@ async function motivationCompleteChallenge(){
       return;
     }
 
-    // The milestone can only pay XP that still exists inside the task's
-    // original XP budget.
+    awardedGems=0;
     awardedXp=Math.min(awardedXp,motivationTaskRemainingXp(task));
     task.xpClaimedFromChallenges=motivationTaskClaimedXp(task)+awardedXp;
 
@@ -12355,7 +13110,9 @@ async function motivationCompleteChallenge(){
     }
   }
 
-  if(awardedXp>0){
+  if(awardedGems>0){
+    event=motivationGrantGems(awardedGems,`Challenge completed · ${challenge.title}`);
+  }else if(awardedXp>0){
     event=motivationGrantXp(
       awardedXp,
       challenge.taskId
@@ -12368,16 +13125,18 @@ async function motivationCompleteChallenge(){
     ...challenge,
     status:'completed',
     finishedAt:new Date().toISOString(),
-    claimedXp:awardedXp
+    claimedXp:awardedXp,
+    claimedGems:awardedGems
   });
   game.activeChallenge=null;
   motivationEnsureActiveChallenge();
   await persist();
 
   refreshMotivationGamePanel();
+  refreshMotivationAlbumProgress();
   mountMotivationFloatingControl();
 
-  if(event) showMotivationXpBurst(event);
+  if(event) showMotivationRewardBurst(event);
   else showToast('Challenge completed');
 }
 
@@ -12398,6 +13157,181 @@ async function motivationSkipChallenge(){
   mountMotivationFloatingControl();
   showToast('New challenge generated');
 }
+
+
+function motivationGemChallengeTask(challenge){
+  if(!challenge || !challenge.taskId) return null;
+  return motivationGameState().tasks.find(t=>t.id===challenge.taskId)||null;
+}
+function motivationCreateGemChallenge(){
+  const game=motivationGameState();
+  const today=todayStr();
+  const openTasks=motivationOpenTasks().filter(t=>motivationTaskRemainingHours(t)>=.75);
+  const useTask=openTasks.length>0 && Math.random()<.24;
+
+  if(useTask){
+    const task=openTasks[motivationRandomInt(0,openTasks.length-1)];
+    const target=Math.max(.75,Math.min(2.5,Math.round(Math.min(motivationTaskRemainingHours(task),1.25+Math.random()*1.5)*4)/4));
+    return {
+      id:uid('gemchallenge'),
+      kind:'gem_task_push',
+      title:'Quick task push',
+      description:`Make ${motivationFormatHours(target)} of real progress on “${task.title}”.`,
+      gemReward:Math.max(10,Math.round(8+target*6)),
+      taskId:task.id,
+      startDate:today,
+      deadline:datePlusDays(today,1),
+      manualClaim:true,
+      params:{
+        targetHours:target,
+        baselineProgress:Math.max(0,Number(task.progressHours)||0),
+        taskTitle:task.title
+      },
+      createdAt:new Date().toISOString()
+    };
+  }
+
+  const targets=[1,1.5,2,2.5,3,4];
+  const target=targets[motivationRandomInt(0,targets.length-1)];
+  const deadline=datePlusDays(today,1);
+  const baselineHours={};
+  let cursor=today;
+  while(cursor<=deadline){
+    baselineHours[cursor]=motivationWorkHours(cursor);
+    cursor=datePlusDays(cursor,1);
+  }
+
+  return {
+    id:uid('gemchallenge'),
+    kind:'gem_work_sprint',
+    title:'Quick gem challenge',
+    description:`Add ${motivationFormatHours(target)} of focused work from this point forward.`,
+    gemReward:Math.max(9,Math.round(7+target*6)),
+    startDate:today,
+    deadline,
+    manualClaim:false,
+    params:{targetHours:target,baselineHours},
+    createdAt:new Date().toISOString()
+  };
+}
+function motivationEnsureGemChallenge(){
+  const game=motivationGameState();
+  const today=todayStr();
+  let changed=false;
+
+  if(game.gemChallenge && game.gemChallenge.taskId){
+    const task=motivationGemChallengeTask(game.gemChallenge);
+    if(!task || task.status==='completed'){
+      game.gemChallengeHistory.push({...game.gemChallenge,status:task?'task_completed':'task_removed',finishedAt:new Date().toISOString()});
+      game.gemChallenge=null;
+      changed=true;
+    }
+  }
+
+  if(game.gemChallenge && game.gemChallenge.deadline && today>game.gemChallenge.deadline){
+    game.gemChallengeHistory.push({...game.gemChallenge,status:'expired',finishedAt:new Date().toISOString()});
+    game.gemChallenge=null;
+    changed=true;
+  }
+
+  if(!game.gemChallenge){
+    game.gemChallenge=motivationCreateGemChallenge();
+    changed=true;
+  }
+
+  if(changed) persist();
+  return game.gemChallenge;
+}
+function motivationGemChallengeProgress(challenge){
+  if(!challenge) return {ratio:0,label:'No challenge',detail:''};
+  const p=challenge.params||{};
+
+  if(challenge.kind==='gem_task_push'){
+    const task=motivationGemChallengeTask(challenge);
+    if(!task) return {ratio:0,label:'Task unavailable',detail:'This challenge will be replaced.'};
+    const target=Math.max(.25,Number(p.targetHours)||.25);
+    const done=Math.max(0,(Number(task.progressHours)||0)-(Number(p.baselineProgress)||0));
+    return {
+      ratio:Math.min(1,done/target),
+      label:`${motivationFormatHours(done)} / ${motivationFormatHours(target)}`,
+      detail:'Trust-based task progress'
+    };
+  }
+
+  const target=Math.max(.25,Number(p.targetHours)||.25);
+  let done=0;
+  let cursor=challenge.startDate;
+  while(cursor<=challenge.deadline){
+    const baseline=Math.max(0,Number(p.baselineHours&&p.baselineHours[cursor])||0);
+    done+=Math.max(0,motivationWorkHours(cursor)-baseline);
+    cursor=datePlusDays(cursor,1);
+  }
+  return {
+    ratio:Math.min(1,done/target),
+    label:`${motivationFormatHours(done)} / ${motivationFormatHours(target)}`,
+    detail:'Toggl-tracked from challenge creation'
+  };
+}
+async function motivationAutoCompleteGemChallenge(){
+  const game=motivationGameState();
+  const challenge=game.gemChallenge;
+  if(!challenge || challenge.manualClaim) return {completed:false,event:null};
+  const progress=motivationGemChallengeProgress(challenge);
+  if(progress.ratio<1) return {completed:false,event:null};
+
+  const event=motivationGrantGems(challenge.gemReward,`Quick challenge · ${challenge.title}`);
+  game.gemChallengeHistory.push({...challenge,status:'completed',finishedAt:new Date().toISOString(),claimedGems:challenge.gemReward,completionMode:'automatic_toggl'});
+  game.gemChallenge=null;
+  motivationEnsureGemChallenge();
+  await persist();
+  return {completed:true,event};
+}
+async function motivationCompleteGemChallenge(){
+  const game=motivationGameState();
+  const challenge=game.gemChallenge;
+  if(!challenge) return;
+  if(!challenge.manualClaim){
+    showToast('This quick challenge completes automatically from Toggl progress');
+    return;
+  }
+
+  if(challenge.taskId){
+    const task=motivationGemChallengeTask(challenge);
+    if(!task){
+      game.gemChallenge=null;
+      motivationEnsureGemChallenge();
+      await persist();
+      refreshMotivationGamePanel();
+      return;
+    }
+    const credit=Math.max(.25,Number(challenge.params?.targetHours)||.25);
+    task.progressHours=Math.min(
+      Math.max(0,Number(task.estimatedHours)||0),
+      Math.max(0,Number(task.progressHours)||0)+credit
+    );
+  }
+
+  const event=motivationGrantGems(challenge.gemReward,`Quick challenge · ${challenge.title}`);
+  game.gemChallengeHistory.push({...challenge,status:'completed',finishedAt:new Date().toISOString(),claimedGems:challenge.gemReward});
+  game.gemChallenge=null;
+  motivationEnsureGemChallenge();
+  await persist();
+  refreshMotivationGamePanel();
+  refreshMotivationAlbumProgress();
+  showMotivationGemBurst(event);
+}
+async function motivationSkipGemChallenge(){
+  const game=motivationGameState();
+  const challenge=game.gemChallenge;
+  if(!challenge) return;
+  game.gemChallengeHistory.push({...challenge,status:'skipped',finishedAt:new Date().toISOString()});
+  game.gemChallenge=null;
+  motivationEnsureGemChallenge();
+  await persist();
+  refreshMotivationGamePanel();
+  showToast('New quick challenge generated');
+}
+
 
 /* ---------- Impact task system ---------- */
 function motivationTaskXpReward(importance,impact,estimatedHours){
@@ -12665,6 +13599,7 @@ async function motivationCompleteTask(taskId){
   refreshMotivationGamePanel();
   mountMotivationFloatingControl();
 
+  refreshMotivationAlbumProgress();
   if(event) showMotivationXpBurst(event);
   else showToast('Task completed · its XP budget was already earned through milestones');
 }
@@ -12693,14 +13628,27 @@ function motivationGamePanelHTML(){
   const level=motivationLevelInfo();
   const challenge=motivationEnsureActiveChallenge();
   const progress=motivationChallengeProgress(challenge);
+  const gemChallenge=motivationEnsureGemChallenge();
+  const gemProgress=motivationGemChallengeProgress(gemChallenge);
 
   if(motivationChallengeIsAutoTracked(challenge) && progress.ratio>=1){
     queueMicrotask(async()=>{
       const result=await motivationAutoCompleteTrackedChallenge();
       if(result.completed){
         refreshMotivationGamePanel();
+        refreshMotivationAlbumProgress();
         mountMotivationFloatingControl();
-        if(result.event) showMotivationXpBurst(result.event);
+        if(result.event) showMotivationRewardBurst(result.event);
+      }
+    });
+  }
+  if(gemChallenge && !gemChallenge.manualClaim && gemProgress.ratio>=1){
+    queueMicrotask(async()=>{
+      const result=await motivationAutoCompleteGemChallenge();
+      if(result.completed){
+        refreshMotivationGamePanel();
+        refreshMotivationAlbumProgress();
+        if(result.event) showMotivationGemBurst(result.event);
       }
     });
   }
@@ -12713,17 +13661,21 @@ function motivationGamePanelHTML(){
     persist();
   }
 
+  const mainReward=Number(challenge.gemReward)>0
+    ? `<span class="motivation-challenge-gems">+${challenge.gemReward} Gems</span>`
+    : `<span class="motivation-challenge-xp">+${challenge.xpReward} XP</span>`;
+
   return `
     <section class="motivation-game-panel" id="motivationGamePanel">
       <div class="motivation-game-head">
         <div>
           <span class="motivation-eyebrow">Developer RPG</span>
           <h3>Level ${level.level} · turn work into visible progress</h3>
-          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> General challenge XP is additional; task-linked challenge XP comes out of that task's fixed XP budget. Level requirements grow gradually and cap at 1,200 XP per level.</p>
+          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Challenges can reward XP or Gems. Level-ups award increasingly larger Gem bonuses. A newly detected product after your current catalog baseline grants ${MOTIVATION_NEW_PRODUCT_XP} XP + ${MOTIVATION_NEW_PRODUCT_GEMS} Gems.</p>
         </div>
         <div class="motivation-level-card"
           data-motivation-tooltip-title="Level ${level.level}"
-          data-motivation-tooltip-body="${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP toward level ${level.level+1}. Total lifetime XP: ${level.totalXp.toLocaleString()}.">
+          data-motivation-tooltip-body="${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP toward level ${level.level+1}. Total lifetime XP: ${level.totalXp.toLocaleString()}. Gems: ${game.gems.toLocaleString()}.">
           <span>LEVEL</span>
           <strong>${level.level}</strong>
           <small>${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP</small>
@@ -12735,35 +13687,62 @@ function motivationGamePanelHTML(){
       </div>
 
       <div class="motivation-game-grid">
-        <div class="motivation-challenge-card">
-          <div class="motivation-game-section-head">
-            <div>
-              <span>Current challenge</span>
-              <strong>${escapeHtml(challenge.title)}</strong>
+        <div class="motivation-challenge-stack">
+          <div class="motivation-challenge-card">
+            <div class="motivation-game-section-head">
+              <div>
+                <span>Current challenge</span>
+                <strong>${escapeHtml(challenge.title)}</strong>
+              </div>
+              ${mainReward}
             </div>
-            <span class="motivation-challenge-xp">+${challenge.xpReward} XP</span>
-          </div>
-          <p>${escapeHtml(challenge.description)}</p>
-          ${challenge.taskId?`
-            <div class="motivation-linked-task-note">
-              <span>Task-linked milestone</span>
-              <strong>${escapeHtml((motivationChallengeTask(challenge)||{}).title||challenge.params?.taskTitle||'Impact task')}</strong>
-              <small>Its ${challenge.xpReward} XP is part of this task's existing XP budget, not extra XP.</small>
+            <p>${escapeHtml(challenge.description)}</p>
+            ${challenge.taskId?`
+              <div class="motivation-linked-task-note">
+                <span>Task-linked milestone</span>
+                <strong>${escapeHtml((motivationChallengeTask(challenge)||{}).title||challenge.params?.taskTitle||'Impact task')}</strong>
+                <small>Its ${challenge.xpReward} XP is part of this task's existing XP budget, not extra XP.</small>
+              </div>
+            `:''}
+            <div class="motivation-challenge-progress">
+              <span style="width:${Math.max(2,Math.min(100,progress.ratio*100)).toFixed(1)}%"></span>
             </div>
-          `:''}
-          <div class="motivation-challenge-progress">
-            <span style="width:${Math.max(2,Math.min(100,progress.ratio*100)).toFixed(1)}%"></span>
+            <div class="motivation-challenge-meta">
+              <strong>${escapeHtml(progress.label)}</strong>
+              <span>${escapeHtml(motivationChallengeDeadlineText(challenge))}</span>
+            </div>
+            <small>${escapeHtml(progress.detail)}${motivationChallengeIsAutoTracked(challenge)?' · Toggl-tracked':''}</small>
+            <div class="motivation-challenge-actions">
+              <button type="button" class="btn secondary" id="motivationSkipChallengeBtn">Not for me</button>
+              ${motivationChallengeCanManualClaim(challenge)
+                ? `<button type="button" class="btn primary" id="motivationCompleteChallengeBtn">${progress.ratio>=1?'Claim completion':'I completed it'}</button>`
+                : `<span class="motivation-auto-challenge-note">Tracked automatically from Toggl</span>`}
+            </div>
           </div>
-          <div class="motivation-challenge-meta">
-            <strong>${escapeHtml(progress.label)}</strong>
-            <span>${escapeHtml(motivationChallengeDeadlineText(challenge))}</span>
-          </div>
-          <small>${escapeHtml(progress.detail)}${motivationChallengeIsAutoTracked(challenge)?' · Toggl-tracked':''}</small>
-          <div class="motivation-challenge-actions">
-            <button type="button" class="btn secondary" id="motivationSkipChallengeBtn">Not for me</button>
-            ${motivationChallengeCanManualClaim(challenge)
-              ? `<button type="button" class="btn primary" id="motivationCompleteChallengeBtn">${progress.ratio>=1?'Claim completion':'I completed it'}</button>`
-              : `<span class="motivation-auto-challenge-note">Tracked automatically from Toggl</span>`}
+
+          <div class="motivation-challenge-card motivation-gem-challenge-card">
+            <div class="motivation-game-section-head">
+              <div>
+                <span class="motivation-gem-challenge-kicker">Quick challenge</span>
+                <strong>${escapeHtml(gemChallenge.title)}</strong>
+              </div>
+              <span class="motivation-challenge-gems">+${gemChallenge.gemReward} Gems</span>
+            </div>
+            <p>${escapeHtml(gemChallenge.description)}</p>
+            <div class="motivation-challenge-progress">
+              <span style="width:${Math.max(2,Math.min(100,gemProgress.ratio*100)).toFixed(1)}%"></span>
+            </div>
+            <div class="motivation-challenge-meta">
+              <strong>${escapeHtml(gemProgress.label)}</strong>
+              <span>${escapeHtml(motivationChallengeDeadlineText(gemChallenge))}</span>
+            </div>
+            <small>${escapeHtml(gemProgress.detail)}</small>
+            <div class="motivation-challenge-actions">
+              <button type="button" class="btn secondary" id="motivationSkipGemChallengeBtn">Not for me</button>
+              ${gemChallenge.manualClaim
+                ? `<button type="button" class="btn primary" id="motivationCompleteGemChallengeBtn">I completed it</button>`
+                : `<span class="motivation-auto-challenge-note">Tracked automatically from Toggl</span>`}
+            </div>
           </div>
         </div>
 
@@ -12803,6 +13782,12 @@ function wireMotivationGamePanelEvents(){
 
   const skip=panel.querySelector('#motivationSkipChallengeBtn');
   if(skip) skip.addEventListener('click',motivationSkipChallenge);
+
+  const completeGem=panel.querySelector('#motivationCompleteGemChallengeBtn');
+  if(completeGem) completeGem.addEventListener('click',motivationCompleteGemChallenge);
+
+  const skipGem=panel.querySelector('#motivationSkipGemChallengeBtn');
+  if(skipGem) skipGem.addEventListener('click',motivationSkipGemChallenge);
 
   const add=panel.querySelector('#motivationAddTaskBtn');
   if(add) add.addEventListener('click',openMotivationTaskEditor);
@@ -12987,21 +13972,26 @@ function wireMotivationWorkTimelineEvents(){
       try{
         const result=await motivationSyncToggl60Days();
         const challengeResult=await motivationAutoCompleteTrackedChallenge();
+        const gemChallengeResult=await motivationAutoCompleteGemChallenge();
 
         refreshMotivationWorkTimeline();
         refreshMotivationGamePanel();
+        refreshMotivationAlbumProgress();
         mountMotivationFloatingControl();
 
         if(challengeResult.completed && challengeResult.event){
-          showMotivationXpBurst(challengeResult.event);
-          if(result.newWorkHours>0){
-            showToast(`${motivationFormatHours(result.newWorkHours)} synced · challenge completed automatically`);
-          }
+          showMotivationRewardBurst(challengeResult.event);
         }else if(result.xpEvent){
           showMotivationXpBurst(result.xpEvent);
-        }else if(result.newWorkHours>0){
-          showToast(`${motivationFormatHours(result.newWorkHours)} synced`);
-        }else{
+        }
+
+        if(gemChallengeResult.completed && gemChallengeResult.event){
+          setTimeout(()=>showMotivationGemBurst(gemChallengeResult.event),challengeResult.event||result.xpEvent?750:0);
+        }
+
+        if(result.newWorkHours>0){
+          showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
+        }else if(!challengeResult.completed&&!gemChallengeResult.completed){
           showToast('Toggl synced · no new work time');
         }
       }catch(error){
@@ -13064,26 +14054,52 @@ function motivationPageCardHTML(tab){
 
 function motivationAlbumProgressHTML(){
   if(!motivationModeEnabled()||ACTIVE_TAB!=='dashboard')return '';
-  const s=cardAlbumStats(),hasDataset=!!cardAlbumDataset();
+  const s=cardAlbumStats();
+  const game=motivationGameState();
+  const hasDataset=!!cardAlbumDataset();
+  const pending=!!game.pendingCardPack;
+  const canBuy=hasDataset && game.gems>=MOTIVATION_CARD_PACK_COST;
+
   return`
     <section class="motivation-album-progress" id="motivationAlbumProgress">
-      <div class="motivation-album-progress-head">
-        <div class="motivation-album-progress-title"><span>Card collection</span><h3>${hasDataset?escapeHtml(cardAlbumDataset().collection?.name||'Your album'):'Your card album'}</h3></div>
-        <button type="button" class="btn secondary" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
+      <div class="motivation-album-progress-left">
+        <div class="motivation-album-progress-brand">
+          <span>Card collection</span>
+          <h3>${hasDataset?escapeHtml(cardAlbumDataset().collection?.name||'Your album'):'Your card album'}</h3>
+        </div>
+
+        <div class="motivation-album-economy">
+          <div class="motivation-gem-balance">
+            <span>Gems</span>
+            <strong>◆ ${game.gems.toLocaleString()}</strong>
+            <small>Pack price: ${MOTIVATION_CARD_PACK_COST} Gems</small>
+          </div>
+          <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
+            ${pending?'Resume pack':`Open card pack · ${MOTIVATION_CARD_PACK_COST} ◆`}
+          </button>
+        </div>
+
+        <div class="motivation-product-launch-reward-note">
+          A newly detected product after your existing catalog baseline is a major reward: +${MOTIVATION_NEW_PRODUCT_XP} XP and +${MOTIVATION_NEW_PRODUCT_GEMS} Gems, plus any Gems earned from level-ups it triggers.
+        </div>
       </div>
-      <div class="motivation-album-progress-grid">
-        <div class="motivation-album-progress-stat"><span>Cards owned</span><strong>${s.totalCopies}</strong></div>
-        <div class="motivation-album-progress-stat"><span>Cards total</span><strong>${s.totalVariants}</strong></div>
-        <div class="motivation-album-progress-stat"><span>Collected</span><strong>${s.collectedVariants}</strong></div>
-        <div class="motivation-album-progress-stat"><span>Common</span><strong>${s.collectedCommon}</strong></div>
-        <div class="motivation-album-progress-stat"><span>Rare</span><strong>${s.collectedRare}</strong></div>
-        <div class="motivation-album-progress-stat"><span>Legendary</span><strong>${s.collectedLegendary}</strong></div>
+
+      <div class="motivation-album-progress-right">
+        <button type="button" class="btn secondary" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
+        <div class="motivation-album-compact-row common"><span>Common</span><strong>${s.collectedCommon} / ${s.baseCards}</strong></div>
+        <div class="motivation-album-compact-row rare"><span>Rare</span><strong>${s.collectedRare} / ${s.baseCards}</strong></div>
+        <div class="motivation-album-compact-row gold"><span>Gold</span><strong>${s.collectedLegendary} / ${s.baseCards}</strong></div>
+        <div class="motivation-album-compact-row total"><span>Total collected</span><strong>${s.collectedVariants} / ${s.totalVariants}</strong></div>
       </div>
     </section>`;
 }
+
 function wireMotivationAlbumProgressEvents(){
   const btn=document.getElementById('motivationOpenAlbumBtn');
   if(btn)btn.addEventListener('click',()=>{ACTIVE_TAB='album';render();requestAnimationFrame(()=>window.scrollTo(0,0));});
+
+  const packBtn=document.getElementById('motivationBuyPackBtn');
+  if(packBtn)packBtn.addEventListener('click',motivationBuyOrResumeCardPack);
 }
 
 function mountMotivationPageExtras(){
@@ -13098,13 +14114,18 @@ function mountMotivationPageExtras(){
     const filter=document.querySelector('#tabContent .filter-bar');
     if(filter){
       const extra=ACTIVE_TAB==='dashboard'
-        ? motivationAlbumProgressHTML()+motivationGamePanelHTML()+motivationWorkTimelineHTML()
+        ? motivationGamePanelHTML()+motivationWorkTimelineHTML()
         : '';
       filter.insertAdjacentHTML('afterend',markup+extra);
       if(ACTIVE_TAB==='dashboard'){
-        wireMotivationAlbumProgressEvents();
         wireMotivationGamePanelEvents();
         wireMotivationWorkTimelineEvents();
+
+        const content=document.getElementById('tabContent');
+        if(content){
+          content.insertAdjacentHTML('beforeend',motivationAlbumProgressHTML());
+          wireMotivationAlbumProgressEvents();
+        }
       }
       return;
     }
@@ -22171,7 +23192,7 @@ function handleCsvFile(file){
 }
 
 function commitImport(){
-  const { groupedByDayTitle, resolutions } = IMPORT_STATE;
+  const { groupedByDayTitle, resolutions, firstImport } = IMPORT_STATE;
 
   // apply resolutions: create new products / merge aliases / rename as needed
   const titleToProductId = {};
@@ -22308,6 +23329,7 @@ function commitImport(){
 
   const newCount = Object.values(resolutions).filter(r=>r.action==='new').length;
   const mergeCount = Object.values(resolutions).filter(r=>r.action==='merge').length;
+  const newProductReward=motivationNewProductReward(newCount,firstImport);
 
   persist().then((ok)=>{
     // Whether or not the save succeeded, the product/revenue changes already exist in memory —
@@ -22315,6 +23337,8 @@ function commitImport(){
     showToast(`Imported ${Object.keys(incoming).length} entries${Object.keys(incomingPrices).length?`, ${Object.keys(incomingPrices).length} price points`:''}${newCount?`, ${newCount} new product(s)`:''}${mergeCount?`, ${mergeCount} merged`:''}`);
     IMPORT_STATE = null;
     renderTabContent();
+    mountMotivationFloatingControl();
+    if(newProductReward) setTimeout(()=>showMotivationProductLaunchReward(newProductReward),120);
   });
 }
 
