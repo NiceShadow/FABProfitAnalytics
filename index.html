@@ -9585,6 +9585,44 @@
   }
 }
 
+
+/* ================= Card Album v2 refinements ================= */
+.card-album-sticky-team-nav{
+  position:sticky;top:calc(var(--sticky-filter-top,72px) + 8px);z-index:60;
+  display:flex;align-items:center;gap:7px;padding:8px 10px;overflow-x:auto;overflow-y:hidden;
+  border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(17,20,27,.94);
+  backdrop-filter:blur(16px);box-shadow:0 10px 28px rgba(0,0,0,.25)
+}
+.card-album-team-jump{
+  width:38px;height:38px;flex:0 0 38px;padding:5px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);cursor:pointer
+}
+.card-album-team-jump:hover{transform:translateY(-1px);background:rgba(255,255,255,.085)}
+.card-album-team-jump img{width:100%;height:100%;object-fit:contain}
+.card-album-team{scroll-margin-top:150px}
+.card-album-team-card-counter{display:flex;align-items:baseline;gap:5px;margin-left:auto;white-space:nowrap;color:#F4F6F9}
+.card-album-team-card-counter strong{font-size:24px;line-height:1;letter-spacing:-.04em}
+.card-album-team-card-counter span{color:#8E98A8;font-size:12px;font-weight:700}
+.card-album-team-card-counter small{color:#BFC6D0;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.album-card-top{justify-content:flex-start}
+.album-card-state{display:none!important}
+.album-card-rarity-accent{display:none!important}
+.motivation-album-progress{
+  border:1px solid rgba(217,164,65,.18);border-radius:14px;
+  background:radial-gradient(120% 160% at 0 0,rgba(217,164,65,.10),transparent 48%),rgba(255,255,255,.025);
+  padding:14px;display:flex;flex-direction:column;gap:12px
+}
+.motivation-album-progress-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.motivation-album-progress-title{display:flex;flex-direction:column;gap:3px}
+.motivation-album-progress-title span{color:#D7B562;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.motivation-album-progress-title h3{margin:0;color:var(--text);font-size:16px}
+.motivation-album-progress-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.motivation-album-progress-stat{min-width:0;padding:9px 10px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(0,0,0,.13)}
+.motivation-album-progress-stat span{display:block;color:#818A99;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.motivation-album-progress-stat strong{display:block;margin-top:3px;color:#F2F4F7;font-size:16px;line-height:1}
+@media(max-width:1000px){.motivation-album-progress-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.motivation-album-progress-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card-album-team-card-counter strong{font-size:20px}}
+
 </style>
 
 <style id="roboto-global-font">
@@ -10677,6 +10715,7 @@ function dayLabel(dateStr){
 
 
 const CARD_ALBUM_RARITIES=['common','rare','legendary'];
+const CARD_ALBUM_TEST_SHOW_ALL_COLLECTED=true; // visual test only; ownership data is unchanged
 
 function cardAlbumState(){
   if(!STATE.cardAlbum || typeof STATE.cardAlbum!=='object' || Array.isArray(STATE.cardAlbum)){
@@ -10738,34 +10777,24 @@ function cardAlbumValidKeys(dataset){
 }
 function cardAlbumStats(){
   const dataset=cardAlbumDataset();
-  if(!dataset || !Array.isArray(dataset.teams)){
-    return {
-      teams:0, managers:0, players:0, baseCards:0, totalVariants:0,
-      collectedVariants:0, duplicateCards:0, totalCopies:0
-    };
-  }
+  if(!dataset||!Array.isArray(dataset.teams))return{teams:0,managers:0,players:0,baseCards:0,totalVariants:0,collectedVariants:0,duplicateCards:0,totalCopies:0,collectedCommon:0,collectedRare:0,collectedLegendary:0};
   const teams=dataset.teams.length;
-  let managers=0;
-  let players=0;
-  dataset.teams.forEach(team=>{
-    (team.players||[]).forEach(player=>{
-      if(player.entityType==='manager') managers++;
-      else players++;
-    });
-  });
-  const baseCards=teams+managers+players;
-  const totalVariants=baseCards*CARD_ALBUM_RARITIES.length;
-  const inventory=cardAlbumInventory();
-  let collectedVariants=0;
-  let duplicateCards=0;
-  let totalCopies=0;
-  Object.values(inventory).forEach(raw=>{
+  let managers=0,players=0;
+  dataset.teams.forEach(t=>(t.players||[]).forEach(p=>p.entityType==='manager'?managers++:players++));
+  const baseCards=teams+managers+players,totalVariants=baseCards*CARD_ALBUM_RARITIES.length,inventory=cardAlbumInventory();
+  let collectedVariants=0,duplicateCards=0,totalCopies=0,collectedCommon=0,collectedRare=0,collectedLegendary=0;
+  Object.entries(inventory).forEach(([key,raw])=>{
     const count=Math.max(0,Math.floor(Number(raw)||0));
-    if(count>0) collectedVariants++;
-    if(count>1) duplicateCards++;
+    if(count>0){
+      collectedVariants++;
+      if(key.endsWith(':common'))collectedCommon++;
+      else if(key.endsWith(':rare'))collectedRare++;
+      else if(key.endsWith(':legendary'))collectedLegendary++;
+    }
+    if(count>1)duplicateCards++;
     totalCopies+=count;
   });
-  return {teams,managers,players,baseCards,totalVariants,collectedVariants,duplicateCards,totalCopies};
+  return{teams,managers,players,baseCards,totalVariants,collectedVariants,duplicateCards,totalCopies,collectedCommon,collectedRare,collectedLegendary};
 }
 function cardAlbumSummaryCardsHTML(){
   const s=cardAlbumStats();
@@ -10783,144 +10812,119 @@ function cardAlbumSummaryCardsHTML(){
 function cardAlbumCardHTML(entity,team,rarity){
   const key=cardAlbumCardKey(entity.entityType,entity.sourceId,rarity);
   const count=Math.max(0,Math.floor(Number(cardAlbumInventory()[key])||0));
-  const owned=count>0;
+  const actuallyOwned=count>0;
+  const visuallyOwned=CARD_ALBUM_TEST_SHOW_ALL_COLLECTED||actuallyOwned;
   const role=cardAlbumEntityTypeLabel(entity);
-  const art=entity.imageUrl
-    ? `<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(entity.imageUrl)}" alt="${escapeHtml(entity.name)}">`
-    : `<div class="album-card-placeholder">No image</div>`;
-  return `
-    <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${owned?'owned':'unowned'}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
+  const art=entity.imageUrl?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(entity.imageUrl)}" alt="${escapeHtml(entity.name)}">`:`<div class="album-card-placeholder">No image</div>`;
+  return`
+    <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${visuallyOwned?'owned':'unowned'}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
       ${count>1?`<div class="album-card-count">×${count}</div>`:''}
-      <div class="album-card-top">
-        <span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>
-        <span class="album-card-state">${owned?'Collected':'Uncollected'}</span>
-      </div>
+      <div class="album-card-top"><span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span></div>
       <div class="album-card-team">${escapeHtml(team.name)}</div>
-      <div class="album-card-art">
-        ${art}
-      </div>
+      <div class="album-card-art">${art}</div>
       <div class="album-card-bottom">
         <strong title="${escapeHtml(entity.name)}">${escapeHtml(entity.name)}</strong>
-        <div class="album-card-meta">
-          <span class="album-card-role">${escapeHtml(role)}</span>
-          <span class="album-card-rarity-accent">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>
-        </div>
+        <div class="album-card-meta"><span class="album-card-role">${escapeHtml(role)}</span></div>
       </div>
-    </article>
-  `;
+    </article>`;
 }
 function cardAlbumTeamSectionHTML(team){
-  const entities=cardAlbumEntitiesForTeam(team);
-  const totalVariants=entities.length*CARD_ALBUM_RARITIES.length;
-  return `
-    <section class="card-album-team">
+  const entities=cardAlbumEntitiesForTeam(team),totalVariants=entities.length*CARD_ALBUM_RARITIES.length,inventory=cardAlbumInventory();
+  let collectedForTeam=0;
+  entities.forEach(entity=>CARD_ALBUM_RARITIES.forEach(rarity=>{
+    if((Number(inventory[cardAlbumCardKey(entity.entityType,entity.sourceId,rarity)])||0)>0)collectedForTeam++;
+  }));
+  const sectionId=`card-album-team-${String(team.sourceId||team.name).replace(/[^a-z0-9_-]/gi,'-')}`;
+  return`
+    <section class="card-album-team" id="${escapeHtml(sectionId)}">
       <div class="card-album-team-head">
         <div class="card-album-team-head-main">
-          ${team.badgeUrl || team.card?.imageUrl ? `<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl || team.card?.imageUrl)}" alt="${escapeHtml(team.name)}">` : ''}
-          <div class="card-album-team-title">
-            <strong>${escapeHtml(team.name)}</strong>
-            <span>${escapeHtml(team.shortName || team.country || '')}</span>
-          </div>
+          ${team.badgeUrl||team.card?.imageUrl?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl||team.card?.imageUrl)}" alt="${escapeHtml(team.name)}">`:''}
+          <div class="card-album-team-title"><strong>${escapeHtml(team.name)}</strong><span>${escapeHtml(team.shortName||team.country||'')}</span></div>
         </div>
-        <div class="card-album-team-stats">
-          <span class="card-album-pill">${(team.players||[]).filter(p=>p.entityType==='manager').length} manager</span>
-          <span class="card-album-pill">${(team.players||[]).filter(p=>p.entityType!=='manager').length} players</span>
-          <span class="card-album-pill">${totalVariants} variants</span>
+        <div class="card-album-team-card-counter" title="${collectedForTeam} collected card variants out of ${totalVariants}">
+          <strong>${collectedForTeam}</strong><span>/ ${totalVariants}</span><small>cards</small>
         </div>
       </div>
       <div class="card-album-grid">
-        ${entities.flatMap(entity=>CARD_ALBUM_RARITIES.map(rarity=>cardAlbumCardHTML(entity,team,rarity))).join('')}
+        ${CARD_ALBUM_RARITIES.flatMap(rarity=>entities.map(entity=>cardAlbumCardHTML(entity,team,rarity))).join('')}
       </div>
-    </section>
-  `;
+    </section>`;
 }
 function cardAlbumHTML(){
-  const album=cardAlbumState();
-  const dataset=album.dataset;
-  const importedText=album.importedAt ? new Date(album.importedAt).toLocaleString() : 'Not imported yet';
-
+  const album=cardAlbumState(),dataset=album.dataset,importedText=album.importedAt?new Date(album.importedAt).toLocaleString():'Not imported yet';
   if(!dataset){
-    return `
-      <section class="card-album-shell">
-        <section class="panel">
-          <div class="panel-head">
-            <h2>Card Album</h2>
-            <p>Import the JSON from the Card Dataset Builder to create your collectible football album. Every team, manager and player card will be generated in Common, Rare and Legendary versions.</p>
-          </div>
-          <div class="panel-body">
-            <div class="card-album-empty">
-              <h3>No card dataset imported yet</h3>
-              <p>Choose the JSON file you generated with the builder. The album will show every possible card in black and white until you collect it. Once a card is collected, the full design becomes colored. Duplicate copies are tracked automatically with a count badge.</p>
-              <div class="card-album-controls">
-                <label class="btn primary card-album-upload">
-                  Import card dataset JSON
-                  <input type="file" id="cardAlbumImportInput" accept=".json,application/json">
-                </label>
-                <span class="card-album-file-meta">Accepted: Card Dataset Builder exports</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </section>
-    `;
+    return`<section class="card-album-shell"><section class="panel"><div class="panel-head"><h2>Card Album</h2></div><div class="panel-body"><div class="card-album-empty"><h3>No card dataset imported yet</h3><div class="card-album-controls"><button class="btn secondary" id="cardAlbumBackBtn" type="button">Back to Dashboard</button><label class="btn primary card-album-upload">Import card dataset JSON<input type="file" id="cardAlbumImportInput" accept=".json,application/json"></label></div></div></div></section></section>`;
   }
-
-  const title=dataset.collection?.name || 'Card collection';
-  const season=dataset.collection?.season ? `Season ${dataset.collection.season}` : 'Season not set';
-
-  return `
+  const title=dataset.collection?.name||'Card collection',teams=dataset.teams||[];
+  return`
     <section class="card-album-shell">
-      <section class="panel">
-        <div class="panel-body">
-          <div class="card-album-intro">
-            <div class="card-album-intro-copy">
-              <h2>${escapeHtml(title)}</h2>
-              <p>${escapeHtml(season)} · Common, Rare and Legendary card variants for every imported team, manager and player.</p>
-              <div class="card-album-collection-note">Cards stay monochrome until collected. As soon as a card exists in your future collection inventory, the full card art turns colored automatically. Duplicate copies will show a count badge on the card.</div>
-            </div>
-            <div class="card-album-controls">
-              <label class="btn primary card-album-upload">
-                Import card dataset JSON
-                <input type="file" id="cardAlbumImportInput" accept=".json,application/json">
-              </label>
-              <button class="btn danger" id="cardAlbumClearBtn" type="button">Clear card album</button>
-              <span class="card-album-file-meta">Imported: ${escapeHtml(importedText)}</span>
-            </div>
-          </div>
-          ${cardAlbumSummaryCardsHTML()}
+      <section class="panel"><div class="panel-body"><div class="card-album-intro">
+        <div class="card-album-intro-copy"><h2>${escapeHtml(title)}</h2></div>
+        <div class="card-album-controls">
+          <button class="btn secondary" id="cardAlbumBackBtn" type="button">Back to Dashboard</button>
+          <label class="btn primary card-album-upload">Import card dataset JSON<input type="file" id="cardAlbumImportInput" accept=".json,application/json"></label>
+          <button class="btn danger" id="cardAlbumClearBtn" type="button">Clear card album</button>
+          <span class="card-album-file-meta">Imported: ${escapeHtml(importedText)}</span>
         </div>
-      </section>
-
-      <div class="card-album-list">
-        ${(dataset.teams||[]).map(team=>cardAlbumTeamSectionHTML(team)).join('')}
-      </div>
-    </section>
-  `;
+      </div></div></section>
+      <nav class="card-album-sticky-team-nav" aria-label="Jump to team">
+        ${teams.map(team=>{
+          const id=`card-album-team-${String(team.sourceId||team.name).replace(/[^a-z0-9_-]/gi,'-')}`,badge=team.badgeUrl||team.card?.imageUrl||'';
+          return`<button class="card-album-team-jump" type="button" data-card-team-target="${escapeHtml(id)}" title="${escapeHtml(team.name)}" aria-label="Jump to ${escapeHtml(team.name)}">${badge?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(badge)}" alt="">`:'•'}</button>`;
+        }).join('')}
+      </nav>
+      <div class="card-album-list">${teams.map(team=>cardAlbumTeamSectionHTML(team)).join('')}</div>
+    </section>`;
 }
+
+function cardAlbumDeepClone(value){return JSON.parse(JSON.stringify(value));}
+function cardAlbumMergeDatasets(previous,next){
+  if(!previous||!Array.isArray(previous.teams))return cardAlbumDeepClone(next);
+  if(!next||!Array.isArray(next.teams))return cardAlbumDeepClone(previous);
+  const merged=cardAlbumDeepClone(previous);
+  merged.schema=next.schema||merged.schema;
+  merged.schemaVersion=Math.max(Number(merged.schemaVersion)||1,Number(next.schemaVersion)||1);
+  merged.generatedAt=next.generatedAt||new Date().toISOString();
+  merged.source={...(merged.source||{}),...(next.source||{})};
+  merged.collection={...(merged.collection||{}),...(next.collection||{})};
+  const teamMap=new Map((merged.teams||[]).map(team=>[String(team.sourceId),team]));
+  const removeEntityEverywhere=sourceId=>{
+    for(const team of merged.teams||[])team.players=(team.players||[]).filter(p=>String(p.sourceId)!==String(sourceId));
+  };
+  for(const incomingTeam of next.teams||[]){
+    const teamId=String(incomingTeam.sourceId);
+    let target=teamMap.get(teamId);
+    if(!target){
+      target=cardAlbumDeepClone(incomingTeam);target.players=[];merged.teams.push(target);teamMap.set(teamId,target);
+    }else{
+      const preservedPlayers=target.players||[];
+      Object.assign(target,cardAlbumDeepClone(incomingTeam));
+      target.players=preservedPlayers;
+    }
+    for(const incomingEntity of incomingTeam.players||[]){
+      removeEntityEverywhere(incomingEntity.sourceId);
+      target.players=target.players||[];
+      target.players.push(cardAlbumDeepClone(incomingEntity));
+    }
+  }
+  return merged;
+}
+
 async function importCardDatasetToAlbum(file){
-  if(!file) return;
+  if(!file)return;
   try{
     const parsed=JSON.parse(await file.text());
-    if(parsed?.schema!=='motivation-card-dataset' || !Array.isArray(parsed.teams)){
-      throw new Error('That file is not a supported Card Dataset Builder JSON export.');
-    }
-    cardAlbumState().dataset=parsed;
-    cardAlbumState().importedAt=new Date().toISOString();
-
-    const validKeys=cardAlbumValidKeys(parsed);
-    const currentInventory=cardAlbumInventory();
-    cardAlbumState().inventory=Object.fromEntries(
-      Object.entries(currentInventory)
-        .filter(([key,count])=>validKeys.has(key) && Number(count)>0)
-        .map(([key,count])=>[key,Math.floor(Number(count))])
-    );
-
+    if(parsed?.schema!=='motivation-card-dataset'||!Array.isArray(parsed.teams))throw new Error('That file is not a supported Card Dataset Builder JSON export.');
+    const album=cardAlbumState();
+    album.dataset=cardAlbumMergeDatasets(album.dataset,parsed);
+    album.importedAt=new Date().toISOString();
     await persist();
-    showToast('Card dataset imported');
+    showToast('Card dataset updated · album progress preserved');
     renderTabContent();
   }catch(err){
     console.error('Card dataset import failed',err);
-    alert(err?.message || 'Failed to import the card dataset.');
+    alert(err?.message||'Failed to import the card dataset.');
   }
 }
 async function clearCardAlbumDataset(){
@@ -10933,19 +10937,16 @@ async function clearCardAlbumDataset(){
 }
 function wireCardAlbumEvents(){
   const input=document.getElementById('cardAlbumImportInput');
-  if(input){
-    input.addEventListener('change',async e=>{
-      const file=e.target.files && e.target.files[0];
-      if(file) await importCardDatasetToAlbum(file);
-      input.value='';
-    });
-  }
+  if(input)input.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCardDatasetToAlbum(file);input.value='';});
   const clearBtn=document.getElementById('cardAlbumClearBtn');
-  if(clearBtn){
-    clearBtn.addEventListener('click',()=>clearCardAlbumDataset());
-  }
+  if(clearBtn)clearBtn.addEventListener('click',()=>clearCardAlbumDataset());
+  const backBtn=document.getElementById('cardAlbumBackBtn');
+  if(backBtn)backBtn.addEventListener('click',()=>{ACTIVE_TAB='dashboard';render();requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'smooth'}));});
+  document.querySelectorAll('[data-card-team-target]').forEach(btn=>btn.addEventListener('click',()=>{
+    const target=document.getElementById(btn.dataset.cardTeamTarget);
+    if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  }));
 }
-
 
 /* ---------- Render shell ---------- */
 function render(){
@@ -10975,7 +10976,6 @@ function render(){
           ${tabButton('compare','Compare Products')}
           ${tabButton('revenuelog','Revenue Log')}
           ${tabButton('sales','Sales')}
-          ${motivationModeEnabled()?tabButton('album','Card Album'):''}
           ${tabButton('import','Import CSV')}
           ${tabButton('products','Edit Products')}
           ${tabButton('settings','Settings')}
@@ -13061,6 +13061,31 @@ function motivationPageCardHTML(tab){
   `;
 }
 
+
+function motivationAlbumProgressHTML(){
+  if(!motivationModeEnabled()||ACTIVE_TAB!=='dashboard')return '';
+  const s=cardAlbumStats(),hasDataset=!!cardAlbumDataset();
+  return`
+    <section class="motivation-album-progress" id="motivationAlbumProgress">
+      <div class="motivation-album-progress-head">
+        <div class="motivation-album-progress-title"><span>Card collection</span><h3>${hasDataset?escapeHtml(cardAlbumDataset().collection?.name||'Your album'):'Your card album'}</h3></div>
+        <button type="button" class="btn secondary" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
+      </div>
+      <div class="motivation-album-progress-grid">
+        <div class="motivation-album-progress-stat"><span>Cards owned</span><strong>${s.totalCopies}</strong></div>
+        <div class="motivation-album-progress-stat"><span>Cards total</span><strong>${s.totalVariants}</strong></div>
+        <div class="motivation-album-progress-stat"><span>Collected</span><strong>${s.collectedVariants}</strong></div>
+        <div class="motivation-album-progress-stat"><span>Common</span><strong>${s.collectedCommon}</strong></div>
+        <div class="motivation-album-progress-stat"><span>Rare</span><strong>${s.collectedRare}</strong></div>
+        <div class="motivation-album-progress-stat"><span>Legendary</span><strong>${s.collectedLegendary}</strong></div>
+      </div>
+    </section>`;
+}
+function wireMotivationAlbumProgressEvents(){
+  const btn=document.getElementById('motivationOpenAlbumBtn');
+  if(btn)btn.addEventListener('click',()=>{ACTIVE_TAB='album';render();requestAnimationFrame(()=>window.scrollTo(0,0));});
+}
+
 function mountMotivationPageExtras(){
   document.querySelectorAll('[data-motivation-card]').forEach(el=>el.remove());
   document.body.classList.toggle('motivation-mode-active',motivationModeEnabled());
@@ -13073,10 +13098,11 @@ function mountMotivationPageExtras(){
     const filter=document.querySelector('#tabContent .filter-bar');
     if(filter){
       const extra=ACTIVE_TAB==='dashboard'
-        ? motivationGamePanelHTML()+motivationWorkTimelineHTML()
+        ? motivationAlbumProgressHTML()+motivationGamePanelHTML()+motivationWorkTimelineHTML()
         : '';
       filter.insertAdjacentHTML('afterend',markup+extra);
       if(ACTIVE_TAB==='dashboard'){
+        wireMotivationAlbumProgressEvents();
         wireMotivationGamePanelEvents();
         wireMotivationWorkTimelineEvents();
       }
