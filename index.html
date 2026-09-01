@@ -10166,6 +10166,17 @@
 .motivation-pack-results-grid .album-card:nth-child(4){animation-delay:.22s}
 .motivation-pack-results-grid .album-card:nth-child(5){animation-delay:.28s}
 
+
+/* ===== v4 layout refinements ===== */
+.motivation-album-progress + .motivation-game-panel{
+  margin-top:16px !important;
+}
+.motivation-level-next-gems{
+  color:#8EDFF9 !important;
+  font-weight:800 !important;
+  margin-top:2px;
+}
+
 </style>
 
 <style id="roboto-global-font">
@@ -11274,7 +11285,7 @@ function dayLabel(dateStr){
 
 
 const CARD_ALBUM_RARITIES=['common','rare','legendary'];
-const CARD_ALBUM_TEST_SHOW_ALL_COLLECTED=true; // visual test only; ownership data is unchanged
+const CARD_ALBUM_TEST_SHOW_ALL_COLLECTED=false; // real ownership visuals: uncollected cards stay monochrome
 
 function cardAlbumState(){
   if(!STATE.cardAlbum || typeof STATE.cardAlbum!=='object' || Array.isArray(STATE.cardAlbum)){
@@ -11510,11 +11521,11 @@ function wireCardAlbumEvents(){
 }
 
 
-const MOTIVATION_CARD_PACK_COST=100;
+const MOTIVATION_CARD_PACK_COST=50;
 const MOTIVATION_CARD_PACK_SIZE=5;
 const MOTIVATION_NEW_PRODUCT_XP=600; // equivalent to 50 hours at 12 XP/hour
 const MOTIVATION_STARTER_GEMS=300;
-const MOTIVATION_NEW_PRODUCT_GEMS=1000;
+const MOTIVATION_NEW_PRODUCT_GEMS=500;
 
 function motivationCardPackRarity(){
   const roll=Math.random();
@@ -13793,10 +13804,11 @@ function motivationGamePanelHTML(){
         </div>
         <div class="motivation-level-card"
           data-motivation-tooltip-title="Level ${level.level}"
-          data-motivation-tooltip-body="${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP toward level ${level.level+1}. Total lifetime XP: ${level.totalXp.toLocaleString()}. 💎: ${game.gems.toLocaleString()}.">
+          data-motivation-tooltip-body="${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP toward level ${level.level+1}. Total lifetime XP: ${level.totalXp.toLocaleString()}. 💎: ${game.gems.toLocaleString()}. Next level reward: +${motivationLevelGemReward(level.level+1)}💎.">
           <span>LEVEL</span>
           <strong>${level.level}</strong>
           <small>${level.currentXp.toLocaleString()} / ${level.requiredXp.toLocaleString()} XP</small>
+          <small class="motivation-level-next-gems">Next level · +${motivationLevelGemReward(level.level+1)}💎</small>
         </div>
       </div>
 
