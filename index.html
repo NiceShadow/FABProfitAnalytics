@@ -9215,6 +9215,376 @@
     white-space:nowrap;
   }
 
+
+/* ================= Card Album ================= */
+.card-album-shell{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.card-album-intro{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.card-album-intro-copy{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:240px;
+  flex:1 1 420px;
+}
+.card-album-intro-copy h2{
+  margin:0;
+  font-size:21px;
+  color:var(--text);
+}
+.card-album-intro-copy p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.5;
+}
+.card-album-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.card-album-upload{
+  position:relative;
+  overflow:hidden;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.card-album-upload input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+.card-album-file-meta{
+  color:var(--muted);
+  font-size:12px;
+}
+.card-album-summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:10px;
+}
+.card-album-summary .stat{
+  min-height:0;
+}
+.card-album-collection-note{
+  color:#B9C0CC;
+  font-size:12px;
+  line-height:1.5;
+}
+.card-album-empty{
+  padding:26px;
+  border:1px dashed rgba(255,255,255,.14);
+  border-radius:16px;
+  background:rgba(255,255,255,.02);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:flex-start;
+}
+.card-album-empty h3{
+  margin:0;
+  color:var(--text);
+  font-size:18px;
+}
+.card-album-empty p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+  max-width:720px;
+}
+.card-album-list{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.card-album-team{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+  overflow:hidden;
+}
+.card-album-team-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.025);
+  flex-wrap:wrap;
+}
+.card-album-team-head-main{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:220px;
+}
+.card-album-team-head-main img{
+  width:44px;
+  height:44px;
+  object-fit:contain;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  padding:6px;
+  box-sizing:border-box;
+}
+.card-album-team-title{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.card-album-team-title strong{
+  font-size:16px;
+  color:var(--text);
+}
+.card-album-team-title span{
+  color:var(--muted);
+  font-size:12px;
+}
+.card-album-team-stats{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.card-album-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+  color:#C9CFD9;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.card-album-grid{
+  padding:16px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:14px;
+}
+.album-card{
+  position:relative;
+  min-height:258px;
+  border-radius:18px;
+  overflow:hidden;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 14px 28px rgba(0,0,0,.22);
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  isolation:isolate;
+}
+.album-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 18px 34px rgba(0,0,0,.28);
+}
+.album-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.03) 24%, rgba(0,0,0,.22));
+}
+.album-card::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  z-index:-1;
+  border-radius:17px;
+  background:linear-gradient(180deg, rgba(11,14,20,.82), rgba(15,18,25,.94));
+}
+.album-card.rarity-common{
+  background:
+    radial-gradient(110% 70% at 50% 0%, rgba(255,255,255,.18), transparent 46%),
+    linear-gradient(135deg, rgba(178,190,205,.22), rgba(88,98,113,.12));
+}
+.album-card.rarity-rare{
+  background:
+    radial-gradient(110% 70% at 50% 0%, rgba(97,159,255,.28), transparent 46%),
+    linear-gradient(135deg, rgba(58,110,224,.22), rgba(72,214,196,.10));
+}
+.album-card.rarity-legendary{
+  background:
+    radial-gradient(115% 82% at 50% 0%, rgba(255,215,92,.36), transparent 48%),
+    linear-gradient(135deg, rgba(255,174,43,.24), rgba(217,81,49,.12) 55%, rgba(214,120,255,.12));
+  box-shadow:0 14px 30px rgba(255,170,66,.16), 0 14px 28px rgba(0,0,0,.24);
+}
+.album-card.unowned{
+  filter:grayscale(1) saturate(0) brightness(.84) contrast(1.04);
+}
+.album-card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.album-card-rarity{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  padding:0 9px;
+  border-radius:999px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(255,255,255,.12);
+  color:#F5F7FA;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.album-card-state{
+  color:#B8C1CE;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.album-card-team{
+  color:#AEB7C5;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.album-card-art{
+  position:relative;
+  height:136px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,.16), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.album-card-art img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.album-card.entity-team .album-card-art img{
+  padding:16px;
+  box-sizing:border-box;
+}
+.album-card-placeholder{
+  color:#D7DCE4;
+  font-size:12px;
+  font-weight:700;
+  opacity:.72;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.album-card-bottom{
+  margin-top:auto;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.album-card-bottom strong{
+  color:#F5F7FA;
+  font-size:14px;
+  line-height:1.25;
+  display:block;
+  min-height:35px;
+}
+.album-card-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.album-card-role{
+  color:#DCE2EA;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.album-card-rarity-accent{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.album-card.rarity-common .album-card-rarity-accent{color:#D4DBE5;}
+.album-card.rarity-rare .album-card-rarity-accent{color:#8EC9FF;}
+.album-card.rarity-legendary .album-card-rarity-accent{color:#FFD36E;}
+.album-card-count{
+  position:absolute;
+  top:12px;
+  right:12px;
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#F1C75A;
+  color:#15181D;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid rgba(0,0,0,.15);
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+.album-card.rarity-legendary .album-card-rarity::before{
+  content:"✦";
+  margin-right:6px;
+  color:#FFD36E;
+}
+.album-card.owned .album-card-state{
+  color:#8FE0B3;
+}
+@media (max-width:900px){
+  .card-album-grid{
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:12px;
+  }
+}
+@media (max-width:640px){
+  .card-album-intro{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .card-album-team-head{
+    padding:12px 13px;
+  }
+  .card-album-grid{
+    padding:13px;
+    grid-template-columns:repeat(auto-fill,minmax(138px,1fr));
+  }
+  .album-card{
+    min-height:240px;
+    padding:9px;
+  }
+  .album-card-art{
+    height:118px;
+  }
+}
+
 </style>
 
 <style id="roboto-global-font">
@@ -9234,7 +9604,7 @@
 </div>
 <script>
 
-const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"activeChallenge":null,"challengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
+const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"activeChallenge":null,"challengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
 
 const PALETTE = ["#D9A441","#4FB8B0","#8C7CF0","#E2725B","#6FBF73","#5DA8E2","#E2C255","#C97CE0","#7FD1C1","#E08FB0"];
 
@@ -9767,6 +10137,25 @@ function normalizeState(state){
   );
   state.motivationGame.workXpCarry=Math.max(0,Math.min(.999999,Number(state.motivationGame.workXpCarry)||0));
 
+
+  if(!state.cardAlbum || typeof state.cardAlbum!=='object' || Array.isArray(state.cardAlbum)){
+    state.cardAlbum={dataset:null,inventory:{},importedAt:null};
+  }
+  if(!state.cardAlbum.inventory || typeof state.cardAlbum.inventory!=='object' || Array.isArray(state.cardAlbum.inventory)){
+    state.cardAlbum.inventory={};
+  }
+  state.cardAlbum.inventory=Object.fromEntries(
+    Object.entries(state.cardAlbum.inventory)
+      .filter(([key,count])=>typeof key==='string' && key.length>0 && Number.isFinite(Number(count)) && Number(count)>=0)
+      .map(([key,count])=>[key,Math.floor(Number(count))])
+  );
+  if(
+    state.cardAlbum.dataset &&
+    (state.cardAlbum.dataset.schema!=='motivation-card-dataset' || !Array.isArray(state.cardAlbum.dataset.teams))
+  ){
+    state.cardAlbum.dataset=null;
+  }
+
   const legacyAcceptedPlanned=state.plannedSales.filter(x=>x && x.status==='accepted');
   if(legacyAcceptedPlanned.length){
     legacyAcceptedPlanned.forEach(x=>{
@@ -10286,8 +10675,281 @@ function dayLabel(dateStr){
   return names[d.getMonth()] + ' ' + d.getDate();
 }
 
+
+const CARD_ALBUM_RARITIES=['common','rare','legendary'];
+
+function cardAlbumState(){
+  if(!STATE.cardAlbum || typeof STATE.cardAlbum!=='object' || Array.isArray(STATE.cardAlbum)){
+    STATE.cardAlbum={dataset:null,inventory:{},importedAt:null};
+  }
+  if(!STATE.cardAlbum.inventory || typeof STATE.cardAlbum.inventory!=='object' || Array.isArray(STATE.cardAlbum.inventory)){
+    STATE.cardAlbum.inventory={};
+  }
+  return STATE.cardAlbum;
+}
+function cardAlbumDataset(){
+  return cardAlbumState().dataset || null;
+}
+function cardAlbumInventory(){
+  return cardAlbumState().inventory || {};
+}
+function cardAlbumCardKey(type,id,rarity){
+  return `${String(type||'entity')}:${String(id||'unknown')}:${String(rarity||'common')}`;
+}
+function cardAlbumEntityTypeLabel(entity){
+  if(entity.entityType==='manager') return 'Manager';
+  if(entity.entityType==='team') return 'Team crest';
+  return entity.position || 'Player';
+}
+function cardAlbumRarityLabel(rarity){
+  const text=String(rarity||'common').toLowerCase();
+  return text.charAt(0).toUpperCase()+text.slice(1);
+}
+function cardAlbumEntitiesForTeam(team){
+  const head=[{
+    entityType:'team',
+    sourceId:team.sourceId,
+    name:team.name,
+    imageUrl:team.badgeUrl || team.card?.imageUrl || '',
+    teamName:team.name,
+    position:'Team crest'
+  }];
+  const roster=(team.players||[]).map(player=>({
+    entityType:player.entityType==='manager'?'manager':'player',
+    sourceId:player.sourceId,
+    name:player.name,
+    imageUrl:player.imageUrl || player.card?.imageUrl || '',
+    teamName:team.name,
+    position:player.entityType==='manager' ? 'Manager' : (player.position || 'Player')
+  }));
+  return [...head,...roster];
+}
+function cardAlbumValidKeys(dataset){
+  const valid=new Set();
+  if(!dataset || !Array.isArray(dataset.teams)) return valid;
+  dataset.teams.forEach(team=>{
+    cardAlbumEntitiesForTeam(team).forEach(entity=>{
+      CARD_ALBUM_RARITIES.forEach(rarity=>{
+        valid.add(cardAlbumCardKey(entity.entityType,entity.sourceId,rarity));
+      });
+    });
+  });
+  return valid;
+}
+function cardAlbumStats(){
+  const dataset=cardAlbumDataset();
+  if(!dataset || !Array.isArray(dataset.teams)){
+    return {
+      teams:0, managers:0, players:0, baseCards:0, totalVariants:0,
+      collectedVariants:0, duplicateCards:0, totalCopies:0
+    };
+  }
+  const teams=dataset.teams.length;
+  let managers=0;
+  let players=0;
+  dataset.teams.forEach(team=>{
+    (team.players||[]).forEach(player=>{
+      if(player.entityType==='manager') managers++;
+      else players++;
+    });
+  });
+  const baseCards=teams+managers+players;
+  const totalVariants=baseCards*CARD_ALBUM_RARITIES.length;
+  const inventory=cardAlbumInventory();
+  let collectedVariants=0;
+  let duplicateCards=0;
+  let totalCopies=0;
+  Object.values(inventory).forEach(raw=>{
+    const count=Math.max(0,Math.floor(Number(raw)||0));
+    if(count>0) collectedVariants++;
+    if(count>1) duplicateCards++;
+    totalCopies+=count;
+  });
+  return {teams,managers,players,baseCards,totalVariants,collectedVariants,duplicateCards,totalCopies};
+}
+function cardAlbumSummaryCardsHTML(){
+  const s=cardAlbumStats();
+  return `
+    <div class="card-album-summary">
+      <div class="stat"><small>Teams</small><strong>${s.teams}</strong></div>
+      <div class="stat"><small>Managers</small><strong>${s.managers}</strong></div>
+      <div class="stat"><small>Players</small><strong>${s.players}</strong></div>
+      <div class="stat"><small>Base cards</small><strong>${s.baseCards}</strong></div>
+      <div class="stat"><small>Total variants</small><strong>${s.totalVariants}</strong></div>
+      <div class="stat"><small>Collected variants</small><strong>${s.collectedVariants}</strong></div>
+    </div>
+  `;
+}
+function cardAlbumCardHTML(entity,team,rarity){
+  const key=cardAlbumCardKey(entity.entityType,entity.sourceId,rarity);
+  const count=Math.max(0,Math.floor(Number(cardAlbumInventory()[key])||0));
+  const owned=count>0;
+  const role=cardAlbumEntityTypeLabel(entity);
+  const art=entity.imageUrl
+    ? `<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(entity.imageUrl)}" alt="${escapeHtml(entity.name)}">`
+    : `<div class="album-card-placeholder">No image</div>`;
+  return `
+    <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${owned?'owned':'unowned'}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
+      ${count>1?`<div class="album-card-count">×${count}</div>`:''}
+      <div class="album-card-top">
+        <span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>
+        <span class="album-card-state">${owned?'Collected':'Uncollected'}</span>
+      </div>
+      <div class="album-card-team">${escapeHtml(team.name)}</div>
+      <div class="album-card-art">
+        ${art}
+      </div>
+      <div class="album-card-bottom">
+        <strong title="${escapeHtml(entity.name)}">${escapeHtml(entity.name)}</strong>
+        <div class="album-card-meta">
+          <span class="album-card-role">${escapeHtml(role)}</span>
+          <span class="album-card-rarity-accent">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>
+        </div>
+      </div>
+    </article>
+  `;
+}
+function cardAlbumTeamSectionHTML(team){
+  const entities=cardAlbumEntitiesForTeam(team);
+  const totalVariants=entities.length*CARD_ALBUM_RARITIES.length;
+  return `
+    <section class="card-album-team">
+      <div class="card-album-team-head">
+        <div class="card-album-team-head-main">
+          ${team.badgeUrl || team.card?.imageUrl ? `<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl || team.card?.imageUrl)}" alt="${escapeHtml(team.name)}">` : ''}
+          <div class="card-album-team-title">
+            <strong>${escapeHtml(team.name)}</strong>
+            <span>${escapeHtml(team.shortName || team.country || '')}</span>
+          </div>
+        </div>
+        <div class="card-album-team-stats">
+          <span class="card-album-pill">${(team.players||[]).filter(p=>p.entityType==='manager').length} manager</span>
+          <span class="card-album-pill">${(team.players||[]).filter(p=>p.entityType!=='manager').length} players</span>
+          <span class="card-album-pill">${totalVariants} variants</span>
+        </div>
+      </div>
+      <div class="card-album-grid">
+        ${entities.flatMap(entity=>CARD_ALBUM_RARITIES.map(rarity=>cardAlbumCardHTML(entity,team,rarity))).join('')}
+      </div>
+    </section>
+  `;
+}
+function cardAlbumHTML(){
+  const album=cardAlbumState();
+  const dataset=album.dataset;
+  const importedText=album.importedAt ? new Date(album.importedAt).toLocaleString() : 'Not imported yet';
+
+  if(!dataset){
+    return `
+      <section class="card-album-shell">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Card Album</h2>
+            <p>Import the JSON from the Card Dataset Builder to create your collectible football album. Every team, manager and player card will be generated in Common, Rare and Legendary versions.</p>
+          </div>
+          <div class="panel-body">
+            <div class="card-album-empty">
+              <h3>No card dataset imported yet</h3>
+              <p>Choose the JSON file you generated with the builder. The album will show every possible card in black and white until you collect it. Once a card is collected, the full design becomes colored. Duplicate copies are tracked automatically with a count badge.</p>
+              <div class="card-album-controls">
+                <label class="btn primary card-album-upload">
+                  Import card dataset JSON
+                  <input type="file" id="cardAlbumImportInput" accept=".json,application/json">
+                </label>
+                <span class="card-album-file-meta">Accepted: Card Dataset Builder exports</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    `;
+  }
+
+  const title=dataset.collection?.name || 'Card collection';
+  const season=dataset.collection?.season ? `Season ${dataset.collection.season}` : 'Season not set';
+
+  return `
+    <section class="card-album-shell">
+      <section class="panel">
+        <div class="panel-body">
+          <div class="card-album-intro">
+            <div class="card-album-intro-copy">
+              <h2>${escapeHtml(title)}</h2>
+              <p>${escapeHtml(season)} · Common, Rare and Legendary card variants for every imported team, manager and player.</p>
+              <div class="card-album-collection-note">Cards stay monochrome until collected. As soon as a card exists in your future collection inventory, the full card art turns colored automatically. Duplicate copies will show a count badge on the card.</div>
+            </div>
+            <div class="card-album-controls">
+              <label class="btn primary card-album-upload">
+                Import card dataset JSON
+                <input type="file" id="cardAlbumImportInput" accept=".json,application/json">
+              </label>
+              <button class="btn danger" id="cardAlbumClearBtn" type="button">Clear card album</button>
+              <span class="card-album-file-meta">Imported: ${escapeHtml(importedText)}</span>
+            </div>
+          </div>
+          ${cardAlbumSummaryCardsHTML()}
+        </div>
+      </section>
+
+      <div class="card-album-list">
+        ${(dataset.teams||[]).map(team=>cardAlbumTeamSectionHTML(team)).join('')}
+      </div>
+    </section>
+  `;
+}
+async function importCardDatasetToAlbum(file){
+  if(!file) return;
+  try{
+    const parsed=JSON.parse(await file.text());
+    if(parsed?.schema!=='motivation-card-dataset' || !Array.isArray(parsed.teams)){
+      throw new Error('That file is not a supported Card Dataset Builder JSON export.');
+    }
+    cardAlbumState().dataset=parsed;
+    cardAlbumState().importedAt=new Date().toISOString();
+
+    const validKeys=cardAlbumValidKeys(parsed);
+    const currentInventory=cardAlbumInventory();
+    cardAlbumState().inventory=Object.fromEntries(
+      Object.entries(currentInventory)
+        .filter(([key,count])=>validKeys.has(key) && Number(count)>0)
+        .map(([key,count])=>[key,Math.floor(Number(count))])
+    );
+
+    await persist();
+    showToast('Card dataset imported');
+    renderTabContent();
+  }catch(err){
+    console.error('Card dataset import failed',err);
+    alert(err?.message || 'Failed to import the card dataset.');
+  }
+}
+async function clearCardAlbumDataset(){
+  if(!cardAlbumDataset()) return;
+  if(!confirm('Remove the imported card dataset and collection progress from this website?')) return;
+  STATE.cardAlbum={dataset:null,inventory:{},importedAt:null};
+  await persist();
+  showToast('Card album cleared');
+  renderTabContent();
+}
+function wireCardAlbumEvents(){
+  const input=document.getElementById('cardAlbumImportInput');
+  if(input){
+    input.addEventListener('change',async e=>{
+      const file=e.target.files && e.target.files[0];
+      if(file) await importCardDatasetToAlbum(file);
+      input.value='';
+    });
+  }
+  const clearBtn=document.getElementById('cardAlbumClearBtn');
+  if(clearBtn){
+    clearBtn.addEventListener('click',()=>clearCardAlbumDataset());
+  }
+}
+
+
 /* ---------- Render shell ---------- */
 function render(){
+  if(ACTIVE_TAB==='album' && !motivationModeEnabled()) ACTIVE_TAB='dashboard';
   document.body.classList.toggle('dashboard-page-active',ACTIVE_TAB==='dashboard');
   if(ACTIVE_TAB==='dashboard' && !document.querySelector('.topbar')) window.scrollTo(0,0);
   const app = document.getElementById('app');
@@ -10313,6 +10975,7 @@ function render(){
           ${tabButton('compare','Compare Products')}
           ${tabButton('revenuelog','Revenue Log')}
           ${tabButton('sales','Sales')}
+          ${motivationModeEnabled()?tabButton('album','Card Album'):''}
           ${tabButton('import','Import CSV')}
           ${tabButton('products','Edit Products')}
           ${tabButton('settings','Settings')}
@@ -12478,9 +13141,9 @@ function mountMotivationFloatingControl(){
   if(toggle){
     toggle.addEventListener('change',async()=>{
       STATE.settings.motivationMode=toggle.checked;
+      if(!toggle.checked && ACTIVE_TAB==='album') ACTIVE_TAB='dashboard';
       await persist();
-      mountMotivationFloatingControl();
-      renderTabContent();
+      render();
     });
   }
 }
@@ -12525,6 +13188,7 @@ function scheduleStickyDashboardOffsetSync(){
 function renderTabContent(){
   document.body.classList.toggle('sales-page-active',ACTIVE_TAB==='sales');
   document.body.classList.toggle('dashboard-page-active',ACTIVE_TAB==='dashboard');
+  document.body.classList.toggle('card-album-page-active',ACTIVE_TAB==='album');
   SALE_PERIOD_CACHE = new Map();
   MONTHLY_PROFILE_CACHE.clear();
   MONTHLY_NORMALIZED_CACHE.clear();
@@ -12533,6 +13197,7 @@ function renderTabContent(){
   else if(ACTIVE_TAB==='compare') el.innerHTML = compareProductsHTML();
   else if(ACTIVE_TAB==='revenuelog') el.innerHTML = revenueLogHTML();
   else if(ACTIVE_TAB==='sales') el.innerHTML = salesTimelineHTML();
+  else if(ACTIVE_TAB==='album') el.innerHTML = cardAlbumHTML();
   else if(ACTIVE_TAB==='import') el.innerHTML = importHTML();
   else if(ACTIVE_TAB==='products') el.innerHTML = productsHTML();
   else if(ACTIVE_TAB==='settings') el.innerHTML = settingsHTML();
@@ -22057,6 +22722,7 @@ function dataHTML(){
 /* ================= Events ================= */
 function wireTabEvents(){
   if(ACTIVE_TAB==='sales') wireSalesTimelineEvents();
+  if(ACTIVE_TAB==='album') wireCardAlbumEvents();
   if(window._revenueLogScrollHandler){
     window.removeEventListener('scroll',window._revenueLogScrollHandler);
     window.removeEventListener('resize',window._revenueLogScrollHandler);
