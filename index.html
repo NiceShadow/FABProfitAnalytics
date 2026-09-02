@@ -10437,37 +10437,27 @@
   position:relative;width:min(330px,78vw);transform-style:preserve-3d;
   overflow:visible
 }
-.card-preview-card-wrap::after{
-  content:"";
+
+.card-preview-light{
   position:absolute;
   left:50%;
   top:50%;
-  width:460%;
-  aspect-ratio:1 / 1;
-  z-index:5;
+  width:12px;
+  height:12px;
+  z-index:40;
   pointer-events:none;
-  opacity:.105;
   border-radius:50%;
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255,255,255,.26) 0%,
-      rgba(255,255,255,.20) 18%,
-      rgba(255,255,255,.135) 38%,
-      rgba(255,255,255,.075) 58%,
-      rgba(255,255,255,.032) 74%,
-      rgba(255,255,255,.010) 88%,
-      rgba(255,255,255,0) 100%
-    );
-  filter:blur(44px);
-  transform:
-    translate(
-      calc(-50% + (var(--preview-x,50%) - 50%) * .08),
-      calc(-50% + (var(--preview-y,50%) - 50%) * .08)
-    )
-    translateZ(3px);
-  transition:opacity .18s ease
+  background:rgba(255,255,255,.10);
+  box-shadow:
+    0 0 58px 45px rgba(255,255,255,.085),
+    0 0 118px 92px rgba(255,255,255,.050),
+    0 0 190px 145px rgba(255,255,255,.024);
+  filter:blur(16px);
+  opacity:.82;
+  transform:translate(-50%,-50%) translate3d(0,0,8px);
+  will-change:transform;
 }
+
 .card-preview-card-wrap .album-card{
   width:100%;min-height:470px;padding:14px;gap:13px;border-radius:22px;cursor:pointer;
   transform-style:preserve-3d;transform:perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1);
@@ -11929,6 +11919,10 @@ function openCardAlbumPreview(sourceCard){
   clone.removeAttribute('title');
   clone.querySelectorAll('img').forEach(img=>img.draggable=false);
 
+  const light=document.createElement('div');
+  light.className='card-preview-light';
+  clone.appendChild(light);
+
   wrap.appendChild(clone);
   stage.appendChild(wrap);
 
@@ -11981,8 +11975,10 @@ function openCardAlbumPreview(sourceCard){
     clone.style.transform=
       `perspective(1050px) rotateX(${currentX.toFixed(3)}deg) rotateY(${currentY.toFixed(3)}deg) scale(1.018)`;
 
-    wrap.style.setProperty('--preview-x',`${currentLightX.toFixed(2)}%`);
-    wrap.style.setProperty('--preview-y',`${currentLightY.toFixed(2)}%`);
+    const lightOffsetX=(currentLightX-50)*1.15;
+    const lightOffsetY=(currentLightY-50)*1.00;
+    light.style.transform=
+      `translate(-50%,-50%) translate(${lightOffsetX.toFixed(2)}px,${lightOffsetY.toFixed(2)}px) translateZ(8px)`;
 
     rafId=requestAnimationFrame(animate);
   };
@@ -14786,7 +14782,7 @@ function motivationAlbumProgressHTML(){
       </div>
 
       <div class="motivation-album-progress-right">
-        <button type="button" class="btn secondary" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
+        <button type="button" class="btn" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
         <div class="motivation-album-compact-row common"><span>Common</span><strong>${s.collectedCommon} / ${s.baseCards}</strong></div>
         <div class="motivation-album-compact-row rare"><span>Rare</span><strong>${s.collectedRare} / ${s.baseCards}</strong></div>
         <div class="motivation-album-compact-row gold"><span>Gold</span><strong>${s.collectedLegendary} / ${s.baseCards}</strong></div>
