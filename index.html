@@ -10177,6 +10177,190 @@
   margin-top:2px;
 }
 
+
+/* ===== v5: prominent sync + level-up celebration ===== */
+.motivation-toggl-sync-inline{
+  margin-left:auto !important;
+  padding:8px 14px !important;
+  min-height:34px;
+  border:1px solid rgba(245,197,82,.58) !important;
+  border-radius:8px !important;
+  background:linear-gradient(180deg,#E8B942,#C99123) !important;
+  color:#17130A !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+  letter-spacing:.02em;
+  box-shadow:0 5px 14px rgba(212,157,35,.20);
+  cursor:pointer;
+}
+.motivation-toggl-sync-inline:hover{
+  background:linear-gradient(180deg,#F1C856,#D49A27) !important;
+  box-shadow:0 7px 18px rgba(212,157,35,.27);
+  transform:translateY(-1px);
+}
+.motivation-toggl-sync-inline:disabled{
+  opacity:.58 !important;
+  cursor:default !important;
+  transform:none !important;
+}
+
+.motivation-levelup-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100005;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(3,5,8,.62);
+  backdrop-filter:blur(15px);
+  animation:motivationLevelBackdropIn .34s ease both;
+}
+.motivation-levelup-stage{
+  position:relative;
+  width:min(560px,92vw);
+  min-height:420px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border:1px solid rgba(244,196,76,.34);
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(255,220,105,.17),transparent 33%),
+    radial-gradient(circle at 50% 54%,rgba(82,145,255,.10),transparent 46%),
+    linear-gradient(180deg,#171B24,#0C1017);
+  box-shadow:
+    0 34px 110px rgba(0,0,0,.62),
+    0 0 70px rgba(232,185,66,.13);
+  animation:motivationLevelStageIn .54s cubic-bezier(.18,.86,.23,1.12) both;
+}
+.motivation-levelup-stage::before{
+  content:"";
+  position:absolute;
+  width:470px;
+  height:470px;
+  border-radius:50%;
+  border:1px solid rgba(244,200,91,.12);
+  box-shadow:
+    0 0 0 36px rgba(244,200,91,.025),
+    0 0 0 78px rgba(244,200,91,.018);
+  animation:motivationLevelRing 2.4s ease-in-out infinite;
+}
+.motivation-levelup-rays{
+  position:absolute;
+  inset:-30%;
+  background:repeating-conic-gradient(
+    from 0deg,
+    rgba(255,216,97,.12) 0deg 3deg,
+    transparent 3deg 18deg
+  );
+  mask-image:radial-gradient(circle,black 0 32%,transparent 70%);
+  animation:motivationLevelSpin 15s linear infinite;
+}
+.motivation-levelup-content{
+  position:relative;
+  z-index:2;
+  width:100%;
+  padding:38px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:9px;
+}
+.motivation-levelup-kicker{
+  color:#D9A841;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.20em;
+  text-transform:uppercase;
+}
+.motivation-levelup-number{
+  position:relative;
+  margin:3px 0 1px;
+  color:#FFE39A;
+  font-size:104px;
+  line-height:.9;
+  font-weight:950;
+  letter-spacing:-.08em;
+  text-shadow:
+    0 0 18px rgba(255,211,96,.30),
+    0 8px 30px rgba(0,0,0,.35);
+  animation:motivationLevelNumberIn .72s cubic-bezier(.18,.9,.27,1.22) both;
+}
+.motivation-levelup-title{
+  color:#F4F6F9;
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+.motivation-levelup-reward{
+  margin-top:10px;
+  padding:10px 18px;
+  border:1px solid rgba(123,210,255,.20);
+  border-radius:999px;
+  background:rgba(83,167,219,.075);
+  color:#9FE5FF;
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 0 22px rgba(71,180,225,.07);
+  animation:motivationLevelRewardIn .58s .24s ease both;
+}
+.motivation-levelup-reason{
+  max-width:380px;
+  margin-top:4px;
+  color:#858F9D;
+  font-size:10px;
+  line-height:1.5;
+}
+.motivation-levelup-close{
+  margin-top:12px;
+  min-width:130px;
+}
+.motivation-levelup-spark{
+  position:absolute;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#FFE59C;
+  box-shadow:0 0 14px rgba(255,219,111,.75);
+  animation:motivationLevelSpark 1.8s ease-in-out infinite;
+}
+.motivation-levelup-spark.s1{left:17%;top:28%;animation-delay:.1s}
+.motivation-levelup-spark.s2{right:18%;top:22%;animation-delay:.5s}
+.motivation-levelup-spark.s3{left:24%;bottom:24%;animation-delay:.8s}
+.motivation-levelup-spark.s4{right:22%;bottom:27%;animation-delay:1.2s}
+
+@keyframes motivationLevelBackdropIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes motivationLevelStageIn{
+  from{opacity:0;transform:scale(.83) translateY(18px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+@keyframes motivationLevelNumberIn{
+  0%{opacity:0;transform:scale(.55) translateY(14px)}
+  70%{opacity:1;transform:scale(1.08) translateY(-2px)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes motivationLevelRewardIn{
+  from{opacity:0;transform:translateY(10px) scale(.94)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes motivationLevelRing{
+  0%,100%{transform:scale(.92);opacity:.52}
+  50%{transform:scale(1.05);opacity:.9}
+}
+@keyframes motivationLevelSpin{
+  to{transform:rotate(360deg)}
+}
+@keyframes motivationLevelSpark{
+  0%,100%{opacity:.18;transform:scale(.65)}
+  50%{opacity:1;transform:scale(1.5)}
+}
+
 </style>
 
 <style id="roboto-global-font">
@@ -12468,7 +12652,7 @@ function openMotivationTogglConnection(){
 }
 
 
-const MOTIVATION_WORK_XP_PER_HOUR=12;
+const MOTIVATION_WORK_XP_PER_HOUR=20;
 
 function motivationGameState(){
   if(!STATE.motivationGame || typeof STATE.motivationGame!=='object'){
@@ -12527,7 +12711,8 @@ function motivationLevelInfo(totalXp=null){
 
 function motivationLevelGemReward(level){
   const l=Math.max(2,Math.round(Number(level)||2));
-  return Math.min(70,20+l*2);
+  const previousReward=20+l*2;
+  return Math.min(85,Math.round(previousReward*1.20));
 }
 
 function motivationGrantGems(amount,reason){
@@ -12559,7 +12744,7 @@ function motivationGrantXp(amount,reason){
     game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gemsAwarded;
   }
 
-  return {
+  const event={
     type:'xp',
     amount:xp,
     reason:String(reason||'Progress'),
@@ -12568,6 +12753,12 @@ function motivationGrantXp(amount,reason){
     leveledUp:after.level>before.level,
     gemsAwarded
   };
+
+  if(event.leveledUp){
+    setTimeout(()=>showMotivationLevelUpCelebration(event),120);
+  }
+
+  return event;
 }
 
 function ensureMotivationTooltip(){
@@ -12619,6 +12810,41 @@ function wireMotivationTooltips(root){
   });
 }
 
+
+function showMotivationLevelUpCelebration(event){
+  if(!event || !event.leveledUp || !motivationModeEnabled()) return;
+
+  document.getElementById('motivationLevelUpOverlay')?.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='motivationLevelUpOverlay';
+  overlay.className='motivation-levelup-overlay';
+  overlay.innerHTML=`
+    <div class="motivation-levelup-stage">
+      <div class="motivation-levelup-rays"></div>
+      <i class="motivation-levelup-spark s1"></i>
+      <i class="motivation-levelup-spark s2"></i>
+      <i class="motivation-levelup-spark s3"></i>
+      <i class="motivation-levelup-spark s4"></i>
+      <div class="motivation-levelup-content">
+        <span class="motivation-levelup-kicker">Level reached</span>
+        <div class="motivation-levelup-number">${event.after.level}</div>
+        <div class="motivation-levelup-title">Level ${event.after.level}</div>
+        ${event.gemsAwarded?`<div class="motivation-levelup-reward">+${event.gemsAwarded}💎</div>`:''}
+        <div class="motivation-levelup-reason">${escapeHtml(event.reason||'Progress')}</div>
+        <button type="button" class="btn primary motivation-levelup-close" id="motivationLevelUpCloseBtn">Continue</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close=()=>overlay.remove();
+  overlay.querySelector('#motivationLevelUpCloseBtn')?.addEventListener('click',close);
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) close();
+  });
+}
+
 function showMotivationXpBurst(event){
   if(!event || !event.amount) return;
   document.querySelectorAll('.motivation-xp-burst').forEach(el=>el.remove());
@@ -12629,7 +12855,7 @@ function showMotivationXpBurst(event){
     <div class="motivation-xp-burst-glow"></div>
     <div class="motivation-xp-burst-top">
       <span>+${event.amount} XP</span>
-      ${event.leveledUp?`<strong>LEVEL UP · ${event.after.level}${event.gemsAwarded?` <span class="motivation-level-gem-note">+${event.gemsAwarded}💎</span>`:''}</strong>`:`<strong>LVL ${event.after.level}</strong>`}
+      <strong>LVL ${event.after.level}</strong>
     </div>
     <div class="motivation-xp-burst-reason">${escapeHtml(event.reason)}</div>
     <div class="motivation-xp-burst-track">
@@ -13306,7 +13532,7 @@ function motivationCreateGemChallenge(){
       kind:'gem_task_push',
       title:'Quick task push',
       description:`Make ${motivationFormatHours(target)} of real progress on “${task.title}”.`,
-      gemReward:Math.max(10,Math.round(8+target*6)),
+      gemReward:Math.max(10,Math.round((8+target*6)*1.05)),
       taskId:task.id,
       startDate:today,
       deadline:datePlusDays(today,1),
@@ -13335,7 +13561,7 @@ function motivationCreateGemChallenge(){
     kind:'gem_work_sprint',
     title:'Quick gem challenge',
     description:`Add ${motivationFormatHours(target)} of focused work from this point forward.`,
-    gemReward:Math.max(9,Math.round(7+target*6)),
+    gemReward:Math.max(9,Math.round((7+target*6)*1.05)),
     startDate:today,
     deadline,
     manualClaim:false,
