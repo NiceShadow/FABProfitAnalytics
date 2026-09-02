@@ -10442,28 +10442,28 @@
   position:absolute;
   left:50%;
   top:50%;
-  width:185%;
+  width:460%;
   aspect-ratio:1 / 1;
   z-index:5;
   pointer-events:none;
-  opacity:.16;
+  opacity:.105;
   border-radius:50%;
   background:
     radial-gradient(
       circle at center,
-      rgba(255,255,255,.18) 0%,
-      rgba(255,255,255,.14) 14%,
-      rgba(255,255,255,.10) 30%,
-      rgba(255,255,255,.065) 46%,
-      rgba(255,255,255,.032) 62%,
-      rgba(255,255,255,.012) 76%,
-      rgba(255,255,255,0) 94%
+      rgba(255,255,255,.26) 0%,
+      rgba(255,255,255,.20) 18%,
+      rgba(255,255,255,.135) 38%,
+      rgba(255,255,255,.075) 58%,
+      rgba(255,255,255,.032) 74%,
+      rgba(255,255,255,.010) 88%,
+      rgba(255,255,255,0) 100%
     );
-  filter:blur(22px);
+  filter:blur(44px);
   transform:
     translate(
-      calc(-50% + (var(--preview-x,50%) - 50%) * .18),
-      calc(-50% + (var(--preview-y,50%) - 50%) * .18)
+      calc(-50% + (var(--preview-x,50%) - 50%) * .08),
+      calc(-50% + (var(--preview-y,50%) - 50%) * .08)
     )
     translateZ(3px);
   transition:opacity .18s ease
