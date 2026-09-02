@@ -9631,34 +9631,35 @@
 .card-album-empty-filtered strong{display:block;color:#F2F4F7;font-size:16px;margin-bottom:6px}
 .album-card.team-germany{overflow:hidden}
 .album-card-germany-flag-band{
-  position:absolute;top:0;left:0;right:0;height:84px;z-index:0;pointer-events:none;overflow:hidden;
-  border-top-left-radius:18px;border-top-right-radius:18px;opacity:.92
+  position:absolute;top:0;left:0;right:0;height:42px;z-index:0;pointer-events:none;overflow:hidden;
+  border-top-left-radius:18px;border-top-right-radius:18px;opacity:.95
 }
 .album-card-germany-flag-band::before{
   content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,
-    rgba(10,10,12,.78) 0%, rgba(10,10,12,.78) 32%,
-    rgba(195,36,49,.72) 32%, rgba(195,36,49,.72) 66%,
-    rgba(221,177,37,.76) 66%, rgba(221,177,37,.76) 100%);
+    rgba(12,12,14,.82) 0%, rgba(12,12,14,.82) 33.333%,
+    rgba(188,34,46,.78) 33.333%, rgba(188,34,46,.78) 66.666%,
+    rgba(216,177,38,.82) 66.666%, rgba(216,177,38,.82) 100%);
 }
 .album-card-germany-flag-band::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 24%,rgba(12,16,22,0) 74%,rgba(12,16,22,.55) 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 32%,rgba(0,0,0,.20) 100%);
 }
-.album-card-germany-crest{
-  position:absolute;inset:46px 18px auto 18px;height:118px;display:flex;align-items:center;justify-content:center;
-  z-index:0;pointer-events:none;opacity:.10;filter:grayscale(.15) brightness(1.25)
+.album-card-team-crest{
+  margin-left:auto;width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden;
+  box-shadow:0 8px 18px rgba(0,0,0,.16)
 }
-.album-card-germany-crest img{max-width:100%;max-height:100%;object-fit:contain}
+.album-card-team-crest img{width:100%;height:100%;object-fit:contain;display:block}
 .album-card.team-germany .album-card-top,
 .album-card.team-germany .album-card-team,
 .album-card.team-germany .album-card-art,
 .album-card.team-germany .album-card-bottom,
 .album-card.team-germany .album-card-count{position:relative;z-index:2}
 .album-card.team-germany .album-card-team{margin-top:2px}
-.album-card.team-germany.rarity-common .album-card-germany-flag-band{box-shadow:0 8px 18px rgba(0,0,0,.14)}
-.album-card.team-germany.rarity-rare .album-card-germany-flag-band{box-shadow:0 8px 18px rgba(58,110,224,.18)}
-.album-card.team-germany.rarity-legendary .album-card-germany-flag-band{box-shadow:0 10px 24px rgba(255,197,69,.20)}
+.album-card.team-germany.rarity-common .album-card-germany-flag-band{box-shadow:0 6px 14px rgba(0,0,0,.14)}
+.album-card.team-germany.rarity-rare .album-card-germany-flag-band{box-shadow:0 6px 14px rgba(58,110,224,.18)}
+.album-card.team-germany.rarity-legendary .album-card-germany-flag-band{box-shadow:0 8px 18px rgba(255,197,69,.20)}
 @media(max-width:900px){
   .card-album-toolbar{width:100%}
   .card-album-rarity-filters{width:100%}
@@ -11666,8 +11667,8 @@ function cardAlbumCardHTML(entity,team,rarity){
   return`
     <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${visuallyOwned?'owned':'unowned'} ${germanyTeam?'team-germany':''}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
       ${count>1?`<div class="album-card-count">×${count}</div>`:''}
-      <div class="album-card-top"><span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span></div>
-      ${germanyTeam?`<div class="album-card-germany-flag-band" aria-hidden="true"></div><div class="album-card-germany-crest" aria-hidden="true">${team.badgeUrl||team.card?.imageUrl?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl||team.card?.imageUrl)}" alt="">`:''}</div>`:''}
+      <div class="album-card-top"><span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>${team.badgeUrl||team.card?.imageUrl?`<span class="album-card-team-crest" aria-hidden="true"><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl||team.card?.imageUrl)}" alt=""></span>`:''}</div>
+      ${germanyTeam?`<div class="album-card-germany-flag-band" aria-hidden="true"></div>`:''}
       <div class="album-card-team">${escapeHtml(team.name)}</div>
       <div class="album-card-art">${art}</div>
       <div class="album-card-bottom">
