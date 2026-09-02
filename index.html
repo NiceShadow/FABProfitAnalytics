@@ -10442,7 +10442,7 @@
 .card-preview-card-wrap .album-card{
   width:100%;min-height:470px;padding:14px;gap:13px;border-radius:22px;cursor:pointer;
   transform-style:preserve-3d;transform:perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1);
-  transition:transform .16s ease,box-shadow .16s ease;box-shadow:0 34px 90px rgba(0,0,0,.52)
+  transition:box-shadow .16s ease;will-change:transform;box-shadow:0 34px 90px rgba(0,0,0,.52)
 }
 .card-preview-card-wrap .album-card::after{border-radius:21px}
 .card-preview-card-wrap .album-card-art{height:250px;border-radius:16px}
@@ -10462,6 +10462,26 @@
   .card-preview-card-wrap{width:min(300px,82vw)}
   .card-preview-card-wrap .album-card{min-height:420px}
   .card-preview-card-wrap .album-card-art{height:215px}
+}
+
+
+/* ===== Clean album interaction ===== */
+.card-album-shell,
+.card-album-shell *,
+.card-preview-overlay,
+.card-preview-overlay *{
+  -webkit-user-select:none !important;
+  user-select:none !important;
+  -webkit-touch-callout:none;
+}
+.card-album-shell img,
+.card-preview-overlay img{
+  -webkit-user-drag:none;
+  user-drag:none;
+}
+.card-album-shell .album-card,
+.card-preview-overlay .album-card{
+  -webkit-tap-highlight-color:transparent;
 }
 
 </style>
@@ -11850,9 +11870,17 @@ async function clearCardAlbumDataset(){
 }
 
 
+let CARD_ALBUM_PREVIEW_CLEANUP=null;
+
 function closeCardAlbumPreview(){
+  if(typeof CARD_ALBUM_PREVIEW_CLEANUP==='function'){
+    const cleanup=CARD_ALBUM_PREVIEW_CLEANUP;
+    CARD_ALBUM_PREVIEW_CLEANUP=null;
+    cleanup();
+  }
   document.getElementById('cardAlbumPreviewOverlay')?.remove();
 }
+
 function openCardAlbumPreview(sourceCard){
   if(!sourceCard) return;
   closeCardAlbumPreview();
@@ -11870,43 +11898,66 @@ function openCardAlbumPreview(sourceCard){
   const clone=sourceCard.cloneNode(true);
   clone.removeAttribute('data-card-previewable');
   clone.removeAttribute('title');
+  clone.querySelectorAll('img').forEach(img=>img.draggable=false);
 
   wrap.appendChild(clone);
   stage.appendChild(wrap);
 
   const hint=document.createElement('div');
   hint.className='card-preview-hint';
-  hint.textContent='Move the mouse for a subtle 3D effect · click the card to close';
+  hint.textContent='Move anywhere to tilt the card · click the card to close';
   stage.appendChild(hint);
 
   overlay.appendChild(stage);
   document.body.appendChild(overlay);
 
-  const maxTilt=6.5;
+  const maxTiltX=6.2;
+  const maxTiltY=7.0;
+  const smoothing=.12;
 
-  const resetTilt=()=>{
-    clone.style.transform='perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1)';
-    wrap.style.setProperty('--preview-x','50%');
-    wrap.style.setProperty('--preview-y','50%');
+  let targetX=0;
+  let targetY=0;
+  let currentX=0;
+  let currentY=0;
+  let targetLightX=50;
+  let targetLightY=50;
+  let currentLightX=50;
+  let currentLightY=50;
+  let rafId=0;
+  let destroyed=false;
+
+  const onPointerMove=e=>{
+    const viewportW=Math.max(1,window.innerWidth);
+    const viewportH=Math.max(1,window.innerHeight);
+
+    const nx=Math.max(-1,Math.min(1,(e.clientX/viewportW-.5)*2));
+    const ny=Math.max(-1,Math.min(1,(e.clientY/viewportH-.5)*2));
+
+    targetY=nx*maxTiltY;
+    targetX=-ny*maxTiltX;
+    targetLightX=Math.max(0,Math.min(100,e.clientX/viewportW*100));
+    targetLightY=Math.max(0,Math.min(100,e.clientY/viewportH*100));
   };
 
-  clone.addEventListener('mousemove',e=>{
-    const rect=clone.getBoundingClientRect();
-    const x=Math.max(0,Math.min(1,(e.clientX-rect.left)/Math.max(1,rect.width)));
-    const y=Math.max(0,Math.min(1,(e.clientY-rect.top)/Math.max(1,rect.height)));
-    const rotateY=(x-.5)*maxTilt*2;
-    const rotateX=(.5-y)*maxTilt*2;
+  const animate=()=>{
+    if(destroyed) return;
 
-    clone.style.transition='transform .05s linear,box-shadow .12s ease';
-    clone.style.transform=`perspective(1050px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.018)`;
-    wrap.style.setProperty('--preview-x',`${(x*100).toFixed(1)}%`);
-    wrap.style.setProperty('--preview-y',`${(y*100).toFixed(1)}%`);
-  });
+    currentX+=(targetX-currentX)*smoothing;
+    currentY+=(targetY-currentY)*smoothing;
+    currentLightX+=(targetLightX-currentLightX)*.10;
+    currentLightY+=(targetLightY-currentLightY)*.10;
 
-  clone.addEventListener('mouseleave',()=>{
-    clone.style.transition='transform .18s ease,box-shadow .16s ease';
-    resetTilt();
-  });
+    clone.style.transform=
+      `perspective(1050px) rotateX(${currentX.toFixed(3)}deg) rotateY(${currentY.toFixed(3)}deg) scale(1.018)`;
+
+    wrap.style.setProperty('--preview-x',`${currentLightX.toFixed(2)}%`);
+    wrap.style.setProperty('--preview-y',`${currentLightY.toFixed(2)}%`);
+
+    rafId=requestAnimationFrame(animate);
+  };
+
+  const preventDrag=e=>e.preventDefault();
+  const preventSelect=e=>e.preventDefault();
 
   clone.addEventListener('click',e=>{
     e.stopPropagation();
@@ -11918,15 +11969,34 @@ function openCardAlbumPreview(sourceCard){
   });
 
   const onKey=e=>{
-    if(e.key==='Escape'){
-      closeCardAlbumPreview();
-      document.removeEventListener('keydown',onKey);
-    }
+    if(e.key==='Escape') closeCardAlbumPreview();
   };
+
+  window.addEventListener('pointermove',onPointerMove,{passive:true});
+  overlay.addEventListener('dragstart',preventDrag);
+  overlay.addEventListener('selectstart',preventSelect);
   document.addEventListener('keydown',onKey);
+
+  CARD_ALBUM_PREVIEW_CLEANUP=()=>{
+    destroyed=true;
+    if(rafId) cancelAnimationFrame(rafId);
+    window.removeEventListener('pointermove',onPointerMove);
+    overlay.removeEventListener('dragstart',preventDrag);
+    overlay.removeEventListener('selectstart',preventSelect);
+    document.removeEventListener('keydown',onKey);
+  };
+
+  animate();
 }
 
 function wireCardAlbumEvents(){
+  const albumShell=document.querySelector('.card-album-shell');
+  if(albumShell){
+    albumShell.querySelectorAll('img').forEach(img=>img.draggable=false);
+    albumShell.addEventListener('dragstart',e=>e.preventDefault());
+    albumShell.addEventListener('selectstart',e=>e.preventDefault());
+  }
+
   const input=document.getElementById('cardAlbumImportInput');
   if(input)input.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCardDatasetToAlbum(file);input.value='';});
   const clearBtn=document.getElementById('cardAlbumClearBtn');
