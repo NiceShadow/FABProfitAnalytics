@@ -10440,23 +10440,32 @@
 .card-preview-card-wrap::after{
   content:"";
   position:absolute;
-  inset:0;
+  left:50%;
+  top:50%;
+  width:185%;
+  aspect-ratio:1 / 1;
   z-index:5;
   pointer-events:none;
-  border-radius:22px;
-  overflow:hidden;
-  opacity:.14;
+  opacity:.16;
+  border-radius:50%;
   background:
     radial-gradient(
-      ellipse 210% 190% at var(--preview-x,50%) var(--preview-y,50%),
-      rgba(255,255,255,.20) 0%,
-      rgba(255,255,255,.135) 28%,
-      rgba(255,255,255,.075) 52%,
-      rgba(255,255,255,.028) 72%,
-      rgba(255,255,255,0) 100%
+      circle at center,
+      rgba(255,255,255,.18) 0%,
+      rgba(255,255,255,.14) 14%,
+      rgba(255,255,255,.10) 30%,
+      rgba(255,255,255,.065) 46%,
+      rgba(255,255,255,.032) 62%,
+      rgba(255,255,255,.012) 76%,
+      rgba(255,255,255,0) 94%
     );
-  filter:blur(8px);
-  transform:translateZ(3px);
+  filter:blur(22px);
+  transform:
+    translate(
+      calc(-50% + (var(--preview-x,50%) - 50%) * .18),
+      calc(-50% + (var(--preview-y,50%) - 50%) * .18)
+    )
+    translateZ(3px);
   transition:opacity .18s ease
 }
 .card-preview-card-wrap .album-card{
