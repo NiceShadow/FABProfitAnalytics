@@ -10436,7 +10436,16 @@
 .card-preview-card-wrap{position:relative;width:min(330px,78vw);transform-style:preserve-3d}
 .card-preview-card-wrap::after{
   content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:22px;opacity:.16;
-  background:radial-gradient(circle at var(--preview-x,50%) var(--preview-y,50%),rgba(255,255,255,.45),rgba(255,255,255,.07) 24%,transparent 48%);
+  background:radial-gradient(
+    ellipse 145% 125% at var(--preview-x,50%) var(--preview-y,50%),
+    rgba(255,255,255,.22) 0%,
+    rgba(255,255,255,.15) 20%,
+    rgba(255,255,255,.09) 40%,
+    rgba(255,255,255,.045) 60%,
+    rgba(255,255,255,.016) 76%,
+    rgba(255,255,255,0) 92%
+  );
+  filter:blur(1px);
   transition:opacity .18s ease
 }
 .card-preview-card-wrap .album-card{
@@ -11935,8 +11944,8 @@ function openCardAlbumPreview(sourceCard){
 
     targetY=nx*maxTiltY;
     targetX=-ny*maxTiltX;
-    targetLightX=Math.max(0,Math.min(100,e.clientX/viewportW*100));
-    targetLightY=Math.max(0,Math.min(100,e.clientY/viewportH*100));
+    targetLightX=50+nx*12;
+    targetLightY=50+ny*10;
   };
 
   const animate=()=>{
