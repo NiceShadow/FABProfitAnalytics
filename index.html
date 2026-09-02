@@ -10433,19 +10433,23 @@
   background:rgba(3,6,10,.66);backdrop-filter:blur(15px);animation:cardPreviewBackdropIn .18s ease both
 }
 .card-preview-stage{position:relative;display:flex;align-items:center;justify-content:center;perspective:1050px}
-.card-preview-card-wrap{position:relative;width:min(330px,78vw);transform-style:preserve-3d}
+.card-preview-card-wrap{
+  position:relative;width:min(330px,78vw);transform-style:preserve-3d;
+  overflow:hidden;border-radius:22px
+}
 .card-preview-card-wrap::after{
-  content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:22px;opacity:.16;
-  background:radial-gradient(
-    ellipse 145% 125% at var(--preview-x,50%) var(--preview-y,50%),
-    rgba(255,255,255,.22) 0%,
-    rgba(255,255,255,.15) 20%,
-    rgba(255,255,255,.09) 40%,
-    rgba(255,255,255,.045) 60%,
-    rgba(255,255,255,.016) 76%,
-    rgba(255,255,255,0) 92%
-  );
-  filter:blur(1px);
+  content:"";position:absolute;inset:-55%;z-index:5;pointer-events:none;opacity:.14;
+  background:
+    radial-gradient(
+      ellipse 76% 70% at var(--preview-x,50%) var(--preview-y,50%),
+      rgba(255,255,255,.20) 0%,
+      rgba(255,255,255,.135) 28%,
+      rgba(255,255,255,.075) 52%,
+      rgba(255,255,255,.028) 72%,
+      rgba(255,255,255,0) 100%
+    );
+  filter:blur(8px);
+  transform:translate3d(0,0,0);
   transition:opacity .18s ease
 }
 .card-preview-card-wrap .album-card{
@@ -11920,9 +11924,19 @@ function openCardAlbumPreview(sourceCard){
   overlay.appendChild(stage);
   document.body.appendChild(overlay);
 
-  const maxTiltX=6.2;
-  const maxTiltY=7.0;
-  const smoothing=.12;
+  const maxTiltX=5.4;
+  const maxTiltY=6.0;
+  const smoothing=.095;
+  const centerDeadZone=.14;
+
+  const easedAxis=value=>{
+    const sign=Math.sign(value);
+    const magnitude=Math.abs(value);
+    if(magnitude<=centerDeadZone) return 0;
+    const normalized=Math.min(1,(magnitude-centerDeadZone)/(1-centerDeadZone));
+    const eased=normalized*normalized*(3-2*normalized);
+    return sign*eased;
+  };
 
   let targetX=0;
   let targetY=0;
@@ -11941,11 +11955,15 @@ function openCardAlbumPreview(sourceCard){
 
     const nx=Math.max(-1,Math.min(1,(e.clientX/viewportW-.5)*2));
     const ny=Math.max(-1,Math.min(1,(e.clientY/viewportH-.5)*2));
+    const easedX=easedAxis(nx);
+    const easedY=easedAxis(ny);
 
-    targetY=nx*maxTiltY;
-    targetX=-ny*maxTiltX;
-    targetLightX=50+nx*12;
-    targetLightY=50+ny*10;
+    targetY=easedX*maxTiltY;
+    targetX=-easedY*maxTiltX;
+
+    // Keep the sheen mostly centered. It reacts, but no longer chases the cursor.
+    targetLightX=50+easedX*3.5;
+    targetLightY=50+easedY*3.0;
   };
 
   const animate=()=>{
@@ -11953,8 +11971,8 @@ function openCardAlbumPreview(sourceCard){
 
     currentX+=(targetX-currentX)*smoothing;
     currentY+=(targetY-currentY)*smoothing;
-    currentLightX+=(targetLightX-currentLightX)*.10;
-    currentLightY+=(targetLightY-currentLightY)*.10;
+    currentLightX+=(targetLightX-currentLightX)*.065;
+    currentLightY+=(targetLightY-currentLightY)*.065;
 
     clone.style.transform=
       `perspective(1050px) rotateX(${currentX.toFixed(3)}deg) rotateY(${currentY.toFixed(3)}deg) scale(1.018)`;
