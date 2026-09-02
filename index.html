@@ -9647,10 +9647,12 @@
 }
 .album-card-team-crest{
   margin-left:auto;width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;justify-content:center;
-  border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden;
-  box-shadow:0 8px 18px rgba(0,0,0,.16)
+  background:transparent;border:0;overflow:visible;box-shadow:none
 }
-.album-card-team-crest img{width:100%;height:100%;object-fit:contain;display:block}
+.album-card-team-crest img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.28))
+}
 .album-card.team-germany .album-card-top,
 .album-card.team-germany .album-card-team,
 .album-card.team-germany .album-card-art,
@@ -10421,6 +10423,45 @@
 @keyframes motivationLevelSpark{
   0%,100%{opacity:.18;transform:scale(.65)}
   50%{opacity:1;transform:scale(1.5)}
+}
+
+
+/* ===== Enlarged album card preview ===== */
+.card-album-list .album-card[data-card-previewable="true"]{cursor:pointer}
+.card-preview-overlay{
+  position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;padding:28px;
+  background:rgba(3,6,10,.66);backdrop-filter:blur(15px);animation:cardPreviewBackdropIn .18s ease both
+}
+.card-preview-stage{position:relative;display:flex;align-items:center;justify-content:center;perspective:1050px}
+.card-preview-card-wrap{position:relative;width:min(330px,78vw);transform-style:preserve-3d}
+.card-preview-card-wrap::after{
+  content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:22px;opacity:.16;
+  background:radial-gradient(circle at var(--preview-x,50%) var(--preview-y,50%),rgba(255,255,255,.45),rgba(255,255,255,.07) 24%,transparent 48%);
+  transition:opacity .18s ease
+}
+.card-preview-card-wrap .album-card{
+  width:100%;min-height:470px;padding:14px;gap:13px;border-radius:22px;cursor:pointer;
+  transform-style:preserve-3d;transform:perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1);
+  transition:transform .16s ease,box-shadow .16s ease;box-shadow:0 34px 90px rgba(0,0,0,.52)
+}
+.card-preview-card-wrap .album-card::after{border-radius:21px}
+.card-preview-card-wrap .album-card-art{height:250px;border-radius:16px}
+.card-preview-card-wrap .album-card-rarity{min-height:25px;padding:0 11px;font-size:11px}
+.card-preview-card-wrap .album-card-team{font-size:12px}
+.card-preview-card-wrap .album-card-bottom strong{min-height:0;font-size:19px}
+.card-preview-card-wrap .album-card-role{font-size:12px}
+.card-preview-card-wrap .album-card-team-crest{width:34px;height:34px;flex-basis:34px}
+.card-preview-card-wrap .album-card-germany-flag-band{height:50px;border-top-left-radius:22px;border-top-right-radius:22px}
+.card-preview-hint{
+  position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);color:#A8B0BD;
+  font-size:10px;font-weight:750;white-space:nowrap;pointer-events:none
+}
+@keyframes cardPreviewBackdropIn{from{opacity:0}to{opacity:1}}
+@media(max-width:620px){
+  .card-preview-overlay{padding:18px}
+  .card-preview-card-wrap{width:min(300px,82vw)}
+  .card-preview-card-wrap .album-card{min-height:420px}
+  .card-preview-card-wrap .album-card-art{height:215px}
 }
 
 </style>
@@ -11564,8 +11605,15 @@ function cardAlbumRarityLabel(rarity){
 }
 
 function cardAlbumIsGermanyTeam(team){
-  const raw=[team?.name,team?.shortName,team?.country].filter(Boolean).join(' ').toLowerCase();
-  return /(^|\s)(germany|deutschland)(\s|$)/i.test(raw);
+  const name=String(team?.name||'').trim().toLowerCase();
+  const shortName=String(team?.shortName||'').trim().toLowerCase();
+  const theme=String(team?.featuredThemeId||'').trim().toLowerCase();
+  const kind=String(team?.teamKind||'').trim().toLowerCase();
+
+  if(theme==='germany') return true;
+  if(kind==='national' && ['germany','germany national team','deutschland'].includes(name)) return true;
+  if(kind==='national' && ['ger','deu','germany','deutschland'].includes(shortName)) return true;
+  return false;
 }
 function cardAlbumIsOwned(entity,rarity){
   const key=cardAlbumCardKey(entity.entityType,entity.sourceId,rarity);
@@ -11665,7 +11713,7 @@ function cardAlbumCardHTML(entity,team,rarity){
   const art=entity.imageUrl?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(entity.imageUrl)}" alt="${escapeHtml(entity.name)}">`:`<div class="album-card-placeholder">No image</div>`;
   const germanyTeam=cardAlbumIsGermanyTeam(team);
   return`
-    <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${visuallyOwned?'owned':'unowned'} ${germanyTeam?'team-germany':''}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
+    <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${visuallyOwned?'owned':'unowned'} ${germanyTeam?'team-germany':''}" data-card-previewable="true" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
       ${count>1?`<div class="album-card-count">×${count}</div>`:''}
       <div class="album-card-top"><span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span>${team.badgeUrl||team.card?.imageUrl?`<span class="album-card-team-crest" aria-hidden="true"><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl||team.card?.imageUrl)}" alt=""></span>`:''}</div>
       ${germanyTeam?`<div class="album-card-germany-flag-band" aria-hidden="true"></div>`:''}
@@ -11801,6 +11849,83 @@ async function clearCardAlbumDataset(){
   renderTabContent();
 }
 
+
+function closeCardAlbumPreview(){
+  document.getElementById('cardAlbumPreviewOverlay')?.remove();
+}
+function openCardAlbumPreview(sourceCard){
+  if(!sourceCard) return;
+  closeCardAlbumPreview();
+
+  const overlay=document.createElement('div');
+  overlay.id='cardAlbumPreviewOverlay';
+  overlay.className='card-preview-overlay';
+
+  const stage=document.createElement('div');
+  stage.className='card-preview-stage';
+
+  const wrap=document.createElement('div');
+  wrap.className='card-preview-card-wrap';
+
+  const clone=sourceCard.cloneNode(true);
+  clone.removeAttribute('data-card-previewable');
+  clone.removeAttribute('title');
+
+  wrap.appendChild(clone);
+  stage.appendChild(wrap);
+
+  const hint=document.createElement('div');
+  hint.className='card-preview-hint';
+  hint.textContent='Move the mouse for a subtle 3D effect · click the card to close';
+  stage.appendChild(hint);
+
+  overlay.appendChild(stage);
+  document.body.appendChild(overlay);
+
+  const maxTilt=6.5;
+
+  const resetTilt=()=>{
+    clone.style.transform='perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1)';
+    wrap.style.setProperty('--preview-x','50%');
+    wrap.style.setProperty('--preview-y','50%');
+  };
+
+  clone.addEventListener('mousemove',e=>{
+    const rect=clone.getBoundingClientRect();
+    const x=Math.max(0,Math.min(1,(e.clientX-rect.left)/Math.max(1,rect.width)));
+    const y=Math.max(0,Math.min(1,(e.clientY-rect.top)/Math.max(1,rect.height)));
+    const rotateY=(x-.5)*maxTilt*2;
+    const rotateX=(.5-y)*maxTilt*2;
+
+    clone.style.transition='transform .05s linear,box-shadow .12s ease';
+    clone.style.transform=`perspective(1050px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.018)`;
+    wrap.style.setProperty('--preview-x',`${(x*100).toFixed(1)}%`);
+    wrap.style.setProperty('--preview-y',`${(y*100).toFixed(1)}%`);
+  });
+
+  clone.addEventListener('mouseleave',()=>{
+    clone.style.transition='transform .18s ease,box-shadow .16s ease';
+    resetTilt();
+  });
+
+  clone.addEventListener('click',e=>{
+    e.stopPropagation();
+    closeCardAlbumPreview();
+  });
+
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) closeCardAlbumPreview();
+  });
+
+  const onKey=e=>{
+    if(e.key==='Escape'){
+      closeCardAlbumPreview();
+      document.removeEventListener('keydown',onKey);
+    }
+  };
+  document.addEventListener('keydown',onKey);
+}
+
 function wireCardAlbumEvents(){
   const input=document.getElementById('cardAlbumImportInput');
   if(input)input.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCardDatasetToAlbum(file);input.value='';});
@@ -11818,6 +11943,9 @@ function wireCardAlbumEvents(){
     const target=document.getElementById(btn.dataset.cardTeamTarget);
     if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
   }));
+  document.querySelectorAll('.card-album-list .album-card[data-card-previewable="true"]').forEach(card=>{
+    card.addEventListener('click',()=>openCardAlbumPreview(card));
+  });
 }
 
 
