@@ -9589,7 +9589,7 @@
 /* ================= Card Album v2 refinements ================= */
 .card-album-sticky-team-nav{
   position:sticky;top:calc(var(--sticky-filter-top,72px) + 8px);z-index:60;
-  display:flex;align-items:center;gap:7px;padding:8px 10px;overflow-x:auto;overflow-y:hidden;
+  display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:10px;overflow:visible;
   border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(17,20,27,.94);
   backdrop-filter:blur(16px);box-shadow:0 10px 28px rgba(0,0,0,.25)
 }
@@ -9605,7 +9605,7 @@
 .card-album-team-card-counter span{color:#8E98A8;font-size:12px;font-weight:700}
 .card-album-team-card-counter small{color:#BFC6D0;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 
-.card-album-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:max-content}
+.card-album-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;overflow-x:auto;overflow-y:hidden;padding-top:2px}
 .card-album-filter-toggle{
   display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
   border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#E8ECF3;
@@ -9625,22 +9625,40 @@
 }
 .card-album-rarity-btn:hover,.card-album-filter-toggle:hover,.card-album-team-jump:hover{background:rgba(255,255,255,.085)}
 .card-album-rarity-btn.active{background:rgba(217,164,65,.18);border-color:rgba(217,164,65,.34);color:#FFD56B}
-.card-album-team-nav-row{display:flex;align-items:center;gap:7px;min-width:max-content}
+.card-album-team-nav-row{display:flex;align-items:center;gap:7px;width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+.card-album-team-nav-row > *{flex:0 0 auto}
 .card-album-empty-filtered{padding:22px 18px;border:1px dashed rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.025);color:#B9C1CD;text-align:center}
 .card-album-empty-filtered strong{display:block;color:#F2F4F7;font-size:16px;margin-bottom:6px}
 .album-card.team-germany{overflow:hidden}
-.album-card-germany-flag{
-  position:absolute;top:46px;left:14px;right:14px;height:12px;display:grid;grid-template-rows:repeat(3,1fr);gap:2px;
-  z-index:2;pointer-events:none;opacity:.95
+.album-card-germany-flag-band{
+  position:absolute;top:0;left:0;right:0;height:84px;z-index:0;pointer-events:none;overflow:hidden;
+  border-top-left-radius:18px;border-top-right-radius:18px;opacity:.92
 }
-.album-card-germany-flag span{display:block;border-radius:999px}
-.album-card-germany-flag span:nth-child(1){background:rgba(10,10,12,.92)}
-.album-card-germany-flag span:nth-child(2){background:rgba(215,42,55,.90)}
-.album-card-germany-flag span:nth-child(3){background:rgba(235,191,44,.95)}
-.album-card.team-germany .album-card-art{margin-top:18px}
-.album-card.team-germany.rarity-common .album-card-germany-flag{box-shadow:0 6px 16px rgba(0,0,0,.14)}
-.album-card.team-germany.rarity-rare .album-card-germany-flag{box-shadow:0 6px 18px rgba(72,147,255,.18)}
-.album-card.team-germany.rarity-legendary .album-card-germany-flag{box-shadow:0 8px 22px rgba(255,197,69,.20)}
+.album-card-germany-flag-band::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    rgba(10,10,12,.78) 0%, rgba(10,10,12,.78) 32%,
+    rgba(195,36,49,.72) 32%, rgba(195,36,49,.72) 66%,
+    rgba(221,177,37,.76) 66%, rgba(221,177,37,.76) 100%);
+}
+.album-card-germany-flag-band::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 24%,rgba(12,16,22,0) 74%,rgba(12,16,22,.55) 100%);
+}
+.album-card-germany-crest{
+  position:absolute;inset:46px 18px auto 18px;height:118px;display:flex;align-items:center;justify-content:center;
+  z-index:0;pointer-events:none;opacity:.10;filter:grayscale(.15) brightness(1.25)
+}
+.album-card-germany-crest img{max-width:100%;max-height:100%;object-fit:contain}
+.album-card.team-germany .album-card-top,
+.album-card.team-germany .album-card-team,
+.album-card.team-germany .album-card-art,
+.album-card.team-germany .album-card-bottom,
+.album-card.team-germany .album-card-count{position:relative;z-index:2}
+.album-card.team-germany .album-card-team{margin-top:2px}
+.album-card.team-germany.rarity-common .album-card-germany-flag-band{box-shadow:0 8px 18px rgba(0,0,0,.14)}
+.album-card.team-germany.rarity-rare .album-card-germany-flag-band{box-shadow:0 8px 18px rgba(58,110,224,.18)}
+.album-card.team-germany.rarity-legendary .album-card-germany-flag-band{box-shadow:0 10px 24px rgba(255,197,69,.20)}
 @media(max-width:900px){
   .card-album-toolbar{width:100%}
   .card-album-rarity-filters{width:100%}
@@ -11649,7 +11667,7 @@ function cardAlbumCardHTML(entity,team,rarity){
     <article class="album-card entity-${escapeHtml(entity.entityType)} rarity-${escapeHtml(rarity)} ${visuallyOwned?'owned':'unowned'} ${germanyTeam?'team-germany':''}" title="${escapeHtml(entity.name)} · ${escapeHtml(cardAlbumRarityLabel(rarity))}">
       ${count>1?`<div class="album-card-count">×${count}</div>`:''}
       <div class="album-card-top"><span class="album-card-rarity">${escapeHtml(cardAlbumRarityLabel(rarity))}</span></div>
-      ${germanyTeam?`<div class="album-card-germany-flag" aria-hidden="true"><span></span><span></span><span></span></div>`:''}
+      ${germanyTeam?`<div class="album-card-germany-flag-band" aria-hidden="true"></div><div class="album-card-germany-crest" aria-hidden="true">${team.badgeUrl||team.card?.imageUrl?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(team.badgeUrl||team.card?.imageUrl)}" alt="">`:''}</div>`:''}
       <div class="album-card-team">${escapeHtml(team.name)}</div>
       <div class="album-card-art">${art}</div>
       <div class="album-card-bottom">
@@ -11704,6 +11722,12 @@ function cardAlbumHTML(){
         </div>
       </div></div></section>
       <nav class="card-album-sticky-team-nav" aria-label="Album filters and jump to team">
+        <div class="card-album-team-nav-row">
+          ${visibleTeams.map(team=>{
+            const id=`card-album-team-${String(team.sourceId||team.name).replace(/[^a-z0-9_-]/gi,'-')}`,badge=team.badgeUrl||team.card?.imageUrl||'';
+            return`<button class="card-album-team-jump" type="button" data-card-team-target="${escapeHtml(id)}" title="${escapeHtml(team.name)}" aria-label="Jump to ${escapeHtml(team.name)}">${badge?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(badge)}" alt="">`:'•'}</button>`;
+          }).join('')}
+        </div>
         <div class="card-album-toolbar">
           <button class="card-album-filter-toggle ${CARD_ALBUM_VIEW.ownedOnly?'active':''}" type="button" id="cardAlbumOwnedToggle" aria-pressed="${CARD_ALBUM_VIEW.ownedOnly?'true':'false'}">Owned only</button>
           <div class="card-album-rarity-filters" role="tablist" aria-label="Card rarity filter">
@@ -11712,12 +11736,6 @@ function cardAlbumHTML(){
             <button class="card-album-rarity-btn ${CARD_ALBUM_VIEW.rarity==='rare'?'active':''}" type="button" data-card-rarity-filter="rare">Rare</button>
             <button class="card-album-rarity-btn ${CARD_ALBUM_VIEW.rarity==='legendary'?'active':''}" type="button" data-card-rarity-filter="legendary">Gold</button>
           </div>
-        </div>
-        <div class="card-album-team-nav-row">
-          ${visibleTeams.map(team=>{
-            const id=`card-album-team-${String(team.sourceId||team.name).replace(/[^a-z0-9_-]/gi,'-')}`,badge=team.badgeUrl||team.card?.imageUrl||'';
-            return`<button class="card-album-team-jump" type="button" data-card-team-target="${escapeHtml(id)}" title="${escapeHtml(team.name)}" aria-label="Jump to ${escapeHtml(team.name)}">${badge?`<img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(badge)}" alt="">`:'•'}</button>`;
-          }).join('')}
         </div>
       </nav>
       <div class="card-album-list">${visibleTeams.length?visibleTeams.map(team=>cardAlbumTeamSectionHTML(team)).join(''):`<div class="card-album-empty-filtered"><strong>No cards match the current album filters.</strong>Try switching back to All or turning off Owned only.</div>`}</div>
