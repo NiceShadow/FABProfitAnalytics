@@ -12752,6 +12752,19 @@ function motivationTogglAggregateEntries(entries,rangeStart,rangeEnd){
   }
   return result;
 }
+function motivationTogglStartTimestamp(dateStr){
+  const localStart=new Date(`${dateStr}T00:00:00`);
+  return Number.isFinite(localStart.getTime()) ? localStart.toISOString() : dateStr;
+}
+function motivationTogglEndTimestamp(dateStr){
+  const today=todayStr();
+  if(String(dateStr)===today) return new Date().toISOString();
+
+  const nextDay=datePlusDays(String(dateStr),1);
+  const localExclusiveEnd=new Date(`${nextDay}T00:00:00`);
+  return Number.isFinite(localExclusiveEnd.getTime()) ? localExclusiveEnd.toISOString() : dateStr;
+}
+
 async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride=null){
   const bridgeBase=normalizeTogglBridgeUrl(bridgeOverride||getTogglBridgeUrl());
   if(!bridgeBase){
@@ -12767,8 +12780,8 @@ async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeO
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         token,
-        start_date:rangeStart,
-        end_date:rangeEnd
+        start_date:motivationTogglStartTimestamp(rangeStart),
+        end_date:motivationTogglEndTimestamp(rangeEnd)
       })
     });
   }catch(error){
