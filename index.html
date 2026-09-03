@@ -12993,7 +12993,8 @@ function openMotivationTogglConnection(){
 }
 
 
-const MOTIVATION_WORK_XP_PER_HOUR=20;
+const MOTIVATION_WORK_XP_PER_HOUR=30;
+/* challenge-xp-plus-20 */
 
 function motivationGameState(){
   if(!STATE.motivationGame || typeof STATE.motivationGame!=='object'){
@@ -13053,7 +13054,7 @@ function motivationLevelInfo(totalXp=null){
 function motivationLevelGemReward(level){
   const l=Math.max(2,Math.round(Number(level)||2));
   const previousReward=20+l*2;
-  return Math.min(85,Math.round(previousReward*1.20));
+  return Math.min(112,Math.round(previousReward*1.584));
 }
 
 function motivationGrantGems(amount,reason){
@@ -13372,7 +13373,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:today,
         params:{hours},
-        xpReward:70+hours*18
+        xpReward:Math.round((70+hours*18)*1.20)
       };
     },
     ()=>{
@@ -13384,7 +13385,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:datePlusDays(today,1),
         params:{hoursPerDay},
-        xpReward:120+hoursPerDay*26
+        xpReward:Math.round((120+hoursPerDay*26)*1.20)
       };
     },
     ()=>{
@@ -13396,7 +13397,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:datePlusDays(today,2),
         params:{totalHours,days:3},
-        xpReward:130+totalHours*10
+        xpReward:Math.round((130+totalHours*10)*1.20)
       };
     },
     ()=>{
@@ -13409,7 +13410,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:datePlusDays(today,4),
         params:{activeDays,minHours,days:5},
-        xpReward:150+activeDays*25+Math.round(minHours*16)
+        xpReward:Math.round((150+activeDays*25+Math.round(minHours*16))*1.20)
       };
     },
     ()=>{
@@ -13421,7 +13422,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:datePlusDays(today,6),
         params:{totalHours,days:7},
-        xpReward:220+totalHours*8
+        xpReward:Math.round((220+totalHours*8)*1.20)
       };
     },
     ()=>{
@@ -13434,7 +13435,7 @@ function motivationChallengeTemplates(){
         startDate:today,
         deadline:datePlusDays(today,days+1),
         params:{days,minHours},
-        xpReward:160+days*34+Math.round(minHours*20)
+        xpReward:Math.round((160+days*34+Math.round(minHours*20))*1.20)
       };
     }
   ];
@@ -13483,7 +13484,7 @@ function motivationTaskChallengeCandidates(){
         },
         taskId:task.id,
         taskLinked:true,
-        xpReward:reward
+        xpReward:Math.round((reward)*1.20)
       });
     };
 
@@ -13873,7 +13874,7 @@ function motivationCreateGemChallenge(){
       kind:'gem_task_push',
       title:'Quick task push',
       description:`Make ${motivationFormatHours(target)} of real progress on “${task.title}”.`,
-      gemReward:Math.max(10,Math.round((8+target*6)*1.05)),
+      gemReward:Math.max(12,Math.round((8+target*6)*1.26)),
       taskId:task.id,
       startDate:today,
       deadline:datePlusDays(today,1),
@@ -13902,7 +13903,7 @@ function motivationCreateGemChallenge(){
     kind:'gem_work_sprint',
     title:'Quick gem challenge',
     description:`Add ${motivationFormatHours(target)} of focused work from this point forward.`,
-    gemReward:Math.max(9,Math.round((7+target*6)*1.05)),
+    gemReward:Math.max(11,Math.round((7+target*6)*1.26)),
     startDate:today,
     deadline,
     manualClaim:false,
@@ -14258,7 +14259,7 @@ function openMotivationTaskEditor(){
       impact:imp,
       estimatedHours:Math.round(est*100)/100,
       progressHours:0,
-      xpReward:motivationTaskXpReward(i,imp,est),
+      xpReward:Math.round((motivationTaskXpReward(i)*1.20),imp,est),
       xpClaimedFromChallenges:0,
       status:'open',
       createdAt:new Date().toISOString()
