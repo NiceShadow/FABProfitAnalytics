@@ -14968,8 +14968,8 @@ function motivationAlbumProgressHTML(){
         <h3>Card Collection</h3>
 
         <div class="motivation-album-gems" title="Gem balance">
-          <span aria-hidden="true">💎</span>
           <strong>${game.gems.toLocaleString()}</strong>
+          <span aria-hidden="true">💎</span>
         </div>
       </div>
 
@@ -14979,15 +14979,15 @@ function motivationAlbumProgressHTML(){
             ${pending?'Resume Pack':`Open Card Pack · ${MOTIVATION_CARD_PACK_COST}💎`}
           </button>
           <button type="button" class="btn motivation-album-secondary-btn" id="motivationOpenAlbumBtn">${hasDataset?'View Album':'Open Album / Import JSON'}</button>
-          <button type="button" class="motivation-toggl-sync-inline motivation-album-sync-btn motivation-album-secondary-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
+          <button type="button" class="btn motivation-album-sync-btn motivation-album-secondary-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
             Sync Now
           </button>
         </div>
 
         <div class="motivation-album-rarity-summary" aria-label="Collected card rarities">
-          <span class="motivation-album-rarity-pill common" title="Common collected">${s.collectedCommon}/${s.totalCommon}</span>
-          <span class="motivation-album-rarity-pill rare" title="Rare collected">${s.collectedRare}/${s.totalRare}</span>
-          <span class="motivation-album-rarity-pill gold" title="Gold collected">${s.collectedLegendary}/${s.totalLegendary}</span>
+          <span class="motivation-album-rarity-pill common" title="Common collected">${s.collectedCommon}/${s.baseCards}</span>
+          <span class="motivation-album-rarity-pill rare" title="Rare collected">${s.collectedRare}/${s.baseCards}</span>
+          <span class="motivation-album-rarity-pill gold" title="Gold collected">${s.collectedLegendary}/${s.baseCards}</span>
           <span class="motivation-album-total"><span>Total</span><strong>${s.collectedVariants}/${s.totalVariants}</strong></span>
         </div>
       </div>
