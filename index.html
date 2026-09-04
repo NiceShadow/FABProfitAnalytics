@@ -10506,18 +10506,39 @@
 
 /* ===== Compact Dashboard Card Collection ===== */
 .motivation-album-progress.compact{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
   margin-top:10px !important;
-  padding:10px 12px !important;
+  padding:12px 14px !important;
   display:flex !important;
   flex-direction:column !important;
-  gap:8px !important;
-  border-radius:11px !important;
+  gap:10px !important;
+  border-radius:14px !important;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,215,96,.12), transparent 24%),
+    radial-gradient(circle at 88% 82%, rgba(85,132,255,.14), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+    linear-gradient(180deg, rgba(26,30,38,.96), rgba(19,22,28,.96)) !important;
+}
+
+.motivation-album-progress.compact::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255,255,255,.03) 22%, transparent 42%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 10px, transparent 10px 24px);
+  opacity:.8;
+  z-index:-1;
 }
 
 .motivation-album-topline{
   display:flex;
-  align-items:center;
-  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
   min-width:0;
 }
 
@@ -10532,102 +10553,118 @@
 .motivation-album-gems{
   display:inline-flex;
   align-items:center;
-  gap:4px;
+  gap:6px;
   flex:0 0 auto;
   color:#9EE6FF;
+  margin-left:auto;
 }
 
 .motivation-album-gems>span{
-  font-size:15px;
+  font-size:24px;
   line-height:1;
+  filter:drop-shadow(0 2px 8px rgba(111,211,255,.22));
 }
 
 .motivation-album-gems strong{
-  font-size:15px;
+  font-size:23px;
   line-height:1;
   font-weight:900;
+  color:#F7FBFF;
+  letter-spacing:-.02em;
 }
 
-.motivation-album-rarity-summary{
-  margin-left:auto;
+.motivation-album-lower{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.motivation-album-action-row{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
-  gap:6px;
+  gap:10px;
+  flex:1 1 auto;
   min-width:0;
 }
 
+.motivation-album-action-row .btn,
+.motivation-album-action-row .motivation-toggl-sync-inline{
+  flex:1 1 0;
+  min-width:0;
+  min-height:40px !important;
+  padding:8px 14px !important;
+  margin-left:0 !important;
+  white-space:nowrap;
+  font-size:11px !important;
+  font-weight:900;
+  justify-content:center;
+}
+
+.motivation-album-secondary-btn,
+.motivation-album-sync-btn{
+  min-width:150px !important;
+}
+
+.motivation-album-rarity-summary{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  min-width:0;
+  flex:0 0 auto;
+  max-width:38%;
+}
+
 .motivation-album-rarity-pill{
-  min-width:27px;
-  height:23px;
-  padding:0 7px;
+  min-width:58px;
+  height:24px;
+  padding:0 8px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   border-radius:999px;
   border:1px solid transparent;
-  font-size:10px;
+  font-size:9.5px;
   font-weight:900;
   line-height:1;
+  letter-spacing:.01em;
 }
 
 .motivation-album-rarity-pill.common{
   color:#E4E8ED;
-  background:rgba(180,188,199,.12);
-  border-color:rgba(190,199,209,.20);
+  background:rgba(180,188,199,.14);
+  border-color:rgba(190,199,209,.24);
 }
 
 .motivation-album-rarity-pill.rare{
   color:#A8D5FF;
-  background:rgba(65,143,235,.15);
-  border-color:rgba(93,166,255,.27);
+  background:rgba(65,143,235,.18);
+  border-color:rgba(93,166,255,.30);
 }
 
 .motivation-album-rarity-pill.gold{
   color:#FFE18A;
-  background:rgba(209,157,42,.16);
-  border-color:rgba(235,184,60,.28);
+  background:rgba(209,157,42,.20);
+  border-color:rgba(235,184,60,.32);
 }
 
 .motivation-album-total{
   display:inline-flex;
-  align-items:baseline;
+  align-items:center;
   gap:5px;
   margin-left:2px;
-  color:#7F8998;
+  color:#97A0AD;
   font-size:8.5px;
   font-weight:800;
   white-space:nowrap;
 }
 
 .motivation-album-total strong{
-  color:#DCE1E8;
+  color:#F2F4F7;
   font-size:10px;
   font-weight:900;
-}
-
-.motivation-album-action-row{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  flex-wrap:nowrap;
-}
-
-.motivation-album-action-row .btn,
-.motivation-album-action-row .motivation-toggl-sync-inline{
-  min-height:31px !important;
-  padding:6px 10px !important;
-  margin-left:0 !important;
-  white-space:nowrap;
-  font-size:9.5px !important;
-}
-
-.motivation-album-action-row .motivation-pack-buy-btn{
-  min-width:0 !important;
-}
-
-.motivation-album-sync-btn{
-  flex:0 0 auto;
 }
 
 .motivation-album-progress.compact .motivation-product-launch-reward-note{
@@ -10636,15 +10673,25 @@
   line-height:1.35;
 }
 
-@media(max-width:760px){
-  .motivation-album-topline{flex-wrap:wrap}
+@media(max-width:980px){
+  .motivation-album-lower{
+    flex-direction:column;
+    align-items:stretch;
+  }
   .motivation-album-rarity-summary{
-    width:100%;
-    margin-left:0;
+    max-width:none;
     justify-content:flex-start;
   }
+}
+
+@media(max-width:760px){
+  .motivation-album-topline{flex-wrap:wrap}
   .motivation-album-action-row{
     flex-wrap:wrap;
+  }
+  .motivation-album-action-row .btn,
+  .motivation-album-action-row .motivation-toggl-sync-inline{
+    flex:1 1 calc(50% - 6px);
   }
 }
 
@@ -14924,23 +14971,25 @@ function motivationAlbumProgressHTML(){
           <span aria-hidden="true">💎</span>
           <strong>${game.gems.toLocaleString()}</strong>
         </div>
-
-        <div class="motivation-album-rarity-summary" aria-label="Collected card rarities">
-          <span class="motivation-album-rarity-pill common" title="Common">${s.collectedCommon}</span>
-          <span class="motivation-album-rarity-pill rare" title="Rare">${s.collectedRare}</span>
-          <span class="motivation-album-rarity-pill gold" title="Gold">${s.collectedLegendary}</span>
-          <span class="motivation-album-total"><span>Total</span><strong>${s.collectedVariants} / ${s.totalVariants}</strong></span>
-        </div>
       </div>
 
-      <div class="motivation-album-action-row">
-        <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
-          ${pending?'Resume pack':`Open Card Pack · ${MOTIVATION_CARD_PACK_COST} Gems`}
-        </button>
-        <button type="button" class="btn" id="motivationOpenAlbumBtn">${hasDataset?'View Album':'Open Album / Import JSON'}</button>
-        <button type="button" class="motivation-toggl-sync-inline motivation-album-sync-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
-          Sync Now
-        </button>
+      <div class="motivation-album-lower">
+        <div class="motivation-album-action-row">
+          <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
+            ${pending?'Resume Pack':`Open Card Pack · ${MOTIVATION_CARD_PACK_COST}💎`}
+          </button>
+          <button type="button" class="btn motivation-album-secondary-btn" id="motivationOpenAlbumBtn">${hasDataset?'View Album':'Open Album / Import JSON'}</button>
+          <button type="button" class="motivation-toggl-sync-inline motivation-album-sync-btn motivation-album-secondary-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
+            Sync Now
+          </button>
+        </div>
+
+        <div class="motivation-album-rarity-summary" aria-label="Collected card rarities">
+          <span class="motivation-album-rarity-pill common" title="Common collected">${s.collectedCommon}/${s.totalCommon}</span>
+          <span class="motivation-album-rarity-pill rare" title="Rare collected">${s.collectedRare}/${s.totalRare}</span>
+          <span class="motivation-album-rarity-pill gold" title="Gold collected">${s.collectedLegendary}/${s.totalLegendary}</span>
+          <span class="motivation-album-total"><span>Total</span><strong>${s.collectedVariants}/${s.totalVariants}</strong></span>
+        </div>
       </div>
 
       <div class="motivation-product-launch-reward-note">
