@@ -10566,6 +10566,8 @@
 }
 
 .motivation-album-gems strong{
+  display:inline-block;
+  transform:translate(3px, 3px);
   font-size:23px;
   line-height:1;
   font-weight:900;
@@ -10608,13 +10610,22 @@
 
 .motivation-album-rarity-summary{
   display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:flex-end;
-  gap:7px;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:4px;
   min-width:0;
   flex:0 0 auto;
   max-width:38%;
+  align-self:center;
+}
+
+.motivation-album-rarity-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  width:max-content;
 }
 
 .motivation-album-rarity-pill{
@@ -10651,13 +10662,13 @@
 }
 
 .motivation-album-total{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  margin-left:2px;
-  color:#97A0AD;
-  font-size:8.5px;
-  font-weight:800;
+  display:block;
+  width:100%;
+  text-align:center;
+  color:#F2F4F7;
+  font-size:10px;
+  font-weight:900;
+  line-height:1;
   white-space:nowrap;
 }
 
@@ -10680,6 +10691,9 @@
   }
   .motivation-album-rarity-summary{
     max-width:none;
+    align-items:flex-start;
+  }
+  .motivation-album-rarity-row{
     justify-content:flex-start;
   }
 }
@@ -14985,10 +14999,12 @@ function motivationAlbumProgressHTML(){
         </div>
 
         <div class="motivation-album-rarity-summary" aria-label="Collected card rarities">
-          <span class="motivation-album-rarity-pill common" title="Common collected">${s.collectedCommon}/${s.baseCards}</span>
-          <span class="motivation-album-rarity-pill rare" title="Rare collected">${s.collectedRare}/${s.baseCards}</span>
-          <span class="motivation-album-rarity-pill gold" title="Gold collected">${s.collectedLegendary}/${s.baseCards}</span>
-          <span class="motivation-album-total"><span>Total</span><strong>${s.collectedVariants}/${s.totalVariants}</strong></span>
+          <div class="motivation-album-rarity-row">
+            <span class="motivation-album-rarity-pill common" title="Common collected">${s.collectedCommon}/${s.baseCards}</span>
+            <span class="motivation-album-rarity-pill rare" title="Rare collected">${s.collectedRare}/${s.baseCards}</span>
+            <span class="motivation-album-rarity-pill gold" title="Gold collected">${s.collectedLegendary}/${s.baseCards}</span>
+          </div>
+          <span class="motivation-album-total"><strong>${s.collectedVariants}/${s.totalVariants}</strong></span>
         </div>
       </div>
 
