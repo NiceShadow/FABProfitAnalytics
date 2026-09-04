@@ -10503,6 +10503,151 @@
   -webkit-tap-highlight-color:transparent;
 }
 
+
+/* ===== Compact Dashboard Card Collection ===== */
+.motivation-album-progress.compact{
+  margin-top:10px !important;
+  padding:10px 12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+  border-radius:11px !important;
+}
+
+.motivation-album-topline{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.motivation-album-topline h3{
+  margin:0;
+  color:#F2F4F7;
+  font-size:15px;
+  line-height:1.15;
+  white-space:nowrap;
+}
+
+.motivation-album-gems{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  flex:0 0 auto;
+  color:#9EE6FF;
+}
+
+.motivation-album-gems>span{
+  font-size:15px;
+  line-height:1;
+}
+
+.motivation-album-gems strong{
+  font-size:15px;
+  line-height:1;
+  font-weight:900;
+}
+
+.motivation-album-rarity-summary{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+
+.motivation-album-rarity-pill{
+  min-width:27px;
+  height:23px;
+  padding:0 7px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  border:1px solid transparent;
+  font-size:10px;
+  font-weight:900;
+  line-height:1;
+}
+
+.motivation-album-rarity-pill.common{
+  color:#E4E8ED;
+  background:rgba(180,188,199,.12);
+  border-color:rgba(190,199,209,.20);
+}
+
+.motivation-album-rarity-pill.rare{
+  color:#A8D5FF;
+  background:rgba(65,143,235,.15);
+  border-color:rgba(93,166,255,.27);
+}
+
+.motivation-album-rarity-pill.gold{
+  color:#FFE18A;
+  background:rgba(209,157,42,.16);
+  border-color:rgba(235,184,60,.28);
+}
+
+.motivation-album-total{
+  display:inline-flex;
+  align-items:baseline;
+  gap:5px;
+  margin-left:2px;
+  color:#7F8998;
+  font-size:8.5px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.motivation-album-total strong{
+  color:#DCE1E8;
+  font-size:10px;
+  font-weight:900;
+}
+
+.motivation-album-action-row{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:nowrap;
+}
+
+.motivation-album-action-row .btn,
+.motivation-album-action-row .motivation-toggl-sync-inline{
+  min-height:31px !important;
+  padding:6px 10px !important;
+  margin-left:0 !important;
+  white-space:nowrap;
+  font-size:9.5px !important;
+}
+
+.motivation-album-action-row .motivation-pack-buy-btn{
+  min-width:0 !important;
+}
+
+.motivation-album-sync-btn{
+  flex:0 0 auto;
+}
+
+.motivation-album-progress.compact .motivation-product-launch-reward-note{
+  margin:0;
+  font-size:8px;
+  line-height:1.35;
+}
+
+@media(max-width:760px){
+  .motivation-album-topline{flex-wrap:wrap}
+  .motivation-album-rarity-summary{
+    width:100%;
+    margin-left:0;
+    justify-content:flex-start;
+  }
+  .motivation-album-action-row{
+    flex-wrap:wrap;
+  }
+}
+
 </style>
 
 <style id="roboto-global-font">
@@ -14658,6 +14803,51 @@ function motivationWorkTimelineHTML(){
 
 
 
+async function motivationRunDashboardTogglSync(triggerBtn=null){
+  const original=triggerBtn?.textContent||'Sync Now';
+  if(triggerBtn){
+    triggerBtn.disabled=true;
+    triggerBtn.textContent='Syncing…';
+  }
+
+  try{
+    const result=await motivationSyncToggl60Days();
+    const challengeResult=await motivationAutoCompleteTrackedChallenge();
+    const gemChallengeResult=await motivationAutoCompleteGemChallenge();
+
+    refreshMotivationWorkTimeline();
+    refreshMotivationGamePanel();
+    refreshMotivationAlbumProgress();
+    mountMotivationFloatingControl();
+
+    if(challengeResult.completed && challengeResult.event){
+      showMotivationRewardBurst(challengeResult.event);
+    }else if(result.xpEvent){
+      showMotivationXpBurst(result.xpEvent);
+    }
+
+    if(gemChallengeResult.completed && gemChallengeResult.event){
+      setTimeout(()=>showMotivationGemBurst(gemChallengeResult.event),challengeResult.event||result.xpEvent?750:0);
+    }
+
+    if(result.newWorkHours>0){
+      showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
+    }else if(!challengeResult.completed&&!gemChallengeResult.completed){
+      showToast('Toggl synced · no new work time');
+    }
+  }catch(error){
+    const message=error && error.message ? error.message : 'Toggl sync failed';
+    motivationTogglState().lastError=message;
+    await persist();
+    showToast(message);
+
+    if(triggerBtn && triggerBtn.isConnected){
+      triggerBtn.disabled=false;
+      triggerBtn.textContent=original;
+    }
+  }
+}
+
 function wireMotivationWorkTimelineEvents(){
   const panel=document.getElementById('motivationWorkTimelinePanel');
   if(!panel) return;
@@ -14667,44 +14857,7 @@ function wireMotivationWorkTimelineEvents(){
 
   const syncBtn=panel.querySelector('#motivationTogglSyncBtn');
   if(syncBtn){
-    syncBtn.addEventListener('click',async()=>{
-      const original=syncBtn.textContent;
-      syncBtn.disabled=true;
-      syncBtn.textContent='Syncing…';
-      try{
-        const result=await motivationSyncToggl60Days();
-        const challengeResult=await motivationAutoCompleteTrackedChallenge();
-        const gemChallengeResult=await motivationAutoCompleteGemChallenge();
-
-        refreshMotivationWorkTimeline();
-        refreshMotivationGamePanel();
-        refreshMotivationAlbumProgress();
-        mountMotivationFloatingControl();
-
-        if(challengeResult.completed && challengeResult.event){
-          showMotivationRewardBurst(challengeResult.event);
-        }else if(result.xpEvent){
-          showMotivationXpBurst(result.xpEvent);
-        }
-
-        if(gemChallengeResult.completed && gemChallengeResult.event){
-          setTimeout(()=>showMotivationGemBurst(gemChallengeResult.event),challengeResult.event||result.xpEvent?750:0);
-        }
-
-        if(result.newWorkHours>0){
-          showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
-        }else if(!challengeResult.completed&&!gemChallengeResult.completed){
-          showToast('Toggl synced · no new work time');
-        }
-      }catch(error){
-        const message=error && error.message ? error.message : 'Toggl sync failed';
-        motivationTogglState().lastError=message;
-        await persist();
-        showToast(message);
-        syncBtn.disabled=false;
-        syncBtn.textContent=original;
-      }
-    });
+    syncBtn.addEventListener('click',()=>motivationRunDashboardTogglSync(syncBtn));
   }
 
   wireMotivationTooltips(panel);
@@ -14748,7 +14901,7 @@ function motivationPageCardHTML(tab){
         </div>
       `:''}
       <div class="motivation-metrics">${model.metrics.join('')}</div>
-      <div class="motivation-next-move"><span>Next move</span><div>${model.action}</div></div>
+      ${tab==='dashboard'?'':`<div class="motivation-next-move"><span>Next move</span><div>${model.action}</div></div>`}
     </section>
   `;
 }
@@ -14763,35 +14916,35 @@ function motivationAlbumProgressHTML(){
   const canBuy=hasDataset && game.gems>=MOTIVATION_CARD_PACK_COST;
 
   return`
-    <section class="motivation-album-progress" id="motivationAlbumProgress">
-      <div class="motivation-album-progress-left">
-        <div class="motivation-album-progress-brand">
-          <span>Card collection</span>
-          <h3>${hasDataset?escapeHtml(cardAlbumDataset().collection?.name||'Your album'):'Your card album'}</h3>
+    <section class="motivation-album-progress compact" id="motivationAlbumProgress">
+      <div class="motivation-album-topline">
+        <h3>Card Collection</h3>
+
+        <div class="motivation-album-gems" title="Gem balance">
+          <span aria-hidden="true">💎</span>
+          <strong>${game.gems.toLocaleString()}</strong>
         </div>
 
-        <div class="motivation-album-economy">
-          <div class="motivation-gem-balance">
-            <span>Gems</span>
-            <strong>💎 ${game.gems.toLocaleString()}</strong>
-            <small>1 pack = ${MOTIVATION_CARD_PACK_COST}💎</small>
-          </div>
-          <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
-            ${pending?'Resume pack':`Open card pack · ${MOTIVATION_CARD_PACK_COST}💎`}
-          </button>
-        </div>
-
-        <div class="motivation-product-launch-reward-note">
-          A newly detected product after your existing catalog baseline is a major reward: +${MOTIVATION_NEW_PRODUCT_XP} XP and +${MOTIVATION_NEW_PRODUCT_GEMS}💎, plus any Gems earned from level-ups it triggers.
+        <div class="motivation-album-rarity-summary" aria-label="Collected card rarities">
+          <span class="motivation-album-rarity-pill common" title="Common">${s.collectedCommon}</span>
+          <span class="motivation-album-rarity-pill rare" title="Rare">${s.collectedRare}</span>
+          <span class="motivation-album-rarity-pill gold" title="Gold">${s.collectedLegendary}</span>
+          <span class="motivation-album-total"><span>Total</span><strong>${s.collectedVariants} / ${s.totalVariants}</strong></span>
         </div>
       </div>
 
-      <div class="motivation-album-progress-right">
-        <button type="button" class="btn" id="motivationOpenAlbumBtn">${hasDataset?'View album':'Open album / Import JSON'}</button>
-        <div class="motivation-album-compact-row common"><span>Common</span><strong>${s.collectedCommon} / ${s.baseCards}</strong></div>
-        <div class="motivation-album-compact-row rare"><span>Rare</span><strong>${s.collectedRare} / ${s.baseCards}</strong></div>
-        <div class="motivation-album-compact-row gold"><span>Gold</span><strong>${s.collectedLegendary} / ${s.baseCards}</strong></div>
-        <div class="motivation-album-compact-row total"><span>Total collected</span><strong>${s.collectedVariants} / ${s.totalVariants}</strong></div>
+      <div class="motivation-album-action-row">
+        <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
+          ${pending?'Resume pack':`Open Card Pack · ${MOTIVATION_CARD_PACK_COST} Gems`}
+        </button>
+        <button type="button" class="btn" id="motivationOpenAlbumBtn">${hasDataset?'View Album':'Open Album / Import JSON'}</button>
+        <button type="button" class="motivation-toggl-sync-inline motivation-album-sync-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
+          Sync Now
+        </button>
+      </div>
+
+      <div class="motivation-product-launch-reward-note">
+        A newly detected product after your existing catalog baseline is a major reward: +${MOTIVATION_NEW_PRODUCT_XP} XP and +${MOTIVATION_NEW_PRODUCT_GEMS}💎, plus any Gems earned from level-ups it triggers.
       </div>
     </section>`;
 }
@@ -14802,6 +14955,9 @@ function wireMotivationAlbumProgressEvents(){
 
   const packBtn=document.getElementById('motivationBuyPackBtn');
   if(packBtn)packBtn.addEventListener('click',motivationBuyOrResumeCardPack);
+
+  const syncBtn=document.getElementById('motivationAlbumSyncBtn');
+  if(syncBtn)syncBtn.addEventListener('click',()=>motivationRunDashboardTogglSync(syncBtn));
 }
 
 function mountMotivationPageExtras(){
