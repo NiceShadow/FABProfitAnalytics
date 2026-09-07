@@ -12463,6 +12463,7 @@ function refreshMotivationAlbumProgress(){
   if(!current) return;
   current.outerHTML=motivationAlbumProgressHTML();
   wireMotivationAlbumProgressEvents();
+  motivationAnimateGemBalance();
 }
 function motivationNewProductReward(newCount,firstImport){
   if(!motivationModeEnabled() || newCount<=0) return null;
@@ -13042,6 +13043,7 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
   const game=motivationGameState();
 
   let newWorkHours=0;
+  const newWorkHoursByDate={};
   let xpEvent=null;
 
   if(!game.workXpBaselineReady){
@@ -13059,7 +13061,9 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
       const current=Math.max(0,Number(hours)||0);
       const already=Math.max(0,Number(game.workXpAwardedHours[date])||0);
       if(current>already){
-        newWorkHours+=current-already;
+        const delta=current-already;
+        newWorkHours+=delta;
+        newWorkHoursByDate[date]=Math.round(delta*10000)/10000;
         game.workXpAwardedHours[date]=current;
       }
     });
@@ -13091,6 +13095,7 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
     rangeStart,
     rangeEnd,
     newWorkHours:Math.round(newWorkHours*100)/100,
+    newWorkHoursByDate,
     xpAwarded:xpEvent?xpEvent.amount:0,
     xpEvent,
     baselineEstablished:!xpEvent && newWorkHours<=0 && game.workXpBaselineReady
@@ -13229,6 +13234,10 @@ function openMotivationTogglConnection(){
 
 
 const MOTIVATION_WORK_XP_PER_HOUR=30;
+const MOTIVATION_UNUSED_CHALLENGE_HOURS_CAP=16;
+const MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR=33;
+const MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR=9;
+
 /* challenge-xp-plus-20 */
 
 function motivationGameState(){
@@ -13292,10 +13301,65 @@ function motivationLevelGemReward(level){
   return Math.min(112,Math.round(previousReward*1.584));
 }
 
+const MOTIVATION_GEM_COUNTER_ANIMATION={from:null};
+
+function motivationQueueGemCounterAnimation(fromBalance){
+  const from=Math.max(0,Math.floor(Number(fromBalance)||0));
+  if(MOTIVATION_GEM_COUNTER_ANIMATION.from===null){
+    MOTIVATION_GEM_COUNTER_ANIMATION.from=from;
+  }else{
+    MOTIVATION_GEM_COUNTER_ANIMATION.from=Math.min(
+      MOTIVATION_GEM_COUNTER_ANIMATION.from,
+      from
+    );
+  }
+}
+
+function motivationAnimateGemBalance(){
+  const amount=document.querySelector('#motivationAlbumProgress .motivation-album-gems strong');
+  if(!amount) return;
+
+  const target=Math.max(0,Math.floor(Number(amount.dataset.gemBalance)||0));
+  const queued=MOTIVATION_GEM_COUNTER_ANIMATION.from;
+
+  if(queued===null || queued>=target){
+    amount.textContent=target.toLocaleString();
+    MOTIVATION_GEM_COUNTER_ANIMATION.from=null;
+    return;
+  }
+
+  MOTIVATION_GEM_COUNTER_ANIMATION.from=null;
+  const start=Math.max(0,Math.floor(queued));
+  const delta=target-start;
+
+  // Small rewards tick nearly gem-by-gem; larger rewards accelerate while
+  // still visually counting upward like a game currency counter.
+  const duration=Math.min(2200,Math.max(320,delta*32));
+  const started=performance.now();
+
+  const tick=now=>{
+    const t=Math.min(1,(now-started)/duration);
+    const eased=1-Math.pow(1-t,3);
+    const current=Math.min(target,Math.floor(start+delta*eased));
+
+    amount.textContent=current.toLocaleString();
+
+    if(t<1){
+      requestAnimationFrame(tick);
+    }else{
+      amount.textContent=target.toLocaleString();
+    }
+  };
+
+  amount.textContent=start.toLocaleString();
+  requestAnimationFrame(tick);
+}
+
 function motivationGrantGems(amount,reason){
   const game=motivationGameState();
   const gems=Math.max(0,Math.round(Number(amount)||0));
   if(!gems) return null;
+  motivationQueueGemCounterAnimation(game.gems);
   game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gems;
   return {
     type:'gems',
@@ -13318,6 +13382,7 @@ function motivationGrantXp(amount,reason){
     for(let level=before.level+1;level<=after.level;level++){
       gemsAwarded+=motivationLevelGemReward(level);
     }
+    if(gemsAwarded>0) motivationQueueGemCounterAnimation(game.gems);
     game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gemsAwarded;
   }
 
@@ -13982,6 +14047,159 @@ function motivationChallengeDeadlineText(challenge){
 }
 
 
+
+function motivationMainChallengeHourCredit(challenge){
+  if(!challenge || challenge.taskId) return 0;
+  const p=challenge.params||{};
+
+  if(challenge.kind==='today_hours'){
+    return Math.min(
+      Math.max(0,motivationWorkHours(challenge.startDate)),
+      Math.max(0,Number(p.hours)||0)
+    );
+  }
+
+  if(challenge.kind==='two_day_split'){
+    const perDay=Math.max(0,Number(p.hoursPerDay)||0);
+    const first=Math.min(Math.max(0,motivationWorkHours(challenge.startDate)),perDay);
+    const second=Math.min(Math.max(0,motivationWorkHours(datePlusDays(challenge.startDate,1))),perDay);
+    return first+second;
+  }
+
+  if(challenge.kind==='three_day_total' || challenge.kind==='week_total'){
+    return Math.min(
+      Math.max(0,motivationHoursInRange(challenge.startDate,challenge.deadline)),
+      Math.max(0,Number(p.totalHours)||0)
+    );
+  }
+
+  if(challenge.kind==='consistency_five'){
+    const minHours=Math.max(0,Number(p.minHours)||0);
+    const requiredDays=Math.max(0,Number(p.activeDays)||0);
+    let qualifying=0;
+    let cursor=challenge.startDate;
+    while(cursor<=challenge.deadline){
+      if(motivationWorkHours(cursor)>=minHours) qualifying++;
+      cursor=datePlusDays(cursor,1);
+    }
+    return Math.min(qualifying,requiredDays)*minHours;
+  }
+
+  if(challenge.kind==='streak_minimum'){
+    const minHours=Math.max(0,Number(p.minHours)||0);
+    const requiredDays=Math.max(0,Number(p.days)||0);
+    let best=0,current=0;
+    let cursor=challenge.startDate;
+    while(cursor<=challenge.deadline){
+      if(motivationWorkHours(cursor)>=minHours){
+        current++;
+        best=Math.max(best,current);
+      }else{
+        current=0;
+      }
+      cursor=datePlusDays(cursor,1);
+    }
+    return Math.min(best,requiredDays)*minHours;
+  }
+
+  return 0;
+}
+
+function motivationQuickChallengeHourCredit(challenge){
+  if(!challenge || challenge.manualClaim || challenge.kind!=='gem_work_sprint') return 0;
+  const p=challenge.params||{};
+  const target=Math.max(0,Number(p.targetHours)||0);
+  let done=0;
+  let cursor=challenge.startDate;
+
+  while(cursor<=challenge.deadline){
+    const baseline=Math.max(0,Number(p.baselineHours&&p.baselineHours[cursor])||0);
+    done+=Math.max(0,motivationWorkHours(cursor)-baseline);
+    cursor=datePlusDays(cursor,1);
+  }
+
+  return Math.min(done,target);
+}
+
+function motivationChallengeSyncSnapshot(){
+  const game=motivationGameState();
+  const main=game.activeChallenge;
+  const quick=game.gemChallenge;
+
+  return {
+    mainId:main?.id||null,
+    mainCredit:motivationMainChallengeHourCredit(main),
+    quickId:quick?.id||null,
+    quickCredit:motivationQuickChallengeHourCredit(quick)
+  };
+}
+
+function motivationUnusedChallengeHours(syncResult,before){
+  const newHours=Math.max(0,Number(syncResult?.newWorkHours)||0);
+  if(newHours<=0.0001 || !before) return 0;
+
+  const game=motivationGameState();
+
+  let mainUsed=0;
+  if(before.mainId && game.activeChallenge?.id===before.mainId){
+    mainUsed=Math.max(
+      0,
+      motivationMainChallengeHourCredit(game.activeChallenge)-Math.max(0,Number(before.mainCredit)||0)
+    );
+  }
+
+  let quickUsed=0;
+  if(before.quickId && game.gemChallenge?.id===before.quickId){
+    quickUsed=Math.max(
+      0,
+      motivationQuickChallengeHourCredit(game.gemChallenge)-Math.max(0,Number(before.quickCredit)||0)
+    );
+  }
+
+  // Both challenge tracks can progress from the same worked hour in parallel,
+  // so don't subtract them twice. Only the largest amount actually consumed
+  // by either currently-active challenge is treated as used.
+  const used=Math.min(newHours,Math.max(mainUsed,quickUsed));
+  return Math.max(0,newHours-used);
+}
+
+function motivationRewardUnusedChallengeHours(hours){
+  const game=motivationGameState();
+  const rawHours=Math.max(0,Number(hours)||0);
+  const rewardedHours=Math.min(MOTIVATION_UNUSED_CHALLENGE_HOURS_CAP,rawHours);
+
+  if(rewardedHours<0.01){
+    return {
+      rawHours,
+      rewardedHours:0,
+      xp:0,
+      gems:0,
+      xpEvent:null,
+      gemEvent:null
+    };
+  }
+
+  const xp=Math.max(0,Math.round(rewardedHours*MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR));
+  const gems=Math.max(0,Math.round(rewardedHours*MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR));
+
+  const xpEvent=xp>0
+    ? motivationGrantXp(xp,`${motivationFormatHours(rewardedHours)} unused challenge work`)
+    : null;
+  const gemEvent=gems>0
+    ? motivationGrantGems(gems,`${motivationFormatHours(rewardedHours)} unused challenge work`)
+    : null;
+
+  game.lastUnusedChallengeReward={
+    at:new Date().toISOString(),
+    rawHours:Math.round(rawHours*100)/100,
+    rewardedHours:Math.round(rewardedHours*100)/100,
+    xp,
+    gems
+  };
+
+  return {rawHours,rewardedHours,xp,gems,xpEvent,gemEvent};
+}
+
 async function motivationAutoCompleteTrackedChallenge(){
   const game=motivationGameState();
   const challenge=game.activeChallenge;
@@ -14621,7 +14839,7 @@ function motivationGamePanelHTML(){
         <div>
           <span class="motivation-eyebrow">Developer RPG</span>
           <h3>Level ${level.level} · turn work into visible progress</h3>
-          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Main challenges reward XP. Quick challenges reward 💎 only. Level-ups award increasingly larger Gem bonuses. A newly detected product after your current catalog baseline grants ${MOTIVATION_NEW_PRODUCT_XP} XP + ${MOTIVATION_NEW_PRODUCT_GEMS}💎.</p>
+          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Main challenges reward XP. Quick challenges reward 💎 only. Newly synced hours that cannot contribute to the current challenges receive a reduced fallback reward of ${MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR} XP + ${MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR}💎 per hour, capped at ${MOTIVATION_UNUSED_CHALLENGE_HOURS_CAP} h per sync. Level-ups award increasingly larger Gem bonuses. A newly detected product after your current catalog baseline grants ${MOTIVATION_NEW_PRODUCT_XP} XP + ${MOTIVATION_NEW_PRODUCT_GEMS}💎.</p>
         </div>
         <div class="motivation-level-card"
           data-motivation-tooltip-title="Level ${level.level}"
@@ -14961,9 +15179,21 @@ async function motivationRunDashboardTogglSync(triggerBtn=null){
   }
 
   try{
+    // Capture the currently-active challenge states before today's newly
+    // synced work changes their progress. New challenges created after a
+    // completion intentionally start at zero and do not receive carry-over.
+    const challengeSnapshot=motivationChallengeSyncSnapshot();
+
     const result=await motivationSyncToggl60Days();
+    const unusedHours=motivationUnusedChallengeHours(result,challengeSnapshot);
+
     const challengeResult=await motivationAutoCompleteTrackedChallenge();
     const gemChallengeResult=await motivationAutoCompleteGemChallenge();
+
+    const unusedReward=motivationRewardUnusedChallengeHours(unusedHours);
+    if(unusedReward.xp>0 || unusedReward.gems>0){
+      await persist();
+    }
 
     refreshMotivationWorkTimeline();
     refreshMotivationGamePanel();
@@ -14981,7 +15211,18 @@ async function motivationRunDashboardTogglSync(triggerBtn=null){
     }
 
     if(result.newWorkHours>0){
-      showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
+      if(unusedReward.rewardedHours>0){
+        const capped=unusedReward.rawHours>unusedReward.rewardedHours+.01
+          ? ` · capped at ${motivationFormatHours(unusedReward.rewardedHours)}`
+          : '';
+        showToast(
+          `${motivationFormatHours(result.newWorkHours)} synced · `+
+          `${motivationFormatHours(unusedReward.rawHours)} couldn't contribute to current challenges → `+
+          `+${unusedReward.xp} XP +${unusedReward.gems}💎${capped}`
+        );
+      }else{
+        showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
+      }
     }else if(!challengeResult.completed&&!gemChallengeResult.completed){
       showToast('Toggl synced · no new work time');
     }
@@ -15071,7 +15312,7 @@ function motivationAlbumProgressHTML(){
         <h3>Card Collection</h3>
 
         <div class="motivation-album-gems" title="Gem balance">
-          <strong>${game.gems.toLocaleString()}</strong>
+          <strong data-gem-balance="${game.gems}">${game.gems.toLocaleString()}</strong>
           <span aria-hidden="true">💎</span>
         </div>
       </div>
@@ -15131,6 +15372,7 @@ function mountMotivationPageExtras(){
       filter.insertAdjacentHTML('afterend',markup+extra);
       if(ACTIVE_TAB==='dashboard'){
         wireMotivationAlbumProgressEvents();
+        motivationAnimateGemBalance();
         wireMotivationGamePanelEvents();
         motivationAnimateGameProgressBars();
         wireMotivationWorkTimelineEvents();
