@@ -13954,11 +13954,31 @@ function motivationChallengeProgress(challenge){
 }
 
 function motivationChallengeDeadlineText(challenge){
-  const left=dayDiff(todayStr(),challenge.deadline);
-  if(left<0) return 'Expired';
-  if(left===0) return `Expires today · ${motivationShortDate(challenge.deadline)}`;
-  if(left===1) return `1 day left · ${motivationShortDate(challenge.deadline)}`;
-  return `${left} days left · ${motivationShortDate(challenge.deadline)}`;
+  const deadline=String(challenge?.deadline||'');
+  const deadlineEnd=new Date(`${deadline}T23:59:59.999`);
+  const now=new Date();
+
+  if(!deadline || !Number.isFinite(deadlineEnd.getTime())){
+    return deadline ? motivationShortDate(deadline) : '';
+  }
+
+  const remainingMs=deadlineEnd.getTime()-now.getTime();
+  if(remainingMs<=0) return 'Expired';
+
+  const totalMinutes=Math.max(0,Math.ceil(remainingMs/60000));
+  const days=Math.floor(totalMinutes/1440);
+  const hours=Math.floor((totalMinutes%1440)/60);
+  const minutes=totalMinutes%60;
+
+  const dayText=`${days} day${days===1?'':'s'}`;
+  const hourText=`${hours} hour${hours===1?'':'s'}`;
+  const minuteText=`${minutes} minute${minutes===1?'':'s'}`;
+
+  const timeText=remainingMs<5*60*60*1000
+    ? `${dayText} ${hourText} ${minuteText} left`
+    : `${dayText} ${hourText} left`;
+
+  return `${timeText} · ${motivationShortDate(deadline)}`;
 }
 
 
