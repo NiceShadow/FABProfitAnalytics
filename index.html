@@ -10419,6 +10419,11 @@
 .motivation-levelup-spark.s3{left:24%;bottom:24%;animation-delay:.8s}
 .motivation-levelup-spark.s4{right:22%;bottom:27%;animation-delay:1.2s}
 
+.motivation-levelup-overlay.motivation-levelup-leaving{
+  opacity:0;
+  transition:opacity .10s ease;
+}
+
 @keyframes motivationLevelBackdropIn{
   from{opacity:0}
   to{opacity:1}
@@ -10631,6 +10636,122 @@
   min-width:150px !important;
 }
 
+.motivation-treasury-btn{
+  position:relative;
+  overflow:hidden;
+  flex:1 1 0;
+  min-width:164px;
+  min-height:40px;
+  padding:5px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid rgba(237,190,76,.58);
+  border-radius:9px;
+  background:
+    radial-gradient(circle at 22% 20%,rgba(255,238,163,.16),transparent 30%),
+    linear-gradient(180deg,rgba(105,76,27,.96),rgba(54,38,18,.98));
+  color:#FFF0B4;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 5px 16px rgba(179,126,32,.16);
+  cursor:pointer;
+  transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;
+}
+.motivation-treasury-btn:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 8px 22px rgba(218,160,49,.24),
+    0 0 22px rgba(237,190,76,.10);
+}
+.motivation-treasury-btn:disabled{
+  cursor:default;
+  opacity:.42;
+  filter:saturate(.35);
+  background:linear-gradient(180deg,rgba(63,61,57,.90),rgba(40,39,37,.94));
+  border-color:rgba(255,255,255,.10);
+  color:#9A9A96;
+  box-shadow:none;
+}
+.motivation-treasury-icon{
+  font-size:17px;
+  line-height:1;
+  color:#FFD96B;
+  text-shadow:0 0 10px rgba(255,210,83,.38);
+}
+.motivation-treasury-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  line-height:1.05;
+}
+.motivation-treasury-copy strong{
+  font-size:10.5px;
+  font-weight:950;
+  letter-spacing:.035em;
+}
+.motivation-treasury-copy small{
+  margin-top:3px;
+  color:#E5C978;
+  font-size:8px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.motivation-treasury-shine{
+  position:absolute;
+  inset:-80% auto -80% -45%;
+  width:34%;
+  transform:rotate(18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,246,196,.25),transparent);
+  opacity:.55;
+}
+.motivation-treasury-btn:not(:disabled) .motivation-treasury-shine{
+  animation:motivationTreasuryIdleShine 4.2s ease-in-out infinite;
+}
+.motivation-treasury-btn.motivation-treasury-opening{
+  animation:motivationTreasuryClaim .52s cubic-bezier(.18,.86,.24,1.2) both;
+}
+.motivation-treasury-burst{
+  position:fixed;
+  z-index:100020;
+  width:1px;
+  height:1px;
+  pointer-events:none;
+}
+.motivation-treasury-burst i{
+  --dist:72px;
+  position:absolute;
+  left:0;
+  top:0;
+  width:6px;
+  height:6px;
+  margin:-3px;
+  border-radius:50%;
+  background:#FFD96B;
+  box-shadow:0 0 12px rgba(255,214,87,.75);
+  animation:motivationTreasuryParticle .82s ease-out forwards;
+  transform:rotate(var(--a)) translateX(0);
+}
+@keyframes motivationTreasuryIdleShine{
+  0%,68%{left:-45%;opacity:0}
+  74%{opacity:.55}
+  94%{left:118%;opacity:.35}
+  100%{left:118%;opacity:0}
+}
+@keyframes motivationTreasuryClaim{
+  0%{transform:scale(1);filter:brightness(1)}
+  42%{transform:scale(1.055);filter:brightness(1.45)}
+  72%{transform:scale(.985);filter:brightness(1.18)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes motivationTreasuryParticle{
+  0%{opacity:1;transform:rotate(var(--a)) translateX(8px) scale(1)}
+  100%{opacity:0;transform:rotate(var(--a)) translateX(var(--dist)) scale(.25)}
+}
+
 .motivation-album-rarity-summary{
   display:flex;
   flex-direction:column;
@@ -10729,7 +10850,8 @@
     flex-wrap:wrap;
   }
   .motivation-album-action-row .btn,
-  .motivation-album-action-row .motivation-toggl-sync-inline{
+  .motivation-album-action-row .motivation-toggl-sync-inline,
+  .motivation-album-action-row .motivation-treasury-btn{
     flex:1 1 calc(50% - 6px);
   }
 }
@@ -10753,7 +10875,7 @@
 </div>
 <script>
 
-const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"gems":0,"activeChallenge":null,"challengeHistory":[],"gemChallenge":null,"gemChallengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null,"productLaunchRewardBaselineReady":false,"pendingCardPack":null},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
+const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"gems":0,"activeChallenge":null,"challengeHistory":[],"gemChallenge":null,"gemChallengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null,"productLaunchRewardBaselineReady":false,"pendingCardPack":null,"treasury":{"xp":0,"gems":0}},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
 
 const PALETTE = ["#D9A441","#4FB8B0","#8C7CF0","#E2725B","#6FBF73","#5DA8E2","#E2C255","#C97CE0","#7FD1C1","#E08FB0"];
 
@@ -11255,11 +11377,17 @@ function normalizeState(state){
       workXpCarry:0,
       lastTaskPromptAt:null,
       productLaunchRewardBaselineReady:(state.products||[]).length>0,
-      pendingCardPack:null
+      pendingCardPack:null,
+      treasury:{xp:0,gems:0}
     };
   }
   state.motivationGame.totalXp=Math.max(0,Math.round(Number(state.motivationGame.totalXp)||0));
   state.motivationGame.gems=Math.max(0,Math.floor(Number(state.motivationGame.gems)||0));
+  if(!state.motivationGame.treasury || typeof state.motivationGame.treasury!=='object' || Array.isArray(state.motivationGame.treasury)){
+    state.motivationGame.treasury={xp:0,gems:0};
+  }
+  state.motivationGame.treasury.xp=Math.max(0,Math.round(Number(state.motivationGame.treasury.xp)||0));
+  state.motivationGame.treasury.gems=Math.max(0,Math.round(Number(state.motivationGame.treasury.gems)||0));
   if(!Array.isArray(state.motivationGame.challengeHistory)) state.motivationGame.challengeHistory=[];
   if(!Array.isArray(state.motivationGame.gemChallengeHistory)) state.motivationGame.gemChallengeHistory=[];
   if(!Array.isArray(state.motivationGame.tasks)) state.motivationGame.tasks=[];
@@ -13245,7 +13373,8 @@ function motivationGameState(){
     STATE.motivationGame={
       totalXp:0,gems:MOTIVATION_STARTER_GEMS,starterGemsGranted:true,activeChallenge:null,challengeHistory:[],gemChallenge:null,gemChallengeHistory:[],tasks:[],
       workXpBaselineReady:false,workXpAwardedHours:{},workXpCarry:0,lastTaskPromptAt:null,
-      productLaunchRewardBaselineReady:(STATE.products||[]).length>0,pendingCardPack:null
+      productLaunchRewardBaselineReady:(STATE.products||[]).length>0,pendingCardPack:null,
+      treasury:{xp:0,gems:0}
     };
   }
   if(!Array.isArray(STATE.motivationGame.challengeHistory)) STATE.motivationGame.challengeHistory=[];
@@ -13254,6 +13383,11 @@ function motivationGameState(){
   if(!STATE.motivationGame.workXpAwardedHours || typeof STATE.motivationGame.workXpAwardedHours!=='object'){
     STATE.motivationGame.workXpAwardedHours={};
   }
+  if(!STATE.motivationGame.treasury || typeof STATE.motivationGame.treasury!=='object' || Array.isArray(STATE.motivationGame.treasury)){
+    STATE.motivationGame.treasury={xp:0,gems:0};
+  }
+  STATE.motivationGame.treasury.xp=Math.max(0,Math.round(Number(STATE.motivationGame.treasury.xp)||0));
+  STATE.motivationGame.treasury.gems=Math.max(0,Math.round(Number(STATE.motivationGame.treasury.gems)||0));
   if(typeof STATE.motivationGame.starterGemsGranted!=='boolean'){
     STATE.motivationGame.gems=Math.max(MOTIVATION_STARTER_GEMS,Math.floor(Number(STATE.motivationGame.gems)||0));
     STATE.motivationGame.starterGemsGranted=true;
@@ -13378,9 +13512,12 @@ function motivationGrantXp(amount,reason){
   const after=motivationLevelInfo(game.totalXp);
 
   let gemsAwarded=0;
+  const levelUps=[];
   if(after.level>before.level){
     for(let level=before.level+1;level<=after.level;level++){
-      gemsAwarded+=motivationLevelGemReward(level);
+      const gems=motivationLevelGemReward(level);
+      gemsAwarded+=gems;
+      levelUps.push({level,gems});
     }
     if(gemsAwarded>0) motivationQueueGemCounterAnimation(game.gems);
     game.gems=Math.max(0,Math.floor(Number(game.gems)||0))+gemsAwarded;
@@ -13393,11 +13530,12 @@ function motivationGrantXp(amount,reason){
     before,
     after,
     leveledUp:after.level>before.level,
-    gemsAwarded
+    gemsAwarded,
+    levelUps
   };
 
   if(event.leveledUp){
-    setTimeout(()=>showMotivationLevelUpCelebration(event),120);
+    setTimeout(()=>motivationQueueLevelUpCelebrations(event),120);
   }
 
   return event;
@@ -13453,8 +13591,32 @@ function wireMotivationTooltips(root){
 }
 
 
-function showMotivationLevelUpCelebration(event){
+const MOTIVATION_LEVELUP_QUEUE=[];
+let MOTIVATION_LEVELUP_ACTIVE=false;
+
+function motivationQueueLevelUpCelebrations(event){
   if(!event || !event.leveledUp || !motivationModeEnabled()) return;
+
+  const items=Array.isArray(event.levelUps)&&event.levelUps.length
+    ? event.levelUps
+    : [{level:event.after.level,gems:event.gemsAwarded||0}];
+
+  items.forEach(item=>{
+    MOTIVATION_LEVELUP_QUEUE.push({
+      level:Math.max(1,Math.round(Number(item.level)||1)),
+      gems:Math.max(0,Math.round(Number(item.gems)||0)),
+      reason:String(event.reason||'Progress')
+    });
+  });
+
+  motivationShowNextLevelUpCelebration();
+}
+
+function motivationShowNextLevelUpCelebration(){
+  if(MOTIVATION_LEVELUP_ACTIVE || !MOTIVATION_LEVELUP_QUEUE.length || !motivationModeEnabled()) return;
+
+  const item=MOTIVATION_LEVELUP_QUEUE.shift();
+  MOTIVATION_LEVELUP_ACTIVE=true;
 
   document.getElementById('motivationLevelUpOverlay')?.remove();
 
@@ -13470,21 +13632,37 @@ function showMotivationLevelUpCelebration(event){
       <i class="motivation-levelup-spark s4"></i>
       <div class="motivation-levelup-content">
         <span class="motivation-levelup-kicker">Level reached</span>
-        <div class="motivation-levelup-number">${event.after.level}</div>
-        <div class="motivation-levelup-title">Level ${event.after.level}</div>
-        ${event.gemsAwarded?`<div class="motivation-levelup-reward">+${event.gemsAwarded}💎</div>`:''}
-        <div class="motivation-levelup-reason">${escapeHtml(event.reason||'Progress')}</div>
+        <div class="motivation-levelup-number">${item.level}</div>
+        <div class="motivation-levelup-title">Level ${item.level}</div>
+        ${item.gems?`<div class="motivation-levelup-reward">+${item.gems}💎</div>`:''}
+        <div class="motivation-levelup-reason">${escapeHtml(item.reason)}</div>
         <button type="button" class="btn primary motivation-levelup-close" id="motivationLevelUpCloseBtn">Continue</button>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  const close=()=>overlay.remove();
+  let closing=false;
+  const close=()=>{
+    if(closing) return;
+    closing=true;
+    overlay.classList.add('motivation-levelup-leaving');
+    setTimeout(()=>{
+      overlay.remove();
+      MOTIVATION_LEVELUP_ACTIVE=false;
+      // Intentional short visual gap so successive levels feel distinct.
+      setTimeout(motivationShowNextLevelUpCelebration,110);
+    },110);
+  };
+
   overlay.querySelector('#motivationLevelUpCloseBtn')?.addEventListener('click',close);
   overlay.addEventListener('click',e=>{
     if(e.target===overlay) close();
   });
+}
+
+function showMotivationLevelUpCelebration(event){
+  motivationQueueLevelUpCelebrations(event);
 }
 
 function showMotivationXpBurst(event){
@@ -14174,30 +14352,34 @@ function motivationRewardUnusedChallengeHours(hours){
       rewardedHours:0,
       xp:0,
       gems:0,
-      xpEvent:null,
-      gemEvent:null
+      treasuryXp:game.treasury.xp,
+      treasuryGems:game.treasury.gems
     };
   }
 
   const xp=Math.max(0,Math.round(rewardedHours*MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR));
   const gems=Math.max(0,Math.round(rewardedHours*MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR));
 
-  const xpEvent=xp>0
-    ? motivationGrantXp(xp,`${motivationFormatHours(rewardedHours)} unused challenge work`)
-    : null;
-  const gemEvent=gems>0
-    ? motivationGrantGems(gems,`${motivationFormatHours(rewardedHours)} unused challenge work`)
-    : null;
+  game.treasury.xp=Math.max(0,Math.round(Number(game.treasury.xp)||0))+xp;
+  game.treasury.gems=Math.max(0,Math.round(Number(game.treasury.gems)||0))+gems;
 
   game.lastUnusedChallengeReward={
     at:new Date().toISOString(),
     rawHours:Math.round(rawHours*100)/100,
     rewardedHours:Math.round(rewardedHours*100)/100,
     xp,
-    gems
+    gems,
+    storedInTreasury:true
   };
 
-  return {rawHours,rewardedHours,xp,gems,xpEvent,gemEvent};
+  return {
+    rawHours,
+    rewardedHours,
+    xp,
+    gems,
+    treasuryXp:game.treasury.xp,
+    treasuryGems:game.treasury.gems
+  };
 }
 
 async function motivationAutoCompleteTrackedChallenge(){
@@ -14839,7 +15021,7 @@ function motivationGamePanelHTML(){
         <div>
           <span class="motivation-eyebrow">Developer RPG</span>
           <h3>Level ${level.level} · turn work into visible progress</h3>
-          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Main challenges reward XP. Quick challenges reward 💎 only. Newly synced hours that cannot contribute to the current challenges receive a reduced fallback reward of ${MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR} XP + ${MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR}💎 per hour, capped at ${MOTIVATION_UNUSED_CHALLENGE_HOURS_CAP} h per sync. Level-ups award increasingly larger Gem bonuses. A newly detected product after your current catalog baseline grants ${MOTIVATION_NEW_PRODUCT_XP} XP + ${MOTIVATION_NEW_PRODUCT_GEMS}💎.</p>
+          <p><strong>${MOTIVATION_WORK_XP_PER_HOUR} XP per newly synced Toggl hour.</strong> Main challenges reward XP. Quick challenges reward 💎 only. Newly synced hours that cannot contribute to the current challenges deposit ${MOTIVATION_UNUSED_CHALLENGE_XP_PER_HOUR} XP + ${MOTIVATION_UNUSED_CHALLENGE_GEMS_PER_HOUR}💎 per hour into the Treasury, capped at ${MOTIVATION_UNUSED_CHALLENGE_HOURS_CAP} h per sync. Level-ups award increasingly larger Gem bonuses. A newly detected product after your current catalog baseline grants ${MOTIVATION_NEW_PRODUCT_XP} XP + ${MOTIVATION_NEW_PRODUCT_GEMS}💎.</p>
         </div>
         <div class="motivation-level-card"
           data-motivation-tooltip-title="Level ${level.level}"
@@ -15218,7 +15400,7 @@ async function motivationRunDashboardTogglSync(triggerBtn=null){
         showToast(
           `${motivationFormatHours(result.newWorkHours)} synced · `+
           `${motivationFormatHours(unusedReward.rawHours)} couldn't contribute to current challenges → `+
-          `+${unusedReward.xp} XP +${unusedReward.gems}💎${capped}`
+          `Treasury +${unusedReward.xp} XP +${unusedReward.gems}💎${capped}`
         );
       }else{
         showToast(`${motivationFormatHours(result.newWorkHours)} synced${challengeResult.completed||gemChallengeResult.completed?' · challenge progress updated':''}`);
@@ -15298,6 +15480,60 @@ function motivationPageCardHTML(tab){
 }
 
 
+function motivationTreasuryBurst(button){
+  if(!button) return;
+  button.classList.remove('motivation-treasury-opening');
+  void button.offsetWidth;
+  button.classList.add('motivation-treasury-opening');
+
+  const rect=button.getBoundingClientRect();
+  const burst=document.createElement('div');
+  burst.className='motivation-treasury-burst';
+  burst.style.left=`${rect.left+rect.width/2}px`;
+  burst.style.top=`${rect.top+rect.height/2}px`;
+  burst.innerHTML=Array.from({length:10},(_,i)=>
+    `<i style="--i:${i};--a:${i*36}deg"></i>`
+  ).join('');
+  document.body.appendChild(burst);
+  setTimeout(()=>burst.remove(),900);
+}
+
+async function motivationClaimTreasury(button=null){
+  const game=motivationGameState();
+  const treasury=game.treasury||{xp:0,gems:0};
+  const xp=Math.max(0,Math.round(Number(treasury.xp)||0));
+  const gems=Math.max(0,Math.round(Number(treasury.gems)||0));
+
+  if(xp<=0 && gems<=0) return;
+
+  if(button){
+    button.disabled=true;
+    motivationTreasuryBurst(button);
+  }
+
+  // The Treasury is emptied first so persistence can never duplicate a claim.
+  game.treasury={xp:0,gems:0};
+  await persist();
+
+  // Let the opening animation land before transferring the reward.
+  setTimeout(async()=>{
+    const xpEvent=xp>0 ? motivationGrantXp(xp,'Treasury claimed') : null;
+    const gemEvent=gems>0 ? motivationGrantGems(gems,'Treasury claimed') : null;
+
+    await persist();
+    refreshMotivationGamePanel();
+    refreshMotivationAlbumProgress();
+    mountMotivationFloatingControl();
+
+    if(xpEvent) showMotivationXpBurst(xpEvent);
+    if(gemEvent){
+      setTimeout(()=>showMotivationGemBurst(gemEvent),xpEvent?500:0);
+    }
+
+    showToast(`Treasury claimed · +${xp.toLocaleString()} XP +${gems.toLocaleString()}💎`);
+  },520);
+}
+
 function motivationAlbumProgressHTML(){
   if(!motivationModeEnabled()||ACTIVE_TAB!=='dashboard')return '';
   const s=cardAlbumStats();
@@ -15305,6 +15541,8 @@ function motivationAlbumProgressHTML(){
   const hasDataset=!!cardAlbumDataset();
   const pending=!!game.pendingCardPack;
   const canBuy=hasDataset && game.gems>=MOTIVATION_CARD_PACK_COST;
+  const treasury=game.treasury||{xp:0,gems:0};
+  const treasuryHasReward=treasury.xp>0||treasury.gems>0;
 
   return`
     <section class="motivation-album-progress compact" id="motivationAlbumProgress">
@@ -15321,6 +15559,14 @@ function motivationAlbumProgressHTML(){
         <div class="motivation-album-action-row">
           <button type="button" class="btn primary motivation-pack-buy-btn" id="motivationBuyPackBtn" ${(!pending&&!canBuy)?'disabled':''}>
             ${pending?'Resume Pack':`Open Card Pack · ${MOTIVATION_CARD_PACK_COST}💎`}
+          </button>
+          <button type="button" class="motivation-treasury-btn" id="motivationTreasuryBtn" ${treasuryHasReward?'':'disabled'}>
+            <span class="motivation-treasury-shine"></span>
+            <span class="motivation-treasury-icon" aria-hidden="true">✦</span>
+            <span class="motivation-treasury-copy">
+              <strong>Treasury</strong>
+              <small>${treasury.xp.toLocaleString()} XP · ${treasury.gems.toLocaleString()}💎</small>
+            </span>
           </button>
           <button type="button" class="btn motivation-album-secondary-btn" id="motivationOpenAlbumBtn">${hasDataset?'View Album':'Open Album / Import JSON'}</button>
           <button type="button" class="btn motivation-album-sync-btn motivation-album-secondary-btn" id="motivationAlbumSyncBtn" ${motivationTogglConnected()?'':'disabled'}>
@@ -15350,6 +15596,9 @@ function wireMotivationAlbumProgressEvents(){
 
   const packBtn=document.getElementById('motivationBuyPackBtn');
   if(packBtn)packBtn.addEventListener('click',motivationBuyOrResumeCardPack);
+
+  const treasuryBtn=document.getElementById('motivationTreasuryBtn');
+  if(treasuryBtn)treasuryBtn.addEventListener('click',()=>motivationClaimTreasury(treasuryBtn));
 
   const syncBtn=document.getElementById('motivationAlbumSyncBtn');
   if(syncBtn)syncBtn.addEventListener('click',()=>motivationRunDashboardTogglSync(syncBtn));
@@ -24095,7 +24344,7 @@ function createFullBackupPayload(){
   // STATE contains the complete persistent dashboard model, including:
   // products/revenue/sales/settings, Motivation Mode setting, Toggl-synced
   // daily hours + sync metadata, XP/levels, current challenge, challenge
-  // history, impact tasks and the anti-double-award XP bookkeeping.
+  // history, impact tasks, Treasury balances and the anti-double-award XP bookkeeping.
   return {
     backupFormat:'fab-profit-analytics-full-backup',
     backupVersion:2,
