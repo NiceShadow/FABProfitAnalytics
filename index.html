@@ -8542,6 +8542,12 @@
     color:#8F97A7;font-size:9.5px;
   }
   .motivation-toggl-status strong{color:#C9CED8;font-size:9.5px;}
+  .motivation-toggl-copy{
+    margin-left:1px;color:#858B95;font-size:9px;font-weight:700;
+    text-decoration:underline;text-underline-offset:2px;cursor:pointer;user-select:none;
+  }
+  .motivation-toggl-copy:hover{color:#A6ADB8;}
+
   .motivation-toggl-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#626B7A;}
   .motivation-toggl-status.connected .motivation-toggl-dot{
     background:#4FB8B0;box-shadow:0 0 0 3px rgba(79,184,176,.08);
@@ -13108,6 +13114,31 @@ function motivationTogglLastSyncText(){
   if(Number.isNaN(d.getTime())) return 'Synced previously';
   return `Last sync ${d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
 }
+function motivationTogglDailyClipboardText(){
+  const state=motivationTogglState();
+  const daily=state.dailyHours&&typeof state.dailyHours==='object' ? state.dailyHours : {};
+  return Object.keys(daily).sort((a,b)=>a.localeCompare(b)).map(date=>{
+    const hours=Math.max(0,Number(daily[date])||0);
+    return `${date}: ${Number(hours.toFixed(2))} hours`;
+  }).join('\n');
+}
+
+async function motivationCopyTogglDailyToClipboard(){
+  const text=motivationTogglDailyClipboardText();
+  if(!text){ showToast('No synced Toggl daily data to copy'); return; }
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Toggl daily work copied to clipboard');
+  }catch(error){
+    const area=document.createElement('textarea');
+    area.value=text; area.setAttribute('readonly','');
+    area.style.position='fixed'; area.style.left='-9999px';
+    document.body.appendChild(area); area.select();
+    const copied=document.execCommand('copy'); area.remove();
+    showToast(copied?'Toggl daily work copied to clipboard':'Could not copy Toggl work data');
+  }
+}
+
 function motivationTogglStatusHTML(){
   const connected=motivationTogglConnected();
   const state=motivationTogglState();
@@ -13125,6 +13156,7 @@ function motivationTogglStatusHTML(){
       <span class="motivation-toggl-dot"></span>
       <strong>Toggl Track connected</strong>
       <span>${escapeHtml(motivationTogglLastSyncText())}${state.entryCount ? ` · ${state.entryCount} entr${state.entryCount===1?'y':'ies'}` : ''}</span>
+      <span class="motivation-toggl-copy" id="motivationTogglCopyBtn" role="link" tabindex="0">Copy to clipboard</span>
       <button type="button" class="motivation-toggl-sync-inline" id="motivationTogglSyncBtn">Sync now</button>
     </div>
   `;
@@ -15492,6 +15524,15 @@ function wireMotivationWorkTimelineEvents(){
 
   const connectBtn=panel.querySelector('#motivationTogglConnectBtn');
   if(connectBtn) connectBtn.addEventListener('click',openMotivationTogglConnection);
+
+  const copyBtn=panel.querySelector('#motivationTogglCopyBtn');
+  if(copyBtn){
+    const copy=()=>motivationCopyTogglDailyToClipboard();
+    copyBtn.addEventListener('click',copy);
+    copyBtn.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); copy(); }
+    });
+  }
 
   const syncBtn=panel.querySelector('#motivationTogglSyncBtn');
   if(syncBtn){
