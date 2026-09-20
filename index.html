@@ -10927,6 +10927,72 @@
   }
 }
 
+
+/* Cloud backup */
+.cloud-backup-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+.cloud-backup-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.cloud-backup-field span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.cloud-backup-field input{
+  width:100%;
+  min-width:0;
+}
+.cloud-backup-key-row{
+  display:flex;
+  gap:7px;
+}
+.cloud-backup-key-row input{flex:1 1 auto;}
+.cloud-backup-key-row .btn{flex:0 0 auto;}
+.cloud-backup-options{
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:11px;
+}
+.cloud-backup-actions{
+  margin-top:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.cloud-backup-status{
+  margin-top:12px;
+  padding:9px 11px;
+  border-radius:8px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.07);
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+.cloud-backup-status.success{color:#93D5AE;border-color:rgba(89,194,132,.20);background:rgba(89,194,132,.055);}
+.cloud-backup-status.loading{color:#B8C4D9;}
+.cloud-backup-status.attention{color:#E6C878;border-color:rgba(225,184,75,.22);background:rgba(225,184,75,.055);}
+.cloud-backup-status.error{color:#E59A9A;border-color:rgba(220,91,91,.22);background:rgba(220,91,91,.055);}
+.cloud-backup-safety{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.55;
+}
+@media(max-width:720px){
+  .cloud-backup-grid{grid-template-columns:1fr;}
+}
 </style>
 
 <style id="roboto-global-font">
@@ -10946,7 +11012,7 @@
 </div>
 <script>
 
-const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"gems":0,"activeChallenge":null,"challengeHistory":[],"gemChallenge":null,"gemChallengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null,"productLaunchRewardBaselineReady":false,"pendingCardPack":null,"treasury":{"xp":0,"gems":0}},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null}};
+const SEED_DATA = {"products":[],"revenue":[],"units":[],"priceHistory":[],"confirmedSalePeriods":[],"plannedSales":[],"deletedSalePeriods":[],"fabEventSales":[],"motivationWorkLog":[],"motivationToggl":{"dailyHours":{},"lastSyncAt":null,"lastError":null,"entryCount":0,"syncStart":null,"syncEnd":null},"motivationGame":{"totalXp":0,"gems":0,"activeChallenge":null,"challengeHistory":[],"gemChallenge":null,"gemChallengeHistory":[],"tasks":[],"workXpBaselineReady":false,"workXpAwardedHours":{},"workXpCarry":0,"lastTaskPromptAt":null,"productLaunchRewardBaselineReady":false,"pendingCardPack":null,"treasury":{"xp":0,"gems":0}},"cardAlbum":{"dataset":null,"inventory":{},"importedAt":null},"settings":{"applyRevenueShare":true,"displayCurrency":"USD","subtractGeneralSpendingFromNumbers":true,"useHistoricalExchangeRates":true,"salesPlanningRequire31DayGap":true,"salesShowSuggestions":true,"salesSuggestionsRequireKnownNextFabEvent":true,"salesSuggestionMinimumDays":4,"motivationMode":false},"fxHistory":{},"fxSync":{"inProgress":false,"lastError":null,"startedAt":null,"completedAt":null},"syncMeta":{"updatedAt":null}};
 
 const PALETTE = ["#D9A441","#4FB8B0","#8C7CF0","#E2725B","#6FBF73","#5DA8E2","#E2C255","#C97CE0","#7FD1C1","#E08FB0"];
 
@@ -11005,6 +11071,9 @@ const LOCAL_STORAGE_KEY = 'fab-profit-analytics-state-v1';
 const FX_CACHE_STORAGE_KEY = 'fab-profit-analytics-fx-history-v1';
 const TOGGL_TOKEN_STORAGE_KEY = 'fab-profit-analytics-toggl-token-v1';
 const TOGGL_BRIDGE_URL_STORAGE_KEY = 'fab-profit-analytics-toggl-bridge-url-v1';
+const CLOUD_BACKUP_URL_STORAGE_KEY = 'fab-profit-analytics-cloud-backup-url-v1';
+const CLOUD_BACKUP_KEY_STORAGE_KEY = 'fab-profit-analytics-cloud-backup-key-v1';
+const CLOUD_BACKUP_AUTO_STORAGE_KEY = 'fab-profit-analytics-cloud-backup-auto-v1';
 
 function getTogglApiToken(){
   if(!localStorageAvailable()) return '';
@@ -11082,6 +11151,63 @@ function clearTogglBridgeUrl(){
     console.error('Toggl bridge URL clear failed',e);
     return false;
   }
+}
+
+
+function normalizeCloudBackupUrl(value){
+  const raw=String(value||'').trim();
+  if(!raw) return '';
+  try{
+    const url=new URL(raw);
+    if(url.protocol!=='https:' && url.hostname!=='127.0.0.1' && url.hostname!=='localhost') return '';
+    return url.toString().replace(/\/$/,'');
+  }catch(_){
+    return '';
+  }
+}
+
+function normalizeCloudBackupKey(value){
+  return String(value||'').trim().replace(/[^A-Za-z0-9_-]/g,'').slice(0,128);
+}
+
+function getCloudBackupConfig(){
+  if(!localStorageAvailable()) return {url:'',key:'',auto:true};
+  try{
+    return {
+      url:normalizeCloudBackupUrl(window.localStorage.getItem(CLOUD_BACKUP_URL_STORAGE_KEY)||''),
+      key:normalizeCloudBackupKey(window.localStorage.getItem(CLOUD_BACKUP_KEY_STORAGE_KEY)||''),
+      auto:window.localStorage.getItem(CLOUD_BACKUP_AUTO_STORAGE_KEY)!=='0'
+    };
+  }catch(_){
+    return {url:'',key:'',auto:true};
+  }
+}
+
+function setCloudBackupConfig(config){
+  if(!localStorageAvailable()) return false;
+  const url=normalizeCloudBackupUrl(config?.url);
+  const key=normalizeCloudBackupKey(config?.key);
+  const auto=config?.auto!==false;
+
+  try{
+    if(url) window.localStorage.setItem(CLOUD_BACKUP_URL_STORAGE_KEY,url);
+    else window.localStorage.removeItem(CLOUD_BACKUP_URL_STORAGE_KEY);
+
+    if(key) window.localStorage.setItem(CLOUD_BACKUP_KEY_STORAGE_KEY,key);
+    else window.localStorage.removeItem(CLOUD_BACKUP_KEY_STORAGE_KEY);
+
+    window.localStorage.setItem(CLOUD_BACKUP_AUTO_STORAGE_KEY,auto?'1':'0');
+    return !!(url&&key);
+  }catch(e){
+    console.error('Cloud backup config save failed',e);
+    return false;
+  }
+}
+
+function generateCloudBackupKey(){
+  const bytes=new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  return [...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
 function localStorageAvailable(){
@@ -11277,6 +11403,10 @@ let COMPARE_DEFERRED_RENDER = false;
 let COMPARE_REFRESH_TIMER = null;
 let FX_PULL_ACTIVE = false;
 
+const CLOUD_BACKUP_MAX_AGE_MS=24*60*60*1000;
+let CLOUD_BACKUP_REMOTE=null;
+let CLOUD_BACKUP_STATUS={message:'Not checked yet',type:'neutral'};
+
 function productDraftFor(pid){
   return PRODUCT_EDIT_DRAFTS.get(pid) || {};
 }
@@ -11404,6 +11534,13 @@ function inferredFirstSaleDateFromState(state, pid){
   return entries.reduce((min,r)=> r.date<min ? r.date : min, entries[0].date);
 }
 function normalizeState(state){
+  if(!state.syncMeta || typeof state.syncMeta!=='object' || Array.isArray(state.syncMeta)){
+    state.syncMeta={updatedAt:null};
+  }
+  if(state.syncMeta.updatedAt && !Number.isFinite(new Date(state.syncMeta.updatedAt).getTime())){
+    state.syncMeta.updatedAt=null;
+  }
+
   if(!state.settings) state.settings = {applyRevenueShare:true};
   if(state.settings.showEstimatedSalePeriods===undefined) state.settings.showEstimatedSalePeriods = true;
   if(state.settings.monthlyCurrentMonthUntilDayOnly===undefined) state.settings.monthlyCurrentMonthUntilDayOnly = false;
@@ -11576,6 +11713,287 @@ function normalizeState(state){
   return state;
 }
 
+
+function cloudBackupTimestampMs(value){
+  const ms=new Date(value||'').getTime();
+  return Number.isFinite(ms)?ms:0;
+}
+
+function cloudLocalUpdatedAt(){
+  return STATE?.syncMeta?.updatedAt||null;
+}
+
+function cloudRemoteUpdatedAt(remote){
+  return remote?.stateUpdatedAt
+    || remote?.backup?.state?.syncMeta?.updatedAt
+    || remote?.backup?.exportedAt
+    || null;
+}
+
+function cloudSetStatus(message,type='neutral'){
+  CLOUD_BACKUP_STATUS={message:String(message||''),type};
+  const el=document.getElementById('cloudBackupStatus');
+  if(el){
+    el.className=`cloud-backup-status ${type}`;
+    el.textContent=CLOUD_BACKUP_STATUS.message;
+  }
+  cloudRefreshActionState();
+}
+
+function cloudRefreshActionState(){
+  const restore=document.getElementById('cloudRestoreBtn');
+  if(!restore) return;
+
+  const localMs=cloudBackupTimestampMs(cloudLocalUpdatedAt());
+  const remoteMs=cloudBackupTimestampMs(cloudRemoteUpdatedAt(CLOUD_BACKUP_REMOTE));
+
+  // A cloud restore is permitted only when it is newer, or when this browser
+  // has no timestamp yet (for example a fresh computer/browser).
+  restore.disabled=!CLOUD_BACKUP_REMOTE || (localMs>0 && remoteMs<=localMs);
+}
+
+function cloudBackupDateText(value){
+  const ms=cloudBackupTimestampMs(value);
+  if(!ms) return 'unknown';
+  return new Date(ms).toLocaleString(undefined,{
+    year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'
+  });
+}
+
+async function cloudFetchRemoteBackup(config=getCloudBackupConfig()){
+  if(!config.url || !config.key) throw new Error('Cloud backup is not configured.');
+
+  const response=await fetch(`${config.url}/backup?key=${encodeURIComponent(config.key)}`,{
+    method:'GET',
+    cache:'no-store'
+  });
+
+  if(response.status===404) return null;
+
+  let body=null;
+  try{ body=await response.json(); }catch(_){}
+
+  if(!response.ok){
+    throw new Error(body?.error||`Cloud backup request failed (${response.status}).`);
+  }
+  if(!body || !body.backup) throw new Error('Cloud backup response is invalid.');
+
+  return body;
+}
+
+async function cloudCheckNow({quiet=false}={}){
+  const config=getCloudBackupConfig();
+  if(!config.url || !config.key){
+    CLOUD_BACKUP_REMOTE=null;
+    cloudSetStatus('Not configured. Enter the Worker URL and a sync key.','neutral');
+    return {kind:'unconfigured',remote:null};
+  }
+
+  cloudSetStatus('Checking cloud backup…','loading');
+
+  try{
+    const remote=await cloudFetchRemoteBackup(config);
+    CLOUD_BACKUP_REMOTE=remote;
+
+    if(!remote){
+      cloudSetStatus('Connected. No cloud backup exists yet.','success');
+      if(!quiet) showToast('Cloud connected · no backup stored yet');
+      return {kind:'empty',remote:null};
+    }
+
+    const localMs=cloudBackupTimestampMs(cloudLocalUpdatedAt());
+    const remoteMs=cloudBackupTimestampMs(cloudRemoteUpdatedAt(remote));
+
+    if(!localMs){
+      cloudSetStatus(
+        `Cloud backup found · ${cloudBackupDateText(remote.storedAt)} · ready to restore on this browser.`,
+        'attention'
+      );
+      if(!quiet) showToast('Cloud backup found · ready to restore');
+      return {kind:'cloud-available',remote};
+    }
+
+    if(remoteMs>localMs){
+      cloudSetStatus(
+        `Newer cloud data available · cloud ${cloudBackupDateText(cloudRemoteUpdatedAt(remote))} · local ${cloudBackupDateText(cloudLocalUpdatedAt())}. Local data was NOT replaced.`,
+        'attention'
+      );
+      if(!quiet) showToast('Newer cloud backup available · local data kept');
+      return {kind:'cloud-newer',remote};
+    }
+
+    if(localMs>remoteMs){
+      cloudSetStatus(
+        `Local data is newer · local ${cloudBackupDateText(cloudLocalUpdatedAt())} · cloud ${cloudBackupDateText(cloudRemoteUpdatedAt(remote))}.`,
+        'success'
+      );
+      return {kind:'local-newer',remote};
+    }
+
+    cloudSetStatus(
+      `Cloud and local data match · last cloud backup ${cloudBackupDateText(remote.storedAt)}.`,
+      'success'
+    );
+    return {kind:'same',remote};
+  }catch(error){
+    console.error('Cloud backup check failed',error);
+    cloudSetStatus(error?.message||'Cloud backup check failed.','error');
+    if(!quiet) showToast('Cloud backup check failed');
+    return {kind:'error',remote:null,error};
+  }
+}
+
+async function cloudBackupNow({automatic=false}={}){
+  const config=getCloudBackupConfig();
+  if(!config.url || !config.key){
+    cloudSetStatus('Configure the Worker URL and sync key first.','error');
+    if(!automatic) showToast('Configure cloud backup first');
+    return false;
+  }
+
+  // Old pre-cloud saves do not have a modification timestamp. Stamp them once
+  // before their first cloud upload so future freshness comparisons are reliable.
+  if(!cloudLocalUpdatedAt()){
+    await persist();
+  }
+
+  const payload=createFullBackupPayload();
+  cloudSetStatus(automatic?'Refreshing 24-hour cloud backup…':'Uploading cloud backup…','loading');
+
+  try{
+    const response=await fetch(`${config.url}/backup`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        key:config.key,
+        backup:payload
+      })
+    });
+
+    let body=null;
+    try{ body=await response.json(); }catch(_){}
+
+    if(response.status===409){
+      // The server itself refuses stale writes. Immediately fetch the newer
+      // copy so the UI can offer a safe restore instead.
+      const result=await cloudCheckNow({quiet:true});
+      cloudSetStatus(
+        result.remote
+          ? `Upload blocked: the cloud contains newer data (${cloudBackupDateText(cloudRemoteUpdatedAt(result.remote))}). Local data was not changed.`
+          : 'Upload blocked because a newer cloud backup exists.',
+        'attention'
+      );
+      if(!automatic) showToast('Cloud is newer · stale upload blocked');
+      return false;
+    }
+
+    if(!response.ok){
+      throw new Error(body?.error||`Cloud upload failed (${response.status}).`);
+    }
+
+    CLOUD_BACKUP_REMOTE=body;
+    cloudSetStatus(
+      `Cloud backup saved · ${cloudBackupDateText(body.storedAt)}.`,
+      'success'
+    );
+    if(!automatic) showToast('Cloud backup saved');
+    return true;
+  }catch(error){
+    console.error('Cloud backup upload failed',error);
+    cloudSetStatus(error?.message||'Cloud backup upload failed.','error');
+    if(!automatic) showToast('Cloud backup failed');
+    return false;
+  }
+}
+
+async function cloudRestoreRemote(){
+  const remote=CLOUD_BACKUP_REMOTE || await cloudFetchRemoteBackup();
+  if(!remote || !remote.backup){
+    showToast('No cloud backup available');
+    return false;
+  }
+
+  const localMs=cloudBackupTimestampMs(cloudLocalUpdatedAt());
+  const remoteUpdatedAt=cloudRemoteUpdatedAt(remote);
+  const remoteMs=cloudBackupTimestampMs(remoteUpdatedAt);
+
+  // This intentionally blocks restoring an older/equal cloud copy over newer
+  // local work. The user cannot accidentally erase recent progress.
+  if(localMs>0 && remoteMs<=localMs){
+    cloudSetStatus('Restore blocked because the cloud backup is not newer than your local data.','attention');
+    showToast('Restore blocked · local data is newer');
+    return false;
+  }
+
+  const parsed=parseFullBackupPayload(remote.backup);
+  if(!parsed?.state?.products || !parsed?.state?.revenue || !parsed?.state?.units){
+    throw new Error('Cloud backup has an invalid format.');
+  }
+
+  const ok=confirm(
+    `Restore the newer cloud backup from ${cloudBackupDateText(remoteUpdatedAt)}?\n\n`+
+    `Your current local data will be replaced. This action is only enabled when the cloud copy is newer (or this browser has no local timestamp).`
+  );
+  if(!ok) return false;
+
+  STATE=normalizeState(parsed.state);
+
+  // Older cloud payloads may predate syncMeta. Preserve the server's verified
+  // cloud timestamp so the restored state does not immediately look stale.
+  if(!STATE.syncMeta) STATE.syncMeta={updatedAt:null};
+  STATE.syncMeta.updatedAt=remoteUpdatedAt || remote.storedAt || new Date().toISOString();
+
+  DASHBOARD_REVENUE_MODE=STATE.settings.dashboardRevenueMode==='net'?'net':'gross';
+
+  if(parsed.localConnection?.togglBridgeUrl){
+    setTogglBridgeUrl(parsed.localConnection.togglBridgeUrl);
+  }
+  if(STATE.fxHistory) setDedicatedFxCache(STATE.fxHistory);
+
+  // Important: saveState(), NOT persist(). persist() would stamp "now" and
+  // disguise the original cloud revision time.
+  await saveState(STATE);
+
+  ACTIVE_FILTER='all';
+  render();
+  cloudSetStatus(`Restored cloud backup · ${cloudBackupDateText(STATE.syncMeta.updatedAt)}.`,'success');
+  showToast('Cloud backup restored');
+  return true;
+}
+
+async function cloudStartupCheck(){
+  const config=getCloudBackupConfig();
+  if(!config.url || !config.key) return;
+
+  const result=await cloudCheckNow({quiet:true});
+  if(result.kind==='error' || result.kind==='unconfigured') return;
+
+  // Never auto-restore. A newer cloud revision is only surfaced to the user.
+  if(result.kind==='cloud-newer' || result.kind==='cloud-available'){
+    if(result.kind==='cloud-newer'){
+      showToast('Newer cloud backup available · local data kept');
+    }
+    return;
+  }
+
+  if(!config.auto) return;
+
+  if(result.kind==='empty'){
+    await cloudBackupNow({automatic:true});
+    return;
+  }
+
+  const storedMs=cloudBackupTimestampMs(result.remote?.storedAt);
+  const oldEnough=!storedMs || (Date.now()-storedMs)>=CLOUD_BACKUP_MAX_AGE_MS;
+
+  // If local is newer, refresh only after the cloud backup is at least 24 h old.
+  // If both revisions are the same, refreshing after 24 h acts as the requested
+  // periodic safety backup while the website is open/reloaded.
+  if(oldEnough && (result.kind==='local-newer' || result.kind==='same')){
+    await cloudBackupNow({automatic:true});
+  }
+}
+
 async function init(){
   if('scrollRestoration' in history) history.scrollRestoration='manual';
   window.scrollTo(0,0);
@@ -11591,8 +12009,15 @@ async function init(){
   DASHBOARD_REVENUE_MODE=STATE.settings.dashboardRevenueMode==='net'?'net':'gross';
 
   render();
+
+  // One check per page open/reload. This never silently restores cloud data.
+  setTimeout(()=>cloudStartupCheck(),120);
 }
 async function persist(){
+  if(STATE){
+    if(!STATE.syncMeta || typeof STATE.syncMeta!=='object') STATE.syncMeta={updatedAt:null};
+    STATE.syncMeta.updatedAt=new Date().toISOString();
+  }
   if(STATE && STATE.fxHistory) setDedicatedFxCache(STATE.fxHistory);
   return await saveState(STATE);
 }
@@ -24448,9 +24873,11 @@ function clearAllDataButtonHTML(context=''){
 
 function createFullBackupPayload(){
   // STATE contains the complete persistent dashboard model, including:
-  // products/revenue/sales/settings, Motivation Mode setting, Toggl-synced
-  // daily hours + sync metadata, XP/levels, current challenge, challenge
-  // history, impact tasks, Treasury balances and the anti-double-award XP bookkeeping.
+  // products/revenue/units/prices/sales/settings/FX history; Motivation Mode;
+  // Toggl-synced daily hours + sync metadata; XP/levels/gems; current challenge,
+  // challenge histories, tasks, Treasury, pending card packs; and the complete
+  // Card Album dataset + owned-card inventory. Connection secrets such as the
+  // Toggl API token stay outside STATE and are deliberately excluded.
   return {
     backupFormat:'fab-profit-analytics-full-backup',
     backupVersion:2,
@@ -25340,7 +25767,9 @@ async function pullHistoricalFxHistory(){
 }
 
 /* ================= DATA / BACKUP ================= */
+
 function dataHTML(){
+  const cloud=getCloudBackupConfig();
   return `
     <div class="panel">
       <div class="panel-head"><h2>Backup &amp; restore</h2></div>
@@ -25356,11 +25785,58 @@ function dataHTML(){
         </label>
       </div>
       <div class="backup-includes-note">
-        Includes all dashboard data, Motivation Mode, level/XP, current challenge and history,
-        impact tasks, Toggl-synced daily hours and sync metadata, sales/planning data, settings,
-        FX history and product data. The Toggl API token is intentionally excluded from backup files.
+        Includes the complete persistent dashboard state: products, revenue, units, prices, sales/planning,
+        settings, FX history, Motivation Mode, Toggl daily hours, XP/levels, gems, Treasury, active challenge
+        and histories, tasks, pending card packs, plus the complete card collection dataset and owned-card inventory.
+        The Toggl API token is intentionally excluded from backup files.
       </div>
     </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Cloud backup</h2><span class="hint">Cloudflare Worker + KV</span></div>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin-top:0;">
+        Use the same Worker URL and sync key on another computer to access the same backup.
+        The site checks cloud state once when opened or reloaded. It never silently replaces newer local progress.
+      </p>
+
+      <div class="cloud-backup-grid">
+        <label class="cloud-backup-field">
+          <span>Worker URL</span>
+          <input type="url" id="cloudBackupUrl" autocomplete="off" spellcheck="false"
+            placeholder="https://your-worker.workers.dev" value="${escapeAttr(cloud.url)}">
+        </label>
+
+        <label class="cloud-backup-field">
+          <span>Sync key</span>
+          <div class="cloud-backup-key-row">
+            <input type="text" id="cloudBackupKey" autocomplete="off" spellcheck="false"
+              placeholder="Generate or paste your private key" value="${escapeAttr(cloud.key)}">
+            <button type="button" class="btn secondary" id="cloudGenerateKeyBtn">Generate</button>
+          </div>
+        </label>
+      </div>
+
+      <label class="cloud-backup-options">
+        <input type="checkbox" id="cloudBackupAuto" ${cloud.auto?'checked':''}>
+        <span>On page open/reload, refresh the cloud backup when its last backup is at least 24 hours old.</span>
+      </label>
+
+      <div class="cloud-backup-actions">
+        <button type="button" class="btn secondary" id="cloudSaveConnectionBtn">Save connection &amp; check</button>
+        <button type="button" class="btn" id="cloudBackupNowBtn">Backup now</button>
+        <button type="button" class="btn secondary" id="cloudCheckBtn">Check cloud</button>
+        <button type="button" class="btn primary" id="cloudRestoreBtn" disabled>Restore newer cloud backup</button>
+      </div>
+
+      <div class="cloud-backup-status ${CLOUD_BACKUP_STATUS.type}" id="cloudBackupStatus">${escapeHtml(CLOUD_BACKUP_STATUS.message)}</div>
+
+      <div class="cloud-backup-safety">
+        Safety: a cloud download is never applied automatically. Restoring is enabled only when the cloud copy is newer
+        (or this browser has no local revision yet). The Worker also rejects stale uploads, so an older browser cannot
+        overwrite newer cloud progress.
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-head"><h2>At a glance</h2></div>
       <table>
@@ -26329,6 +26805,69 @@ function wireTabEvents(){
   }
 
   if(ACTIVE_TAB==='data'){
+    const cloudUrlInput=document.getElementById('cloudBackupUrl');
+    const cloudKeyInput=document.getElementById('cloudBackupKey');
+    const cloudAutoInput=document.getElementById('cloudBackupAuto');
+
+    const saveCloudInputs=()=>{
+      const ok=setCloudBackupConfig({
+        url:cloudUrlInput?.value||'',
+        key:cloudKeyInput?.value||'',
+        auto:!!cloudAutoInput?.checked
+      });
+      if(!ok){
+        cloudSetStatus('Enter a valid HTTPS Worker URL and sync key.','error');
+        return false;
+      }
+      return true;
+    };
+
+    const generateCloudKey=document.getElementById('cloudGenerateKeyBtn');
+    if(generateCloudKey) generateCloudKey.addEventListener('click',()=>{
+      if(cloudKeyInput){
+        cloudKeyInput.value=generateCloudBackupKey();
+        cloudKeyInput.focus();
+        cloudKeyInput.select();
+      }
+    });
+
+    const cloudSaveConnection=document.getElementById('cloudSaveConnectionBtn');
+    if(cloudSaveConnection) cloudSaveConnection.addEventListener('click',async()=>{
+      if(!saveCloudInputs()) return;
+      await cloudCheckNow();
+    });
+
+    const cloudCheck=document.getElementById('cloudCheckBtn');
+    if(cloudCheck) cloudCheck.addEventListener('click',async()=>{
+      if(!saveCloudInputs()) return;
+      await cloudCheckNow();
+    });
+
+    const cloudBackup=document.getElementById('cloudBackupNowBtn');
+    if(cloudBackup) cloudBackup.addEventListener('click',async()=>{
+      if(!saveCloudInputs()) return;
+      await cloudBackupNow();
+    });
+
+    const cloudRestore=document.getElementById('cloudRestoreBtn');
+    if(cloudRestore) cloudRestore.addEventListener('click',async()=>{
+      if(!saveCloudInputs()) return;
+      try{
+        await cloudRestoreRemote();
+      }catch(error){
+        console.error('Cloud restore failed',error);
+        cloudSetStatus(error?.message||'Cloud restore failed.','error');
+        showToast('Cloud restore failed');
+      }
+    });
+
+    if(cloudAutoInput) cloudAutoInput.addEventListener('change',()=>{
+      saveCloudInputs();
+    });
+
+    // Re-evaluate Restore button after every Data-page render.
+    cloudRefreshActionState();
+
     const exportBtn = document.getElementById('exportBtn');
     if(exportBtn) exportBtn.addEventListener('click', ()=>{
       const payload=createFullBackupPayload();
