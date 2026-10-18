@@ -11682,6 +11682,11 @@ function normalizeState(state){
   if(typeof state.settings.salesShowSuggestions!=='boolean') state.settings.salesShowSuggestions=true;
   if(typeof state.settings.motivationMode!=='boolean') state.settings.motivationMode=false;
   if(!['gross','net'].includes(state.settings.dashboardRevenueMode)) state.settings.dashboardRevenueMode='gross';
+  if(typeof state.settings.splitBundles!=='boolean') state.settings.splitBundles=false;
+  if(Array.isArray(state.products)){
+    state.products.forEach(p=>{ if(p && typeof p.isBundle!=='boolean') p.isBundle=!state.settings.bundleScanDone && /bundle/i.test(p.name||''); if(p && !Array.isArray(p.bundleHistory)) p.bundleHistory=[]; });
+    state.settings.bundleScanDone=true;
+  }
   if(typeof state.settings.salesSuggestionsRequireKnownNextFabEvent!=='boolean') state.settings.salesSuggestionsRequireKnownNextFabEvent=true;
   {
     const minimumSuggestionDays=Math.round(Number(state.settings.salesSuggestionMinimumDays));
@@ -12216,7 +12221,7 @@ function earliestFxRelevantProductDate(){
   // Imported revenue is authoritative for FX coverage. This intentionally does
   // not rely on the stored product release date, because an overlapping/later
   // CSV can introduce older sales for an already-existing product.
-  const revenueDates=(STATE.revenue||[]).map(r=>r.date).filter(Boolean).sort();
+  const revenueDates=(VREV()||[]).map(r=>r.date).filter(Boolean).sort();
   if(revenueDates.length) return revenueDates[0];
 
   // Fallback only for a product that exists before any revenue rows do.
@@ -12284,14 +12289,14 @@ function revenueShareMultiplier(p){
 // "Personal" gross = your ownership share of the raw sale, fee not yet subtracted.
 function personalGrossForProduct(p){
   const share = revenueShareMultiplier(p);
-  return STATE.revenue
+  return VREV()
     .filter(r=>r.productId===p.id)
     .reduce((s,r)=>s+convertRevenueUSD(Number(r.amount)*share,r.date),0);
 }
 // Net revenue helpers, including optional product spending.
 function rawNetForProductRange(p,start,end){
   const share=revenueShareMultiplier(p);
-  return STATE.revenue
+  return VREV()
     .filter(r=>r.productId===p.id && (!start || r.date>=start) && (!end || r.date<=end))
     .reduce((sum,r)=>{
       const usd=Number(r.amount)*share*globalFeeMultiplier(r.date);
@@ -12317,7 +12322,7 @@ function chartGrossForProductRange(p,start,end){
   // Gross chart revenue keeps the optional personal revenue share, but does
   // not deduct the marketplace fee. General spending never changes chart data.
   const share=revenueShareMultiplier(p);
-  return STATE.revenue
+  return VREV()
     .filter(r=>r.productId===p.id && (!start || r.date>=start) && (!end || r.date<=end))
     .reduce((sum,r)=>sum+convertRevenueUSD(Number(r.amount)*share,r.date),0);
 }
@@ -12327,6 +12332,164 @@ function dashboardRevenueForProductRange(p,start,end){
     ? chartNetForProductRange(p,start,end)
     : chartGrossForProductRange(p,start,end);
 }
+
+
+/* ---------- Bundles ---------- */
+function isBundleProduct(p){ return !!(p && p.isBundle); }
+function bundleHistoryOf(p){ return (Array.isArray(p&&p.bundleHistory)?p.bundleHistory:[]).filter(e=>e&&Array.isArray(e.ids)); }
+function bundleComponentIdsAt(p,date){
+  const h=bundleHistoryOf(p).slice().sort((a,b)=>(a.from||'').localeCompare(b.from||''));
+  if(!h.length) return [];
+  let pick=null;
+  h.forEach(e=>{ if((e.from||'')<=date) pick=e; });
+  return (pick||h[0]).ids.filter(id=>STATE.products.some(x=>x.id===id&&!x.isBundle));
+}
+function isSplitBundle(p){ return !!(STATE.settings.splitBundles && p && p.isBundle && bundleHistoryOf(p).some(e=>e.ids.length)); }
+function VPRODUCTS(){ return STATE.settings.splitBundles ? STATE.products.filter(p=>!isSplitBundle(p)) : STATE.products; }
+let _bundlePriceCache={key:'',map:new Map()};
+function componentRegularPrice(pid,date){
+  const key=(STATE.priceHistory||[]).length+'|'+(STATE.revenue||[]).length;
+  if(_bundlePriceCache.key!==key){
+    const map=new Map();
+    (STATE.priceHistory||[]).forEach(x=>{
+      const v=Number(x.maxPrice!==undefined?x.maxPrice:x.price); if(!(v>0)) return;
+      if(!map.has(x.productId)) map.set(x.productId,[]);
+      map.get(x.productId).push({t:Date.parse(x.date),v});
+    });
+    _bundlePriceCache={key,map};
+  }
+  const arr=_bundlePriceCache.map.get(pid)||[];
+  if(!arr.length) return 0;
+  const t=Date.parse(date), W=45*864e5;
+  const near=arr.filter(e=>Math.abs(e.t-t)<=W);
+  const src=near.length?near:arr;
+  return Math.max(...src.map(e=>e.v));
+}
+function bundleWeights(p,date){
+  const ids=bundleComponentIdsAt(p,date);
+  if(!ids.length) return [];
+  let w=ids.map(id=>componentRegularPrice(id,date));
+  if(w.reduce((a,b)=>a+b,0)<=0) w=ids.map(()=>1);
+  else { const fb=w.filter(x=>x>0); const avg=fb.reduce((a,b)=>a+b,0)/fb.length; w=w.map(x=>x>0?x:avg); }
+  const tot=w.reduce((a,b)=>a+b,0);
+  return ids.map((id,i)=>({id,share:w[i]/tot}));
+}
+let _viewCache={key:'',rev:null,units:null};
+function bundleViewKey(){
+  return [STATE.settings.splitBundles?1:0,STATE.revenue.length,STATE.units.length,(STATE.priceHistory||[]).length,
+    STATE.products.filter(p=>p.isBundle).map(p=>p.id+JSON.stringify(p.bundleHistory||[])).join(';'),
+    STATE.revenue.length?STATE.revenue[STATE.revenue.length-1].amount:0].join('|');
+}
+function buildBundleViews(){
+  const key=bundleViewKey();
+  if(_viewCache.key===key && _viewCache.rev) return _viewCache;
+  if(!STATE.settings.splitBundles){ _viewCache={key,rev:STATE.revenue,units:STATE.units}; return _viewCache; }
+  const byId=new Map(STATE.products.map(p=>[p.id,p]));
+  const rev=[]; 
+  STATE.revenue.forEach(r=>{
+    const p=byId.get(r.productId);
+    if(!isSplitBundle(p)){ rev.push(r); return; }
+    bundleWeights(p,r.date).forEach(c=>rev.push({id:r.id+'#'+c.id,date:r.date,productId:c.id,amount:Number(r.amount)*c.share,fromBundle:p.id}));
+  });
+  const units=[];
+  const today=todayStr();
+  STATE.units.forEach(u=>{
+    const p=byId.get(u.productId);
+    if(!isSplitBundle(p)){ units.push(u); return; }
+    const [y,m]=u.yearMonth.split('-').map(Number);
+    let last=new Date(Date.UTC(y,m,0)).toISOString().slice(0,10); if(last>today) last=today;
+    bundleComponentIdsAt(p,last).forEach(id=>units.push({id:u.id+'#'+id,yearMonth:u.yearMonth,productId:id,units:Number(u.units),fromBundle:p.id}));
+  });
+  _viewCache={key,rev,units};
+  return _viewCache;
+}
+function VREV(){ return buildBundleViews().rev; }
+function VUNITS(){ return buildBundleViews().units; }
+function bundleDotExtra(x){
+  const p=typeof x==='object'?x:STATE.products.find(q=>q.id===x);
+  if(!p||!p.isBundle) return '';
+  const c=colorFor(p.id,STATE.products.map(q=>q.id));
+  return `;border-radius:2px;outline:1.5px solid ${c};outline-offset:2px`;
+}
+function applyBundleDraft(p,d){
+  if(!p.isBundle || !Array.isArray(d.bundleIds)) return;
+  const ids=d.bundleIds.filter(id=>id!==p.id && STATE.products.some(x=>x.id===id&&!x.isBundle));
+  const hadHistory=bundleHistoryOf(p).length>0;
+  const begin=d.bundleFromBeginning!==undefined?!!d.bundleFromBeginning:!hadHistory;
+  const from=begin?null:(d.bundleFrom||todayStr());
+  let h=begin?[]:bundleHistoryOf(p).filter(e=>!e.from||e.from<from);
+  h.push({from,ids});
+  p.bundleHistory=h;
+}
+function bundleSectionHTML(p){
+  const hist=bundleHistoryOf(p);
+  const isB=!!productEditValue(p,'isBundle',!!p.isBundle);
+  const cur=productEditValue(p,'bundleIds',bundleComponentIdsAt(p,todayStr()));
+  const begin=productEditValue(p,'bundleFromBeginning',hist.length===0);
+  const from=productEditValue(p,'bundleFrom',todayStr());
+  const others=STATE.products.filter(x=>!x.isBundle&&x.id!==p.id);
+  const summary=hist.length?hist.slice().sort((a,b)=>(a.from||'').localeCompare(b.from||'')).map(e=>`${e.from?'from '+e.from:'from the beginning'}: ${e.ids.map(id=>escapeHtml((STATE.products.find(x=>x.id===id)||{}).name||'?')).join(', ')||'—'}`).join(' · '):'';
+  return `<div class="product-edit-section">
+    <div class="product-edit-section-title">Bundle</div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px;"><input type="checkbox" data-bundle-toggle="${p.id}" ${isB?'checked':''}> This listing is a bundle</label>
+    <div data-bundle-box="${p.id}" style="${isB?'':'display:none;'}">
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px;">Products included (bundles cannot be nested):</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;">
+        ${others.map(o=>`<label style="display:flex;gap:6px;align-items:center;font-size:13px;"><input type="checkbox" data-bundle-comp="${p.id}" value="${o.id}" ${cur.includes(o.id)?'checked':''}> ${escapeHtml(o.name)}</label>`).join('')||'<span style="color:var(--muted);font-size:12.5px;">No non-bundle products yet.</span>'}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:13px;">
+        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" data-bundle-begin="${p.id}" ${begin?'checked':''}> Apply from the beginning of this bundle</label>
+        <label style="display:flex;gap:6px;align-items:center;">or apply to sales from <input type="date" data-bundle-from="${p.id}" value="${from}" ${begin?'disabled':''} style="width:auto;"></label>
+      </div>
+      ${summary?`<div style="font-size:12px;color:var(--muted);margin-top:8px;">Current history — ${summary}</div>`:''}
+    </div>
+  </div>`;
+}
+function wireBundleEditors(){
+  document.querySelectorAll('[data-bundle-toggle]').forEach(cb=>cb.addEventListener('change',()=>{
+    const pid=cb.dataset.bundleToggle;
+    setProductDraftField(pid,'isBundle',cb.checked);
+    const box=document.querySelector(`[data-bundle-box="${pid}"]`); if(box) box.style.display=cb.checked?'':'none';
+    updateFloatingProductSaveButton();
+  }));
+  const syncIds=pid=>{
+    setProductDraftField(pid,'bundleIds',[...document.querySelectorAll(`[data-bundle-comp="${pid}"]:checked`)].map(x=>x.value));
+    updateFloatingProductSaveButton();
+  };
+  document.querySelectorAll('[data-bundle-comp]').forEach(cb=>cb.addEventListener('change',()=>syncIds(cb.dataset.bundleComp)));
+  document.querySelectorAll('[data-bundle-begin]').forEach(cb=>cb.addEventListener('change',()=>{
+    const pid=cb.dataset.bundleBegin;
+    setProductDraftField(pid,'bundleFromBeginning',cb.checked);
+    const d=document.querySelector(`[data-bundle-from="${pid}"]`); if(d) d.disabled=cb.checked;
+    syncIds(pid);
+  }));
+  document.querySelectorAll('[data-bundle-from]').forEach(inp=>inp.addEventListener('change',()=>{
+    const pid=inp.dataset.bundleFrom;
+    setProductDraftField(pid,'bundleFrom',inp.value||todayStr());
+    syncIds(pid);
+  }));
+  const add=document.getElementById('addNewItemBtn');
+  if(add) add.addEventListener('click',async()=>{
+    const name=(document.getElementById('newItemName').value||'').trim();
+    if(!name){ alert('Please enter a name.'); return; }
+    const isB=document.getElementById('newItemType').value==='bundle';
+    const p={id:uid('p'),name,aliases:[name],shortName:generateUniqueShortName(name,STATE.products,null),releaseDate:null,
+      hoursUntracked:0,hoursTracked:0,hoursMarketing:0,hoursSupport:0,adsSpend:0,ratingsTotal:0,revenueSharePercent:100,
+      isBundle:isB,bundleHistory:[]};
+    STATE.products.push(p);
+    await persist(); showToast(isB?'Bundle added':'Product added'); renderTabContent();
+  });
+  document.querySelectorAll('[data-resolve-bundle]').forEach(cb=>cb.addEventListener('change',()=>{
+    const r=IMPORT_STATE&&IMPORT_STATE.resolutions[cb.dataset.resolveBundle]; if(r) r.isBundle=cb.checked;
+  }));
+}
+document.addEventListener('change',async e=>{
+  if(e.target&&e.target.id==='splitBundlesToggle'){
+    STATE.settings.splitBundles=e.target.checked;
+    if(ACTIVE_FILTER!=='all') ACTIVE_FILTER='all';
+    await persist(); renderTabContent();
+  }
+});
 
 function dashboardRevenueModeToggleHTML(){
   const isNet=DASHBOARD_REVENUE_MODE==='net';
@@ -12354,7 +12517,7 @@ function hasAnyWorkingHours(){
   return STATE.products.some(p=>totalHoursForProduct(p)>0);
 }
 function totalUnitsForProduct(pid){
-  return STATE.units.filter(u=>u.productId===pid).reduce((s,u)=>s+Number(u.units),0);
+  return VUNITS().filter(u=>u.productId===pid).reduce((s,u)=>s+Number(u.units),0);
 }
 function firstSaleDate(pid){
   const p = STATE.products.find(x=>x.id===pid);
@@ -12364,16 +12527,16 @@ function firstSaleDate(pid){
 // Earliest sale date across ALL products regardless of filter — used to size the Revenue Log's
 // full day range, so the row set itself stays stable while the filter only changes the values shown.
 function globalEarliestSaleDate(){
-  if(STATE.revenue.length===0) return todayStr();
-  return STATE.revenue.reduce((min,r)=> r.date<min ? r.date : min, STATE.revenue[0].date);
+  if(VREV().length===0) return todayStr();
+  return VREV().reduce((min,r)=> r.date<min ? r.date : min, VREV()[0].date);
 }
 function monthKey(dateStr){ return dateStr.slice(0,7); }
 // All-time month list (used by the Units chart, which is always all-time), scoped by product filter.
 function allMonthKeysSorted(products){
-  const ids = new Set((products||STATE.products).map(p=>p.id));
+  const ids = new Set((products||VPRODUCTS()).map(p=>p.id));
   const set = new Set();
-  STATE.revenue.forEach(r=>{ if(ids.has(r.productId)) set.add(monthKey(r.date)); });
-  STATE.units.forEach(u=>{ if(ids.has(u.productId)) set.add(u.yearMonth); });
+  VREV().forEach(r=>{ if(ids.has(r.productId)) set.add(monthKey(r.date)); });
+  VUNITS().forEach(u=>{ if(ids.has(u.productId)) set.add(u.yearMonth); });
   return Array.from(set).sort();
 }
 function monthLabel(ym){
@@ -12382,8 +12545,8 @@ function monthLabel(ym){
   return names[parseInt(m,10)-1] + " '" + y.slice(2);
 }
 function getFilteredProducts(){
-  if(ACTIVE_FILTER==='all') return STATE.products;
-  return STATE.products.filter(p=>ACTIVE_FILTER.has(p.id));
+  if(ACTIVE_FILTER==='all') return VPRODUCTS();
+  return VPRODUCTS().filter(p=>ACTIVE_FILTER.has(p.id));
 }
 
 /* ---------- Time range resolution (used by the two chart-specific selectors) ---------- */
@@ -12401,7 +12564,7 @@ const TIME_PRESETS = [
   { id:'custom', label:'Custom range…' }
 ];
 function earliestSaleDateOrNull(pid){
-  const entries = STATE.revenue.filter(r=>r.productId===pid);
+  const entries = VREV().filter(r=>r.productId===pid);
   if(entries.length===0) return null;
   return entries.reduce((min,r)=> r.date<min ? r.date : min, entries[0].date);
 }
@@ -16324,7 +16487,7 @@ function addYearsToDateString(dateStr,years){
 }
 function salesTimelineOldestDate(){
   const productDates=(STATE.products||[]).map(p=>p.releaseDate).filter(Boolean).sort();
-  const revenueDates=(STATE.revenue||[]).map(r=>r.date).filter(Boolean).sort();
+  const revenueDates=(VREV()||[]).map(r=>r.date).filter(Boolean).sort();
   const candidates=[];
   if(productDates.length) candidates.push(productDates[0]);
   if(revenueDates.length) candidates.push(revenueDates[0]);
@@ -16936,7 +17099,7 @@ function urgentUnconfirmedSalesWarningHTML(){
           return `
             <span class="sales-request-urgency-item">
               <span class="sales-request-product-badge">
-                <span class="sales-product-bubble-dot" style="background:${color}"></span>
+                <span class="sales-product-bubble-dot" style="background:${color}${bundleDotExtra(product.id)}"></span>
                 <span>${escapeHtml(shortName)}</span>
               </span>
               <span class="sales-request-urgency-time">${escapeHtml(urgentSaleTimingLabel(requestInfo))}</span>
@@ -16962,7 +17125,7 @@ function showSalesSuggestionGlobalTooltip(product,suggestion,x,y){
   const color=colorFor(product.id,(STATE.products||[]).map(p=>p.id));
   const requestInfo=saleRequestDeadlineInfo(suggestion.start);
   tooltip.innerHTML=`
-    <strong class="sales-tooltip-product-title"><span class="sales-tooltip-product-dot" style="background:${color}"></span>${shortName}</strong>
+    <strong class="sales-tooltip-product-title"><span class="sales-tooltip-product-dot" style="background:${color}${bundleDotExtra(product.id)}"></span>${shortName}</strong>
     <span>${formatSaleDays(dayDiff(suggestion.start,suggestion.end))} sale days</span>
     <span>${suggestion.start} → ${suggestion.end}</span>
     ${requestInfo?`<span class="sales-request-deadline-tooltip"><strong>${requestInfo.daysLeft}</strong><span>${escapeHtml(requestInfo.sentence)} · deadline ${requestInfo.deadline}</span></span>`:''}
@@ -17254,7 +17417,7 @@ function mountSalesTimelineSalePeriods(){
       box.style.height=`${height}px`;
       box.innerHTML=`
         <span class="sales-suggestion-label">
-          <span class="sales-product-bubble-dot" style="background:${color}"></span>
+          <span class="sales-product-bubble-dot" style="background:${color}${bundleDotExtra(p.id)}"></span>
           <span>${shortName}</span>
         </span>
         ${suggestion.provisionalUnknownNextFab?`
@@ -17911,6 +18074,7 @@ function openSalesMultiEditor(){
       const chosen=picker.getValue();
       const rows=entries.map(entry=>({
         id:productFabListingId(entry.product),
+        bundle:!!(entry.product&&entry.product.isBundle),
         start:(applySameDates && applySameDates.checked) ? startInput.value : entry.period.start,
         end:(applySameDates && applySameDates.checked) ? endInput.value : entry.period.end,
         discount:chosen===null ? explicitOrDetectedDiscount(entry) : chosen
@@ -18434,8 +18598,11 @@ async function copyFabSupportRows(rows,button){
     return;
   }
 
+  const nB=eligible.filter(r=>r.bundle).length;
+  const heading=nB===0?'products':(nB===eligible.length?'bundles':'bundles/products');
+  eligible.sort((a,b)=>(b.bundle?1:0)-(a.bundle?1:0));
   const text=[
-    'Please schedule the following products:',
+    `Please schedule the following ${heading}:`,
     ...eligible.map(row=>
       `www.fab.com/listings/${row.id}, ${formatFabSupportDate(row.start)}, ${formatFabSupportDate(row.end)}, ${Number(row.discount)}`
     )
@@ -18475,7 +18642,7 @@ function salesProductBubblesHTML(products){
         const color=colorFor(p.id,ids);
         return `
           <span class="sales-product-bubble" title="${escapeAttr(p.name)}">
-            <span class="sales-product-bubble-dot" style="background:${color}"></span>
+            <span class="sales-product-bubble-dot" style="background:${color}${bundleDotExtra(p.id)}"></span>
             <span class="sales-product-bubble-name">${escapeHtml(shortNameFor(p))}</span>
           </span>
         `;
@@ -18590,7 +18757,7 @@ function openPlannedSaleEditor(plannedId){
     </div>
     <div class="sales-product-bubbles">
       <span class="sales-product-bubble" title="${escapeAttr(p.name||'')}">
-        <span class="sales-product-bubble-dot" style="background:${color}"></span>
+        <span class="sales-product-bubble-dot" style="background:${color}${bundleDotExtra(p.id)}"></span>
         <span class="sales-product-bubble-name">${escapeHtml(shortName)}</span>
       </span>
     </div>
@@ -18626,6 +18793,7 @@ function openPlannedSaleEditor(plannedId){
       const discount=picker.getValue() ?? normalizeSaleDiscountValue(record.discountPercent) ?? detectedDiscountForRange(product,record.start,record.end);
       copyFabSupportRows([{
         id:productFabListingId(product),
+        bundle:!!product.isBundle,
         start:startInput.value||record.start,
         end:endInput.value||record.end,
         discount
@@ -19361,7 +19529,7 @@ function fabEventParticipantRowsHTML(event,start,end){
 
         <div class="fab-event-product-label-col">
           <div class="fab-event-product-label-main">
-            <span class="sales-product-bubble-dot" style="background:${color}"></span>
+            <span class="sales-product-bubble-dot" style="background:${color}${bundleDotExtra(p.id)}"></span>
             <span class="fab-event-product-name">${escapeHtml(cleanShortName(p.shortName||p.name))}</span>
           </div>
           
@@ -20537,7 +20705,7 @@ function salesPlanningProductChipHTML(product){
   const shortName=cleanShortName(product.shortName||product.name);
   return `
     <span class="sales-plan-product-chip" title="${escapeAttr(product.name||'')}">
-      <span class="sales-plan-product-dot" style="background:${color}"></span>
+      <span class="sales-plan-product-dot" style="background:${color}${bundleDotExtra(product.id)}"></span>
       <span>${escapeHtml(shortName)}</span>
     </span>
   `;
@@ -21246,7 +21414,7 @@ function granularityToggleHTML(dailyAllowed, granularity){
 }
 
 function filterBarHTML(){
-  const all = STATE.products;
+  const all = VPRODUCTS();
   const isAllActive = ACTIVE_FILTER==='all';
   const showEstimatedToggle = ACTIVE_TAB==='revenuelog';
   const showSpendingToggle = ACTIVE_TAB==='dashboard' || ACTIVE_TAB==='compare';
@@ -21257,7 +21425,7 @@ function filterBarHTML(){
         ${all.map(p=>{
           const active = !isAllActive && ACTIVE_FILTER.has(p.id);
           return `<button class="chip ${active?'active':''}" data-filter-chip="${p.id}">
-            <span class="dot" style="background:${colorFor(p.id, all.map(x=>x.id))}"></span>${p.name}
+            <span class="dot" style="background:${colorFor(p.id, all.map(x=>x.id))}${bundleDotExtra(p.id)}"></span>${p.name}
           </button>`;
         }).join('')}
       </div>
@@ -21266,6 +21434,13 @@ function filterBarHTML(){
           <span class="toggle-label">Apply personal revenue share</span>
           <label class="switch">
             <input type="checkbox" id="revShareToggle" ${STATE.settings.applyRevenueShare?'checked':''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-wrap">
+          <span class="toggle-label">Split bundles into products ${infoTip('On: bundle revenue and units are distributed to the included products by their regular price proportions and bundles are hidden here. Off: bundles appear as their own items.')}</span>
+          <label class="switch">
+            <input type="checkbox" id="splitBundlesToggle" ${STATE.settings.splitBundles?'checked':''}>
             <span class="slider"></span>
           </label>
         </div>
@@ -21310,7 +21485,7 @@ function formatProductAge(ageMonths){
 function dashboardYearSummaryHTML(products){
   if(!products.length) return '';
   const ids=new Set(products.map(p=>p.id));
-  const dates=STATE.revenue.filter(r=>ids.has(r.productId)).map(r=>r.date).filter(Boolean).sort();
+  const dates=VREV().filter(r=>ids.has(r.productId)).map(r=>r.date).filter(Boolean).sort();
   if(!dates.length) return '';
 
   const firstYear=Number(dates[0].slice(0,4));
@@ -21410,7 +21585,7 @@ function monthlyComparisonProductChipsHTML(products){
       <div class="monthly-performance-product-chips">
         ${products.map(p=>`
           <span class="monthly-performance-product-chip" title="${escapeAttr(p.name)}">
-            <span class="monthly-performance-product-dot" style="background:${colorFor(p.id,allIds)}"></span>
+            <span class="monthly-performance-product-dot" style="background:${colorFor(p.id,allIds)}${bundleDotExtra(p.id)}"></span>
             ${cleanShortName(p.shortName||p.name)}
           </span>
         `).join('')}
@@ -21495,7 +21670,7 @@ function saleDaysAverageTooltipHTML(products,start,end,options={}){
   const allIds=STATE.products.map(p=>p.id);
   const rows=data.rows.map(row=>`
     <div class="monthly-sale-tooltip-row">
-      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}${bundleDotExtra(row.product.id)}"></span>
       <span class="monthly-sale-tooltip-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
       <strong>${formatSaleDays(row.days)} d</strong>
     </div>
@@ -21776,7 +21951,7 @@ function monthlyAdjustedSaleDaysTooltipHTML(normalized){
   const allIds=STATE.products.map(p=>p.id);
   const rows=(normalized.details||[]).map(row=>`
     <div class="monthly-sale-tooltip-row">
-      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}${bundleDotExtra(row.product.id)}"></span>
       <span class="monthly-sale-tooltip-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
       <strong>${formatSaleDays(row.actualSaleDays)} → ${formatSaleDays(row.targetSaleDays)} d${row.usedUnreleasedAverageFallback?' · avg. fallback':''}</strong>
     </div>
@@ -21806,7 +21981,7 @@ function monthlyAdjustedRevenueHTML(normalized){
 
   const rows=(normalized.details||[]).map(row=>`
     <div class="monthly-adjusted-simple-row">
-      <span class="dot" style="background:${colorFor(row.product.id,allIds)}"></span>
+      <span class="dot" style="background:${colorFor(row.product.id,allIds)}${bundleDotExtra(row.product.id)}"></span>
       <span class="monthly-adjusted-simple-name">${cleanShortName(row.product.shortName||row.product.name)}</span>
       <strong>${fmtMoney(row.adjustedRevenue)}</strong>
     </div>
@@ -22168,7 +22343,7 @@ function dashboardHTML(){
   const allSelected = ACTIVE_FILTER==='all';
   const combinedLabel = allSelected ? 'All products' : 'Selected total';
 
-  if(STATE.products.length===0){
+  if(VPRODUCTS().length===0){
     return filterBarHTML() + `<div class="panel"><div class="empty">No products yet — head to Import CSV to bring in your sales data.</div></div>`;
   }
   if(products.length===0){
@@ -22330,7 +22505,7 @@ if(!window._compareLoadingViewportBound){
 function compareProductsHTML(){
   if(COMPARE_DEFERRED_RENDER) return compareLoadingShellHTML();
   const products=getFilteredProducts();
-  if(STATE.products.length===0){
+  if(VPRODUCTS().length===0){
     return filterBarHTML()+`<div class="panel"><div class="empty">No products yet — head to Import CSV to bring in your sales data.</div></div>`;
   }
   if(products.length===0){
@@ -22445,7 +22620,7 @@ function performanceEvolutionMonthlySeries(p,months,range){
 
 
 function unitsSoldForProduct(p){
-  return STATE.units
+  return VUNITS()
     .filter(u=>u.productId===p.id)
     .reduce((s,u)=>s+Number(u.units||0),0);
 }
@@ -22486,7 +22661,7 @@ function productCompareSummaryHTML(products){
       ${visibleRows.map(r=>`
         <div class="product-compare-summary-row" style="--fill:${pct(r[key],best[key]).toFixed(1)}%;">
           <div class="product-compare-summary-name">
-            <span class="dot" style="background:${colorFor(r.p.id,ids)}"></span>
+            <span class="dot" style="background:${colorFor(r.p.id,ids)}${bundleDotExtra(r.p.id)}"></span>
             <span>${shortNameFor(r.p)}</span>
           </div>
           <div class="product-compare-summary-value">${formatter(r[key])}</div>
@@ -22537,7 +22712,7 @@ function productComparisonCardHTML(p,products){
     <div class="panel product-compare-card${collapsed?' collapsed':''}" data-product-compare-card="${escapeAttr(p.id)}">
       <div class="product-compare-card-header" data-product-card-header="${escapeAttr(p.id)}">
         <div class="product-compare-card-heading">
-          <span class="dot" style="background:${color}"></span>
+          <span class="dot" style="background:${color}${bundleDotExtra(p.id)}"></span>
           <div class="product-compare-card-title" title="${escapeAttr(p.name)}">${escapeAttr(p.name)}</div>
         </div>
         <button
@@ -22596,7 +22771,7 @@ function productComparisonCardHTML(p,products){
 function legendRow(products){
   const ids = products.map(x=>x.id);
   return `<div class="legend-row">${products.map(p=>`
-    <span class="legend-item" title="${escapeAttr(p.name)}"><span class="dot" style="background:${colorFor(p.id, ids)}"></span>${shortNameFor(p)}</span>
+    <span class="legend-item" title="${escapeAttr(p.name)}"><span class="dot" style="background:${colorFor(p.id, ids)}${bundleDotExtra(p.id)}"></span>${shortNameFor(p)}</span>
   `).join('')}</div>`;
 }
 
@@ -23276,7 +23451,7 @@ function mountDashboardCharts(){
 
     const totalGross = products.reduce((s,p)=>{
       const share = revenueShareMultiplier(p);
-      return s + STATE.revenue
+      return s + VREV()
         .filter(r=>r.productId===p.id && r.date>=range.start && r.date<=range.end)
         .reduce((a,r)=>a+convertRevenueUSD(Number(r.amount)*share,r.date),0);
     },0);
@@ -23416,7 +23591,7 @@ function mountDashboardCharts(){
     const months = allMonthKeysSorted(products);
     const ctx = document.getElementById('chartUnits');
     const byProduct = {};
-    ids.forEach(id=>{ byProduct[id] = months.map(m => STATE.units.filter(u=>u.productId===id && u.yearMonth===m).reduce((s,u)=>s+Number(u.units),0)); });
+    ids.forEach(id=>{ byProduct[id] = months.map(m => VUNITS().filter(u=>u.productId===id && u.yearMonth===m).reduce((s,u)=>s+Number(u.units),0)); });
 
     const unitsStackMax=months.reduce((mx,_,i)=>Math.max(mx,products.reduce((s,p)=>s+(Number(byProduct[p.id][i])||0),0)),0);
     const unitsMajorStep=Math.max(1,Math.round(niceMoneyStep(unitsStackMax,5)));
@@ -24737,7 +24912,7 @@ function queueRevenueLogRefresh(){
 
 function revenueLogHTML(){
   const products=getFilteredProducts();
-  if(STATE.products.length===0) return filterBarHTML()+`<div class="panel"><div class="empty">No products yet — head to Import CSV to bring in your sales data.</div></div>`;
+  if(VPRODUCTS().length===0) return filterBarHTML()+`<div class="panel"><div class="empty">No products yet — head to Import CSV to bring in your sales data.</div></div>`;
   if(products.length===0) return filterBarHTML()+`<div class="panel"><div class="empty">No products match the current filter.</div></div>`;
 
   const ids=products.map(p=>p.id);
@@ -24819,7 +24994,7 @@ function revenueLogHTML(){
         <div class="rl-grid-cell rl-grid-head rl-total-cell">Total</div>
         ${products.map(p=>{
           const c=colorFor(p.id,ids);
-          return `<div class="rl-grid-cell rl-grid-head rl-header-product" title="${escapeAttr(p.name)}"><span class="rl-header-code"><span class="dot" style="background:${c}"></span>${shortNameFor(p)}</span></div>`;
+          return `<div class="rl-grid-cell rl-grid-head rl-header-product" title="${escapeAttr(p.name)}"><span class="rl-header-code"><span class="dot" style="background:${c}${bundleDotExtra(p.id)}"></span>${shortNameFor(p)}</span></div>`;
         }).join('')}
       </div>
       <div class="revenue-log-sheet">
@@ -24828,7 +25003,7 @@ function revenueLogHTML(){
           <div class="rl-grid-cell rl-grid-head rl-total-cell">Total</div>
           ${products.map(p=>{
             const c=colorFor(p.id,ids);
-            return `<div class="rl-grid-cell rl-grid-head rl-header-product" title="${escapeAttr(p.name)}"><span class="rl-header-code"><span class="dot" style="background:${c}"></span>${shortNameFor(p)}</span></div>`;
+            return `<div class="rl-grid-cell rl-grid-head rl-header-product" title="${escapeAttr(p.name)}"><span class="rl-header-code"><span class="dot" style="background:${c}${bundleDotExtra(p.id)}"></span>${shortNameFor(p)}</span></div>`;
           }).join('')}
           ${rows}
         </div>
@@ -24856,7 +25031,7 @@ function buildLogTooltipHTML(date){
       : '';
     const displayName=p.name.length>24 ? p.name.slice(0,24)+'...' : p.name;
     return `<div class="log-tooltip-row${showHours?'':' no-hours'}"${zero}>
-      <span class="dot" style="background:${colorFor(p.id,ids)}"></span>
+      <span class="dot" style="background:${colorFor(p.id,ids)}${bundleDotExtra(p.id)}"></span>
       <span class="log-tooltip-name" title="${escapeAttr(p.name)}"><span class="log-tooltip-product-name">${displayName}</span>${saleLabel}</span>
       <span class="log-tooltip-val">${fmtMoney(dayNet)}</span>
       ${showHours?`<span class="log-tooltip-growth">${sign}${formatCurrencyText(Math.abs(displayMoneyValue(growth)).toFixed(2))}/hr</span>`:''}
@@ -25007,7 +25182,7 @@ function importHTML(){
           ${newProducts.map(g=>`
             <div class="first-import-product-row">
               <span class="first-import-product-name">${escapeAttr(g.title)}</span>
-              <span class="badge new">Will be added</span>
+              <label style="margin-left:12px;font-size:12.5px;display:inline-flex;gap:5px;align-items:center;"><input type="checkbox" data-resolve-bundle="${escapeAttr(g.title)}" ${resolutions[g.title]&&resolutions[g.title].isBundle?'checked':''}> Bundle</label><span class="badge new">Will be added</span>
             </div>
           `).join('')}
         </div>
@@ -25062,6 +25237,7 @@ function resolveCardHTML(g){
       <div class="opt">
         <input type="radio" name="res-${g.safeId}" id="res-${g.safeId}-new" ${chosen.action==='new'?'checked':''} data-resolve-action="new" data-resolve-title="${escapeAttr(g.title)}">
         <label for="res-${g.safeId}-new">It's a different, new product</label>
+        <label style="margin-left:14px;font-size:12.5px;display:inline-flex;gap:5px;align-items:center;"><input type="checkbox" data-resolve-bundle="${escapeAttr(g.title)}" ${chosen.isBundle?'checked':''}> It's a bundle</label>
       </div>
     </div>
   `;
@@ -25183,7 +25359,7 @@ async function handleCsvFiles(fileList){
     const groupedList=titleSet.map((title,i)=>{
       const safeId='g'+i;
       if(firstImport){
-        resolutions[title]={action:'new'};
+        resolutions[title]={action:'new',isBundle:/bundle/i.test(title)};
         return {title,mode:'new',safeId};
       }
 
@@ -25195,9 +25371,9 @@ async function handleCsvFiles(fileList){
 
       const suggestion=suggestClosestProduct(title,STATE.products);
       if(suggestion.product && suggestion.score>=0.3){
-        resolutions[title]={action:'merge',mergeTargetId:suggestion.product.id,rename:true};
+        resolutions[title]={action:'merge',mergeTargetId:suggestion.product.id,rename:true,isBundle:/bundle/i.test(title)};
       }else{
-        resolutions[title]={action:'new'};
+        resolutions[title]={action:'new',isBundle:/bundle/i.test(title)};
       }
       return {title,mode:'review',safeId,suggestion};
     });
@@ -25235,7 +25411,7 @@ function commitImport(){
       const p = { id: uid('p'), name: title, aliases:[title],
         shortName:generateUniqueShortName(title,STATE.products,null), releaseDate:null,
         hoursUntracked:0, hoursTracked:0, hoursMarketing:0, hoursSupport:0,
-        adsSpend:0, ratingsTotal:0, revenueSharePercent:100 };
+        adsSpend:0, ratingsTotal:0, revenueSharePercent:100, isBundle:!!r.isBundle, bundleHistory:[] };
       STATE.products.push(p);
       titleToProductId[title] = p.id;
     } else if(r.action==='merge'){
@@ -25349,7 +25525,7 @@ function commitImport(){
   });
 
   // CSV imports may extend the sales history backward. The required FX range is
-  // derived dynamically from STATE.revenue, so this immediately exposes any new
+  // derived dynamically from VREV(), so this immediately exposes any new
   // missing older payout dates while retaining all dates already cached.
   mergeDedicatedFxCacheIntoState(STATE);
   if(STATE.fxSync){
@@ -25461,7 +25637,15 @@ function productsHTML(){
       </p>
     </div>
 
-    ${products.length===0 ? `<div class="panel"><div class="empty">No products yet — import a CSV to get started.</div></div>` : `
+    <div class="panel">
+      <div class="panel-head"><h2>Add product or bundle</h2></div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <input type="text" id="newItemName" placeholder="Exact listing title (used to match CSV rows)" style="flex:1;min-width:220px;">
+        <select id="newItemType" style="width:auto;"><option value="product">Product</option><option value="bundle">Bundle</option></select>
+        <button class="btn" id="addNewItemBtn" type="button">Add</button>
+      </div>
+    </div>
+    ${products.length===0 ? `<div class="panel"><div class="empty">No products yet — import a CSV or add one above.</div></div>` : `
       <div class="edit-product-bulk-controls">
         <button class="btn secondary small" id="collapseAllEditProducts" type="button">Collapse all</button>
         <button class="btn secondary small" id="expandAllEditProducts" type="button">Expand all</button>
@@ -25485,7 +25669,7 @@ function productCard(p){
   return `
   <div class="panel product-card${collapsed?' edit-collapsed':''}" data-product-card="${p.id}">
     <div class="pc-head" data-edit-product-header="${p.id}">
-      <span class="name"><span class="dot" style="background:${currentColorFor(p)};margin-right:8px;"></span>${p.name}<span class="product-short-code">${shortNameFor(p)}</span></span>
+      <span class="name"><span class="dot" style="background:${currentColorFor(p)};margin-right:8px${bundleDotExtra(p)}"></span>${p.name}<span class="product-short-code">${shortNameFor(p)}</span></span>
       <div class="pc-head-actions">
         <button class="edit-product-toggle" type="button" data-edit-product-toggle="${p.id}" aria-expanded="${collapsed?'false':'true'}" title="${collapsed?'Expand':'Collapse'}">${collapsed?'▼':'▲'}</button>
         <button class="btn danger small" data-del-product="${p.id}">Delete</button>
@@ -25493,6 +25677,7 @@ function productCard(p){
     </div>
 
     <div id="edit-${p.id}" class="product-edit-body">
+      ${bundleSectionHTML(p)}
       <div class="product-edit-section">
         <div class="product-edit-section-title">Product identity</div>
         <div class="edit-grid">
@@ -26392,7 +26577,7 @@ function wireTabEvents(){
           const average=stats.count?stats.sum/stats.count:0;
           return `
             <div class="rst-product-row">
-              <span class="dot" style="background:${colorFor(stats.product.id,allProductIds)}"></span>
+              <span class="dot" style="background:${colorFor(stats.product.id,allProductIds)}${bundleDotExtra(stats.product.id)}"></span>
               <span class="rst-product-name">${shortNameFor(stats.product)}</span>
               <span class="rst-product-total">${fmtMoney(stats.sum)}</span>
               <span class="rst-product-average">${fmtMoney(average)} avg</span>
@@ -26559,6 +26744,7 @@ function wireTabEvents(){
         if(e.dataTransfer.files && e.dataTransfer.files.length) handleCsvFiles(e.dataTransfer.files);
       });
     }
+    wireBundleEditors();
     document.querySelectorAll('[data-resolve-action]').forEach(r=>{
       r.addEventListener('change', ()=>{
         const title = r.dataset.resolveTitle;
@@ -26736,8 +26922,10 @@ function wireTabEvents(){
             if(field==='shortName') p[field]=cleanShortName(value);
             else if(field==='fabListingId') p[field]=normalizeFabListingId(value);
             else if(field==='color' && (value===null || value==='')) delete p.color;
+            else if(field==='bundleIds'||field==='bundleFrom'||field==='bundleFromBeginning') return;
             else p[field]=value;
           });
+          applyBundleDraft(p,draft);
         }
 
         const count=PRODUCT_EDIT_DRAFTS.size;
@@ -26789,6 +26977,7 @@ function wireTabEvents(){
       });
     });
 
+    wireBundleEditors();
     updateFloatingProductSaveButton();
   }
 
