@@ -121,6 +121,23 @@
   input:checked + .slider{background:var(--gold-soft);border-color:#5c451f;}
   input:checked + .slider:before{transform:translateX(16px);background:var(--gold);}
 
+  .bundle-panel{display:flex;flex-direction:column;gap:14px;}
+  .bundle-switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);}
+  .bundle-switch-row .bsr-text{display:flex;flex-direction:column;gap:2px;}
+  .bundle-switch-row .bsr-title{font-size:13px;font-weight:700;color:var(--text);}
+  .bundle-switch-row .bsr-sub{font-size:11.5px;color:var(--muted);}
+  .bundle-chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .bundle-chip{position:relative;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);font:600 12.5px 'Inter',sans-serif;cursor:pointer;transition:.15s;}
+  .bundle-chip:hover{color:var(--text);border-color:#5c451f;}
+  .bundle-chip.active{background:var(--gold-soft);color:var(--gold);border-color:#5c451f;box-shadow:0 0 0 1px rgba(217,164,65,.25) inset;}
+  .bundle-chip .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .bundle-chip::after{content:attr(data-name);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(3px);background:#0b0e14;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:.12s;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4);}
+  .bundle-chip:hover::after{opacity:1;transform:translateX(-50%) translateY(0);}
+  .bundle-section-label{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .bundle-date-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .bundle-date-wrap input[type=date]{width:auto;}
+  .bundle-history{font-size:12px;color:var(--muted);line-height:1.5;}
+
   .kpi-strip{
     display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
     background:var(--border);border:1px solid var(--border);border-radius:12px;
@@ -654,7 +671,7 @@
   .products-floating-save{
     position:fixed;
     right:26px;
-    bottom:26px;
+    bottom:126px;
     z-index:180;
     display:none;
     align-items:center;
@@ -12427,21 +12444,33 @@ function bundleSectionHTML(p){
   const cur=productEditValue(p,'bundleIds',bundleComponentIdsAt(p,todayStr()));
   const begin=productEditValue(p,'bundleFromBeginning',hist.length===0);
   const from=productEditValue(p,'bundleFrom',todayStr());
+  const allIds=STATE.products.map(x=>x.id);
   const others=STATE.products.filter(x=>!x.isBundle&&x.id!==p.id);
-  const summary=hist.length?hist.slice().sort((a,b)=>(a.from||'').localeCompare(b.from||'')).map(e=>`${e.from?'from '+e.from:'from the beginning'}: ${e.ids.map(id=>escapeHtml((STATE.products.find(x=>x.id===id)||{}).name||'?')).join(', ')||'—'}`).join(' · '):'';
+  const summary=hist.length>1?hist.slice().sort((a,b)=>(a.from||'').localeCompare(b.from||'')).map(e=>`${e.from?'From '+e.from:'From the beginning'}: ${e.ids.map(id=>escapeHtml(shortNameFor(STATE.products.find(x=>x.id===id)||{name:'?'}))).join(', ')||'—'}`).join('<br>'):'';
   return `<div class="product-edit-section">
     <div class="product-edit-section-title">Bundle</div>
-    <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px;"><input type="checkbox" data-bundle-toggle="${p.id}" ${isB?'checked':''}> This listing is a bundle</label>
-    <div data-bundle-box="${p.id}" style="${isB?'':'display:none;'}">
-      <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px;">Products included (bundles cannot be nested):</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;">
-        ${others.map(o=>`<label style="display:flex;gap:6px;align-items:center;font-size:13px;"><input type="checkbox" data-bundle-comp="${p.id}" value="${o.id}" ${cur.includes(o.id)?'checked':''}> ${escapeHtml(o.name)}</label>`).join('')||'<span style="color:var(--muted);font-size:12.5px;">No non-bundle products yet.</span>'}
+    <div class="bundle-panel">
+      <div class="bundle-switch-row">
+        <div class="bsr-text"><span class="bsr-title">This listing is a bundle</span><span class="bsr-sub">A bundle contains other products and is sold as one listing.</span></div>
+        <label class="switch"><input type="checkbox" data-bundle-toggle="${p.id}" ${isB?'checked':''}><span class="slider"></span></label>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:13px;">
-        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" data-bundle-begin="${p.id}" ${begin?'checked':''}> Apply from the beginning of this bundle</label>
-        <label style="display:flex;gap:6px;align-items:center;">or apply to sales from <input type="date" data-bundle-from="${p.id}" value="${from}" ${begin?'disabled':''} style="width:auto;"></label>
+      <div data-bundle-box="${p.id}" class="bundle-panel" style="${isB?'':'display:none;'}">
+        <div>
+          <div class="bundle-section-label">Included products</div>
+          <div class="bundle-chip-grid">
+            ${others.map(o=>`<button type="button" class="bundle-chip${cur.includes(o.id)?' active':''}" data-bundle-chip="${p.id}" data-id="${o.id}" data-name="${escapeAttr(o.name)}"><span class="dot" style="background:${colorFor(o.id,allIds)}"></span>${escapeHtml(shortNameFor(o))}</button>`).join('')||'<span class="bundle-history">No non-bundle products yet.</span>'}
+          </div>
+        </div>
+        <div class="bundle-switch-row">
+          <div class="bsr-text"><span class="bsr-title">Apply from the beginning</span><span class="bsr-sub">Turn off to apply this selection only from a certain date on.</span></div>
+          <label class="switch"><input type="checkbox" data-bundle-begin="${p.id}" ${begin?'checked':''}><span class="slider"></span></label>
+        </div>
+        <div class="bundle-date-wrap" data-bundle-date-wrap="${p.id}" style="${begin?'display:none;':''}">
+          <span class="toggle-label">Applies to sales from</span>
+          <input type="date" data-bundle-from="${p.id}" value="${from}">
+        </div>
+        ${summary?`<div class="bundle-history"><strong>History</strong><br>${summary}</div>`:''}
       </div>
-      ${summary?`<div style="font-size:12px;color:var(--muted);margin-top:8px;">Current history — ${summary}</div>`:''}
     </div>
   </div>`;
 }
@@ -12453,14 +12482,14 @@ function wireBundleEditors(){
     updateFloatingProductSaveButton();
   }));
   const syncIds=pid=>{
-    setProductDraftField(pid,'bundleIds',[...document.querySelectorAll(`[data-bundle-comp="${pid}"]:checked`)].map(x=>x.value));
+    setProductDraftField(pid,'bundleIds',[...document.querySelectorAll(`[data-bundle-chip="${pid}"].active`)].map(x=>x.dataset.id));
     updateFloatingProductSaveButton();
   };
-  document.querySelectorAll('[data-bundle-comp]').forEach(cb=>cb.addEventListener('change',()=>syncIds(cb.dataset.bundleComp)));
+  document.querySelectorAll('[data-bundle-chip]').forEach(ch=>ch.addEventListener('click',()=>{ ch.classList.toggle('active'); syncIds(ch.dataset.bundleChip); }));
   document.querySelectorAll('[data-bundle-begin]').forEach(cb=>cb.addEventListener('change',()=>{
     const pid=cb.dataset.bundleBegin;
     setProductDraftField(pid,'bundleFromBeginning',cb.checked);
-    const d=document.querySelector(`[data-bundle-from="${pid}"]`); if(d) d.disabled=cb.checked;
+    const w=document.querySelector(`[data-bundle-date-wrap="${pid}"]`); if(w) w.style.display=cb.checked?'none':'';
     syncIds(pid);
   }));
   document.querySelectorAll('[data-bundle-from]').forEach(inp=>inp.addEventListener('change',()=>{
@@ -18564,7 +18593,7 @@ function saveShiftedSelection(entries,offset){
 function normalizeFabListingId(value){
   const raw=String(value||'').trim();
   if(!raw) return '';
-  const match=raw.match(/(?:fab\.com\/listings\/)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
+  const match=raw.match(/(?:fab\.com\/(?:listings|bundles)\/)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
   return match ? match[1].toLowerCase() : '';
 }
 
@@ -18604,7 +18633,7 @@ async function copyFabSupportRows(rows,button){
   const text=[
     `Please schedule the following ${heading}:`,
     ...eligible.map(row=>
-      `www.fab.com/listings/${row.id}, ${formatFabSupportDate(row.start)}, ${formatFabSupportDate(row.end)}, ${Number(row.discount)}`
+      `www.fab.com/${row.bundle?'bundles':'listings'}/${row.id}, ${formatFabSupportDate(row.start)}, ${formatFabSupportDate(row.end)}, ${Number(row.discount)}`
     )
   ].join('\n');
 
@@ -18939,6 +18968,7 @@ function openSalesGlobalEditor(productId,key){
       const discount=picker.getValue() ?? explicitOrDetectedDiscount({product:p,period});
       copyFabSupportRows([{
         id:productFabListingId(p),
+        bundle:!!p.isBundle,
         start:startInput.value||period.start,
         end:endInput.value||period.end,
         discount
@@ -25683,7 +25713,7 @@ function productCard(p){
         <div class="edit-grid">
           <div class="field"><label>Name</label><input type="text" data-field="name" data-pid="${p.id}" value="${escapeAttr(productEditValue(p,'name',p.name))}"></div>
           <div class="field"><label>Short name (1–5 characters)</label><input type="text" data-field="shortName" data-pid="${p.id}" value="${escapeAttr(productEditValue(p,'shortName',shortNameFor(p)))}" maxlength="5" minlength="1" pattern="[A-Za-z0-9]{1,5}" style="text-transform:uppercase;"></div>
-          <div class="field"><label>FAB product URL / ID</label><input type="text" data-field="fabListingId" data-pid="${p.id}" value="${escapeAttr(productEditValue(p,'fabListingId',p.fabListingId||''))}" placeholder="https://www.fab.com/listings/… or listing ID"></div>
+          <div class="field"><label>${p.isBundle?'FAB bundle URL / ID':'FAB product URL / ID'}</label><input type="text" data-field="fabListingId" data-pid="${p.id}" value="${escapeAttr(productEditValue(p,'fabListingId',p.fabListingId||''))}" placeholder="https://www.fab.com/listings/… or listing ID"></div>
           <div class="field"><label>Release date</label><input type="date" data-field="releaseDate" data-pid="${p.id}" value="${escapeAttr(productEditValue(p,'releaseDate',p.releaseDate||firstSaleDate(p.id)))}"></div>
           <div class="field">
             <label>Color</label>
