@@ -12426,7 +12426,7 @@ function bundleDotExtra(x){
   const p=typeof x==='object'?x:STATE.products.find(q=>q.id===x);
   if(!p||!p.isBundle) return '';
   const c=colorFor(p.id,STATE.products.map(q=>q.id));
-  return `;border-radius:2px;outline:1.5px solid ${c};outline-offset:2px`;
+  return `;background:transparent;border:2px solid ${c};border-radius:0;outline:none;box-sizing:border-box`;
 }
 function applyBundleDraft(p,d){
   if(!p.isBundle || !Array.isArray(d.bundleIds)) return;
@@ -18616,9 +18616,10 @@ function animateClipboardButton(button){
 }
 
 async function copyFabSupportRows(rows,button){
-  const eligible=rows.filter(row=>Number(row.discount)<=50);
-  if(!eligible.length){
-    showSalesTransientMessage('No selected products have a requested discount of 50% or less.');
+  const eligible=rows.slice();
+  const invalid=eligible.filter(row=>!(Number(row.discount)>=10 && Number(row.discount)<=50));
+  if(!eligible.length || invalid.length){
+    showSalesTransientMessage('Not copied: individual sales need a discount between 10% and 50% for every selected product or bundle. Please fix the discount first.');
     return;
   }
 
