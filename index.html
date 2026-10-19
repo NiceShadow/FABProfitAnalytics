@@ -138,6 +138,46 @@
   .bundle-date-wrap input[type=date]{width:auto;}
   .bundle-history{font-size:12px;color:var(--muted);line-height:1.5;}
 
+  #motivationInstantTooltip{z-index:2300 !important;}
+  .wh-backdrop{position:fixed;inset:0;z-index:2100;background:rgba(5,7,11,.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .wh-modal{width:min(1180px,100%);max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px 26px;box-shadow:0 24px 70px rgba(0,0,0,.55);}
+  .wh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;}
+  .wh-head h3{margin:0 0 4px;font-size:20px;color:var(--text);}
+  .wh-head p{margin:0;font-size:12.5px;color:var(--muted);}
+  .wh-close{background:none;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:10px;font-size:20px;cursor:pointer;}
+  .wh-close:hover{color:var(--text);border-color:#5c451f;}
+  .wh-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
+  .wh-stat{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;}
+  .wh-stat span{display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+  .wh-stat strong{display:block;font-size:19px;margin-top:4px;color:var(--text);}
+  .wh-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;}
+  .wh-range{padding:6px 14px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);font:600 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .wh-range.active{background:var(--gold-soft);color:var(--gold);border-color:#5c451f;}
+  .wh-spacer{flex:1;}
+  .wh-heat-scroll{overflow-x:auto;padding:4px 2px 10px;}
+  .wh-heat{display:inline-flex;gap:4px;align-items:flex-start;}
+  .wh-days-col{display:grid;grid-template-rows:repeat(7,16px);gap:4px;margin-top:20px;margin-right:4px;font-size:10px;color:var(--muted);}
+  .wh-week{display:grid;grid-template-rows:18px repeat(7,16px);gap:4px;}
+  .wh-month{font-size:10.5px;color:var(--muted);white-space:nowrap;height:16px;line-height:16px;}
+  .wh-cell{width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,.035);}
+  .wh-cell.empty{background:none;}
+  .wh-cell.untracked{background:rgba(255,255,255,.02);}
+  .wh-cell.missed{background:rgba(226,114,91,.22);}
+  .wh-cell.l1{background:rgba(217,164,65,.30);}
+  .wh-cell.l2{background:rgba(217,164,65,.52);}
+  .wh-cell.l3{background:rgba(217,164,65,.76);}
+  .wh-cell.l4{background:#FFD56B;}
+  .wh-cell.today{outline:1.5px solid #8ED9D3;outline-offset:1px;}
+  .wh-legend{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);margin:2px 0 18px;}
+  .wh-legend .wh-cell{width:12px;height:12px;}
+  .wh-months h4{margin:0 0 10px;font-size:13px;color:var(--text);}
+  .wh-month-row{display:grid;grid-template-columns:78px 1fr 150px;gap:12px;align-items:center;margin-bottom:6px;font-size:12px;color:var(--muted);}
+  .wh-month-bar{height:10px;border-radius:6px;background:rgba(255,255,255,.04);overflow:hidden;}
+  .wh-month-bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#D9A441,#FFD56B);}
+  .wh-month-row b{color:var(--text);font-weight:700;}
+  .wh-note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;}
+  @media(max-width:640px){.wh-modal{padding:16px;}.wh-month-row{grid-template-columns:62px 1fr;}.wh-month-row span:last-child{grid-column:1 / -1;}}
+
   .kpi-strip{
     display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
     background:var(--border);border:1px solid var(--border);border-radius:12px;
@@ -12520,6 +12560,112 @@ document.addEventListener('change',async e=>{
   }
 });
 
+
+/* ---------- Work history overlay ---------- */
+let WORK_HISTORY_RANGE='180';
+function workHistoryStoredDates(){
+  const set=new Set(Object.keys(motivationTogglState().dailyHours||{}));
+  motivationWorkLogEntries().forEach(x=>{ if(x&&x.date) set.add(x.date); });
+  return [...set].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+}
+function workHistoryMonday(dateStr){
+  const d=new Date(dateStr+'T12:00:00'); const off=(d.getDay()+6)%7;
+  return datePlusDays(dateStr,-off);
+}
+function workHistoryLevel(h){ return h<=0?0:(h<2?1:(h<4?2:(h<6?3:4))); }
+function openWorkHistoryOverlay(){
+  let ov=document.getElementById('workHistoryOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='workHistoryOverlay'; ov.className='wh-backdrop';
+    ov.addEventListener('mousedown',e=>{ if(e.target===ov) closeWorkHistoryOverlay(); });
+    document.body.appendChild(ov);
+    document.addEventListener('keydown',workHistoryKey);
+  }
+  renderWorkHistoryOverlay();
+}
+function workHistoryKey(e){ if(e.key==='Escape') closeWorkHistoryOverlay(); }
+function closeWorkHistoryOverlay(){
+  const ov=document.getElementById('workHistoryOverlay'); if(ov) ov.remove();
+  document.removeEventListener('keydown',workHistoryKey);
+  if(typeof hideMotivationTooltip==='function') hideMotivationTooltip();
+}
+function renderWorkHistoryOverlay(statusMsg){
+  const ov=document.getElementById('workHistoryOverlay'); if(!ov) return;
+  const today=todayStr();
+  const stored=workHistoryStoredDates();
+  const first=stored[0]||today;
+  const allDays=[]; for(let d=first;d<=today;d=datePlusDays(d,1)) allDays.push(d);
+  const trackingStart=motivationWorkTrackingStart()||first;
+  const hoursOf=d=>motivationWorkHours(d);
+  let total=0,active=0,best=0,run=0,bestEnd=null;
+  allDays.forEach(d=>{ const h=hoursOf(d); total+=h; if(h>0){active++;run++; if(run>best){best=run;bestEnd=d;}} else run=0; });
+  const avg=active?total/active:0;
+  const rangeDays=WORK_HISTORY_RANGE==='all'?allDays.length:Math.min(Number(WORK_HISTORY_RANGE),allDays.length);
+  const startDate=datePlusDays(today,-(Math.max(rangeDays,1)-1));
+  const gridStart=workHistoryMonday(startDate);
+  const weeks=[]; let prevMonth=-1;
+  for(let ws=gridStart;ws<=today;ws=datePlusDays(ws,7)){
+    const m=new Date(ws+'T12:00:00').getMonth();
+    let label=''; 
+    if(m!==prevMonth){ label=new Date(ws+'T12:00:00').toLocaleDateString(undefined,Object.assign({month:'short'},m===0?{year:'2-digit'}:{})); prevMonth=m; }
+    let cells='';
+    for(let i=0;i<7;i++){
+      const d=datePlusDays(ws,i);
+      if(d>today||d<startDate){ cells+='<span class="wh-cell empty"></span>'; continue; }
+      const h=hoursOf(d), isToday=d===today;
+      const tracked=d>=trackingStart;
+      const cls=h>0?`l${workHistoryLevel(h)}`:(isToday||!tracked?'untracked':'missed');
+      const full=new Date(d+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      const body=h>0?`${motivationFormatHours(h)} worked`:(isToday?'No work logged yet':(tracked?'0 h worked':'Not tracked'));
+      cells+=`<span class="wh-cell ${cls} ${isToday?'today':''}" data-motivation-tooltip-title="${escapeAttr(full)}" data-motivation-tooltip-body="${escapeAttr(body)}"></span>`;
+    }
+    weeks.push(`<div class="wh-week"><span class="wh-month">${escapeHtml(label)}</span>${cells}</div>`);
+  }
+  const byMonth=new Map();
+  allDays.forEach(d=>{ const k=d.slice(0,7); const o=byMonth.get(k)||{h:0,a:0,n:0}; const h=hoursOf(d); o.h+=h; if(h>0)o.a++; o.n++; byMonth.set(k,o); });
+  const months=[...byMonth.entries()].reverse();
+  const maxM=Math.max(1,...months.map(([,o])=>o.h));
+  const monthRows=months.map(([k,o])=>{
+    const lab=new Date(k+'-15T12:00:00').toLocaleDateString(undefined,{month:'short',year:'numeric'});
+    return `<div class="wh-month-row"><span>${escapeHtml(lab)}</span><div class="wh-month-bar"><i style="width:${(o.h/maxM*100).toFixed(1)}%"></i></div><span><b>${motivationFormatHours(o.h)}</b> · ${o.a}/${o.n} active days</span></div>`;
+  }).join('');
+  const rangeBtn=(v,t)=>`<button type="button" class="wh-range ${WORK_HISTORY_RANGE===v?'active':''}" data-wh-range="${v}">${t}</button>`;
+  ov.innerHTML=`<div class="wh-modal" role="dialog" aria-label="Work history">
+    <div class="wh-head"><div><h3>Work history</h3><p>Every day stored on this website, pulled from Toggl Track. Stored since ${escapeHtml(motivationShortDate(first,true))} · ${allDays.length} days.</p></div><button type="button" class="wh-close" id="whClose" aria-label="Close">×</button></div>
+    <div class="wh-stats">
+      <div class="wh-stat"><span>Total hours</span><strong>${motivationFormatHours(total)}</strong></div>
+      <div class="wh-stat"><span>Active days</span><strong>${active} / ${allDays.length}</strong></div>
+      <div class="wh-stat"><span>Avg per active day</span><strong>${motivationFormatHours(avg)}</strong></div>
+      <div class="wh-stat"><span>Best streak</span><strong>${best} day${best===1?'':'s'}</strong></div>
+      <div class="wh-stat"><span>Best streak ended</span><strong>${bestEnd?escapeHtml(motivationShortDate(bestEnd,true)):'—'}</strong></div>
+    </div>
+    <div class="wh-toolbar">
+      ${rangeBtn('90','90 days')}${rangeBtn('180','6 months')}${rangeBtn('365','1 year')}${rangeBtn('all','All stored')}
+      <span class="wh-spacer"></span>
+      ${motivationTogglConnected()?'<button type="button" class="btn secondary" id="whBackfill">Load older history from Toggl (12 months)</button>':''}
+    </div>
+    <div class="wh-heat-scroll" id="whScroll"><div class="wh-heat"><div class="wh-days-col"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span></span></div>${weeks.join('')}</div></div>
+    <div class="wh-legend">Less <span class="wh-cell missed"></span><span class="wh-cell l1"></span><span class="wh-cell l2"></span><span class="wh-cell l3"></span><span class="wh-cell l4"></span> More · red = tracked day with no work</div>
+    <div class="wh-months"><h4>Month by month</h4>${monthRows}</div>
+    <div class="wh-note">${statusMsg?escapeHtml(statusMsg):'Days are now kept permanently: each Toggl sync only refreshes the last 60 days and no longer deletes older ones. Days that were already dropped before this update can be restored with the button above.'}</div>
+  </div>`;
+  ov.querySelector('#whClose').addEventListener('click',closeWorkHistoryOverlay);
+  ov.querySelectorAll('[data-wh-range]').forEach(b=>b.addEventListener('click',()=>{ WORK_HISTORY_RANGE=b.dataset.whRange; renderWorkHistoryOverlay(); }));
+  const bf=ov.querySelector('#whBackfill');
+  if(bf) bf.addEventListener('click',async()=>{
+    bf.disabled=true; bf.textContent='Loading from Toggl…';
+    try{
+      await motivationSyncToggl60Days(null,null,365);
+      if(typeof refreshMotivationWorkTimeline==='function') refreshMotivationWorkTimeline();
+      renderWorkHistoryOverlay('Older history loaded and stored. It does not grant XP.');
+    }catch(err){
+      renderWorkHistoryOverlay('Could not load older history: '+(err&&err.message?err.message:err));
+    }
+  });
+  if(typeof wireMotivationTooltips==='function') wireMotivationTooltips(ov);
+  const sc=ov.querySelector('#whScroll'); if(sc) sc.scrollLeft=sc.scrollWidth;
+}
+
 function dashboardRevenueModeToggleHTML(){
   const isNet=DASHBOARD_REVENUE_MODE==='net';
   return `
@@ -13873,12 +14019,13 @@ async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeO
   return payload.entries;
 }
 
-async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null){
+async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null,days=60){
   const token=String(tokenOverride||getTogglApiToken()||'').trim();
   if(!token) throw new Error('Enter your Toggl Track API token first.');
 
   const rangeEnd=todayStr();
-  const rangeStart=datePlusDays(rangeEnd,-59);
+  const rangeStart=datePlusDays(rangeEnd,-(Math.max(60,days)-1));
+  const xpFloor=datePlusDays(rangeEnd,-59);
   const entries=await motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride);
   const dailyHours=motivationTogglAggregateEntries(entries,rangeStart,rangeEnd);
   const state=motivationTogglState();
@@ -13902,6 +14049,11 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
     Object.entries(dailyHours).forEach(([date,hours])=>{
       const current=Math.max(0,Number(hours)||0);
       const already=Math.max(0,Number(game.workXpAwardedHours[date])||0);
+      if(date<xpFloor){
+        // Older history is stored for the history view only and never grants XP.
+        game.workXpAwardedHours[date]=Math.max(already,current);
+        return;
+      }
       if(current>already){
         const delta=current-already;
         newWorkHours+=delta;
@@ -13923,7 +14075,8 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null)
     }
   }
 
-  state.dailyHours=dailyHours;
+  // Keep everything that was stored before; only the freshly synced days are overwritten.
+  state.dailyHours=Object.assign({},state.dailyHours||{},dailyHours);
   state.lastSyncAt=new Date().toISOString();
   state.lastError=null;
   state.entryCount=entries.length;
@@ -15994,6 +16147,7 @@ function motivationWorkTimelineHTML(){
           <p>Worked days rise above the line. Tracked days with no work logged dip below it. Work data comes directly from Toggl Track.</p>
         </div>
         <div class="motivation-work-actions">
+          <button type="button" class="btn secondary motivation-toggl-connect-btn" id="motivationWorkHistoryBtn">History</button>
           <button type="button" class="btn secondary motivation-toggl-connect-btn" id="motivationTogglConnectBtn">${motivationTogglConnected()?'Toggl settings':'Connect Toggl'}</button>
         </div>
       </div>
@@ -16139,6 +16293,8 @@ function wireMotivationWorkTimelineEvents(){
   const panel=document.getElementById('motivationWorkTimelinePanel');
   if(!panel) return;
 
+  const historyBtn=panel.querySelector('#motivationWorkHistoryBtn');
+  if(historyBtn) historyBtn.addEventListener('click',()=>openWorkHistoryOverlay());
   const connectBtn=panel.querySelector('#motivationTogglConnectBtn');
   if(connectBtn) connectBtn.addEventListener('click',openMotivationTogglConnection);
 
