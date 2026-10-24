@@ -12591,7 +12591,7 @@ function closeWorkHistoryOverlay(){
 }
 function renderWorkHistoryOverlay(statusMsg){
   const ov=document.getElementById('workHistoryOverlay'); if(!ov) return;
-  const today=todayStr();
+  const today=motivationToday();
   const stored=workHistoryStoredDates();
   const first=stored[0]||today;
   const allDays=[]; for(let d=first;d<=today;d=datePlusDays(d,1)) allDays.push(d);
@@ -13946,10 +13946,11 @@ function motivationTogglSplitEntryByLocalDay(entry,rangeStart,rangeEnd,totals){
   let cursorMs=startMs;
   let guard=0;
   while(cursorMs<endMs && guard<100){
-    const cursor=new Date(cursorMs);
-    const date=localDateString(cursor);
-    const nextMidnight=new Date(cursor.getFullYear(),cursor.getMonth(),cursor.getDate()+1,0,0,0,0).getTime();
-    const chunkEnd=Math.min(endMs,nextMidnight);
+    // Shift by the day-start hour so work between 00:00 and 04:59 counts for the previous day.
+    const shifted=new Date(cursorMs-MOTIVATION_DAY_START_HOUR*3600000);
+    const date=localDateString(shifted);
+    const nextBoundary=new Date(shifted.getFullYear(),shifted.getMonth(),shifted.getDate()+1,MOTIVATION_DAY_START_HOUR,0,0,0).getTime();
+    const chunkEnd=Math.min(endMs,Math.max(nextBoundary,cursorMs+1));
     if(date>=rangeStart && date<=rangeEnd){
       totals[date]=(Number(totals[date])||0)+(chunkEnd-cursorMs)/3600000;
     }
@@ -13992,7 +13993,7 @@ async function motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeO
         // inclusive/exclusive safety boundary so all of today's completed
         // entries are returned even if the upstream API treats end_date as
         // the start of that calendar day.
-        end_date:datePlusDays(rangeEnd,1)
+        end_date:datePlusDays(rangeEnd,2)
       })
     });
   }catch(error){
@@ -14023,7 +14024,7 @@ async function motivationSyncToggl60Days(tokenOverride=null,bridgeOverride=null,
   const token=String(tokenOverride||getTogglApiToken()||'').trim();
   if(!token) throw new Error('Enter your Toggl Track API token first.');
 
-  const rangeEnd=todayStr();
+  const rangeEnd=motivationToday();
   const rangeStart=datePlusDays(rangeEnd,-(Math.max(60,days)-1));
   const xpFloor=datePlusDays(rangeEnd,-59);
   const entries=await motivationFetchTogglTimeEntries(token,rangeStart,rangeEnd,bridgeOverride);
@@ -14588,7 +14589,7 @@ function showMotivationRewardBurst(event){
 function motivationWorkDates(days=60){
   const count=Math.max(1,Math.round(Number(days)||60));
   const out=[];
-  for(let i=count-1;i>=0;i--) out.push(datePlusDays(todayStr(),-i));
+  for(let i=count-1;i>=0;i--) out.push(datePlusDays(motivationToday(),-i));
   return out;
 }
 
@@ -14629,8 +14630,12 @@ function motivationWorkWindowStats(start,end){
   };
 }
 
+const MOTIVATION_DAY_START_HOUR=5; // a motivation "day" runs from 05:00 to 04:59 the next morning
+function motivationToday(){
+  return localDateString(new Date(Date.now()-MOTIVATION_DAY_START_HOUR*3600000));
+}
 function motivationLocalTodayStr(){
-  return localDateString(new Date());
+  return motivationToday();
 }
 
 function motivationWeekStart(date=motivationLocalTodayStr()){
@@ -14659,7 +14664,7 @@ function motivationWeekStats(offset=0){
 }
 
 function motivationWorkCurrentStreak(){
-  const today=todayStr();
+  const today=motivationToday();
   let cursor=motivationWorkHours(today)>0 ? today : datePlusDays(today,-1);
   let count=0;
   while(motivationWorkHours(cursor)>0){
@@ -14707,7 +14712,7 @@ function motivationRandomInt(min,max){
 }
 
 function motivationChallengeTemplates(){
-  const today=todayStr();
+  const today=motivationToday();
   return [
     ()=>{
       const hours=motivationRandomInt(3,6);
@@ -14788,7 +14793,7 @@ function motivationChallengeTemplates(){
 
 function motivationTaskChallengeCandidates(){
   const game=motivationGameState();
-  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : todayStr();
+  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : motivationToday();
   const recentTaskIds=game.challengeHistory
     .slice(-3)
     .map(ch=>ch&&ch.taskId)
@@ -14918,7 +14923,7 @@ function motivationCreateChallenge(){
 function motivationEnsureActiveChallenge(){
   const game=motivationGameState();
   let changed=false;
-  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : todayStr();
+  const today=motivationLocalTodayStr ? motivationLocalTodayStr() : motivationToday();
 
   if(game.activeChallenge && game.activeChallenge.taskId){
     const linkedTask=motivationChallengeTask(game.activeChallenge);
@@ -15065,7 +15070,8 @@ function motivationChallengeProgress(challenge){
 
 function motivationChallengeDeadlineText(challenge){
   const deadline=String(challenge?.deadline||'');
-  const deadlineEnd=new Date(`${deadline}T23:59:59.999`);
+  const deadlineBase=new Date(`${deadline}T00:00:00`);
+  const deadlineEnd=new Date(deadlineBase.getFullYear(),deadlineBase.getMonth(),deadlineBase.getDate()+1,MOTIVATION_DAY_START_HOUR,0,0,-1);
   const now=new Date();
 
   if(!deadline || !Number.isFinite(deadlineEnd.getTime())){
@@ -15384,7 +15390,7 @@ function motivationGemChallengeTask(challenge){
 }
 function motivationCreateGemChallenge(){
   const game=motivationGameState();
-  const today=todayStr();
+  const today=motivationToday();
   const openTasks=motivationOpenTasks().filter(t=>motivationTaskRemainingHours(t)>=.75);
   const useTask=openTasks.length>0 && Math.random()<.24;
 
@@ -15435,7 +15441,7 @@ function motivationCreateGemChallenge(){
 }
 function motivationEnsureGemChallenge(){
   const game=motivationGameState();
-  const today=todayStr();
+  const today=motivationToday();
   let changed=false;
 
   if(game.gemChallenge && game.gemChallenge.taskId){
@@ -15642,8 +15648,8 @@ function motivationOpenTasks(){
 function motivationTaskPromptDue(){
   const game=motivationGameState();
   if(!game.lastTaskPromptAt) return true;
-  if(game.lastTaskPromptAt===todayStr()) return false;
-  return dayDiff(game.lastTaskPromptAt,todayStr())>=4;
+  if(game.lastTaskPromptAt===motivationToday()) return false;
+  return dayDiff(game.lastTaskPromptAt,motivationToday())>=4;
 }
 
 function motivationImpactTaskHTML(task){
@@ -15678,7 +15684,7 @@ function motivationImpactTaskHTML(task){
 
 function openMotivationTaskEditor(){
   const game=motivationGameState();
-  game.lastTaskPromptAt=todayStr();
+  game.lastTaskPromptAt=motivationToday();
   persist();
 
   const modal=showSalesGlobalModal(`
@@ -15876,7 +15882,7 @@ function motivationGamePanelHTML(){
   const promptDue=motivationTaskPromptDue();
 
   if(promptDue){
-    game.lastTaskPromptAt=todayStr();
+    game.lastTaskPromptAt=motivationToday();
     persist();
   }
 
@@ -16082,7 +16088,7 @@ function motivationWorkTimelineHTML(){
   if(!motivationModeEnabled() || ACTIVE_TAB!=='dashboard') return '';
 
   const dates=motivationWorkDates(60);
-  const today=todayStr();
+  const today=motivationToday();
   const trackingStart=motivationWorkTrackingStart();
   const current30=motivationWorkWindowStats(datePlusDays(today,-29),today);
   const previous30=motivationWorkWindowStats(datePlusDays(today,-59),datePlusDays(today,-30));
